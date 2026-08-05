@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>飞虹智忆 — 古桥 Agent 记忆</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;500;600;700&family=Ma+Shan+Zheng&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/assets/style.css">
+</head>
+<body>
+  <div class="app">
+    <header class="top-bar">
+      <nav class="site-nav">
+        <a href="../bridge/index.html" title="返回千古飞虹静态博物馆">← 千古飞虹</a>
+        <span class="nav-sep">·</span>
+        <a href="../bridge/knowledge.html">智能驿站 v1</a>
+      </nav>
+      <span class="status-pill" id="statusPill">连接中…</span>
+    </header>
+
+    <section class="hero">
+      <h1>飞虹智忆</h1>
+      <p>基于 CockroachDB Agent 记忆层的古桥文化助手 · 延续「千古飞虹」图鉴</p>
+    </section>
+
+    <div class="layout">
+      <aside class="card sidebar">
+        <div class="card-head">
+          <h2>桥梁索引</h2>
+          <p>点击设为当前讲解焦点</p>
+        </div>
+        <input type="search" class="bridge-search" id="bridgeSearch" placeholder="搜索桥名、朝代…" autocomplete="off">
+        <ul class="bridge-list" id="bridgeList"></ul>
+        <div class="memory-box" id="memoryBox">
+          <strong>古桥档案</strong><br>
+          <span id="dossierProgress">已了解 0 / 34 座</span>
+          <div id="dossierLearned" class="dossier-tags"></div>
+          <hr style="border:none;border-top:1px dashed rgba(160,130,85,0.25);margin:8px 0">
+          <strong>研学路线</strong><br>
+          <span id="studyPathBox">暂无进行中的路线</span>
+        </div>
+      </aside>
+
+      <main class="card chat-panel">
+        <div class="card-head">
+          <h2>古桥 AI 对话</h2>
+          <p>支持桥史、结构、诗词文化、朝代列表与名桥对比</p>
+        </div>
+        <div class="context-bar">
+          <span>当前焦点：<strong id="focusLabel">未选择</strong></span>
+          <button type="button" class="clear-btn" id="clearFocus">清除焦点</button>
+        </div>
+        <div class="chat-messages" id="messages" aria-live="polite"></div>
+        <div class="chips" id="chips"></div>
+        <div class="chat-input-row">
+          <textarea id="chatInput" rows="2" placeholder="例如：介绍赵州桥 / 宋代有哪些拱桥 / 对比赵州桥和卢沟桥" aria-label="向 Agent 提问"></textarea>
+          <button type="button" class="ai-send" id="sendBtn">发送</button>
+        </div>
+      </main>
+    </div>
+  </div>
+  <script src="/assets/app.js"></script>
+</body>
+</html>

@@ -1,0 +1,94 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: >
+  飞虹智忆 qianhong-agent — CockroachDB × AWS Hackathon
+  FastAPI on Lambda + API Gateway + Bedrock + CRDB
+
+Globals:
+  Function:
+    Timeout: 30
+    MemorySize: 512
+    Runtime: python3.12
+    Architectures:
+      - x86_64
+
+Parameters:
+  DatabaseUrl:
+    Type: String
+    Description: CockroachDB connection string (CRDB Cloud)
+  LlmMode:
+    Type: String
+    Default: bedrock
+    AllowedValues:
+      - bedrock
+      - retrieval
+      - openai
+  BedrockModelId:
+    Type: String
+    Default: anthropic.claude-3-5-sonnet-20240620-v1:0
+
+Resources:
+  AgentApi:
+    Type: AWS::Serverless::HttpApi
+    Properties:
+      CorsConfiguration:
+        AllowOrigins:
+          - '*'
+        AllowMethods:
+          - GET
+          - POST
+          - OPTIONS
+        AllowHeaders:
+          - '*'
+
+  AgentFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: ..
+      Handler: api.handler.handler
+      Description: Feihong Agent API with CockroachDB memory
+      Environment:
+        Variables:
+          STORAGE_MODE: cockroach
+          DATABASE_URL: !Ref DatabaseUrl
+          LLM_MODE: !Ref LlmMode
+          AWS_REGION: !Ref AWS::Region
+          BEDROCK_MODEL_ID: !Ref BedrockModelId
+          BRIDGE_DATA_DIR: /var/task/bridge/data
+      Policies:
+        - AWSLambdaBasicExecutionRole
+        - Statement:
+            - Effect: Allow
+              Action:
+                - bedrock:InvokeModel
+                - bedrock:InvokeModelWithResponseStream
+              Resource: '*'
+      Events:
+        ApiProxy:
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref AgentApi
+            Path: /{proxy+}
+            Method: ANY
+        ApiRoot:
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref AgentApi
+            Path: /
+            Method: ANY
+
+  AgentReportsBucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketEncryption:
+        ServerSideEncryptionConfiguration:
+          - ServerSideEncryptionByDefault:
+              SSEAlgorithm: AES256
+
+Outputs:
+  ApiUrl:
+    Description: Agent API and Chat UI base URL
+    Value: !Sub 'https://${AgentApi}.execute-api.${AWS::Region}.amazonaws.com'
+  ReportsBucket:
+    Description: S3 bucket for exported study reports
+    Value: !Ref AgentReportsBucket

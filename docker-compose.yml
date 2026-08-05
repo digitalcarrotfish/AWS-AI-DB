@@ -1,0 +1,15 @@
+# 本地 CockroachDB（STORAGE_MODE=cockroach 时使用）
+# 启动：docker compose up -d
+# 连接串：postgresql://root@localhost:26257/defaultdb?sslmode=disable
+services:
+  cockroach:
+    image: cockroachdb/cockroach:v24.2.4
+    command: start-single-node --insecure
+    ports:
+      - "26257:26257"
+      - "8080:8080"
+    volumes:
+      - crdb_data:/cockroach/cockroach-data
+
+volumes:
+  crdb_data:
