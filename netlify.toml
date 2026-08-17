@@ -1,0 +1,4 @@
+# 静态 HTML：构建时从环境变量生成 config.js（密钥勿进 Git）
+[build]
+  command = "node scripts/generate-config.js"
+  publish = "."

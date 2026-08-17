@@ -46,6 +46,54 @@ def plan_study_path(store: Any, query: str) -> dict[str, Any] | None:
     }
 
 
+def plan_study_path_from_exploration(
+    store: Any,
+    events: list[dict[str, Any]],
+    messages: list[dict[str, Any]] | None = None,
+    memory: dict[str, Any] | None = None,
+) -> dict[str, Any] | None:
+    """用浏览足迹生成研学路线：已看过的作序章，再接推荐未看桥梁。"""
+    from agent.memory_actions import learned_bridge_names, recommend_bridges
+
+    learned = learned_bridge_names(events, None)  # 只计浏览，不计对话引用
+    picks = recommend_bridges(store, events, messages, memory, limit=5)
+    stops: list[str] = []
+    # 最近浏览的 2 座作回顾站（倒序时间 → 正序路线）
+    recent = []
+    for ev in reversed(events or []):
+        name = ev.get("bridge")
+        if name and name not in recent:
+            recent.append(name)
+        if len(recent) >= 2:
+            break
+    recent.reverse()
+    for name in recent:
+        if name not in stops:
+            stops.append(name)
+    for b in picks:
+        name = b.get("name")
+        if name and name not in stops:
+            stops.append(name)
+        if len(stops) >= 6:
+            break
+    if len(stops) < 2:
+        # 无浏览时退回跨度名桥
+        top = sorted(store.list_bridges(), key=lambda x: x.get("span") or 0, reverse=True)
+        stops = [b["name"] for b in top[:5] if b.get("name")]
+    if len(stops) < 2:
+        return None
+    title = "入门研学路线"
+    if learned:
+        title = f"足迹研学（已探 {len(learned)} 座）"
+    return {
+        "title": title,
+        "stops": stops,
+        "current_step": 0,
+        "status": "in_progress",
+        "from_exploration": True,
+    }
+
+
 def _path_title(dynasty: str | None, btype: str | None, region: str | None) -> str:
     parts = []
     if dynasty:

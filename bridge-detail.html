@@ -1,0 +1,1350 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title data-i18n="detail.title">桥梁档案 - 千古飞虹</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,500&family=Noto+Serif+SC:wght@400;500;600;700&family=Ma+Shan+Zheng&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="assets/bg-music.css">
+  <link rel="stylesheet" href="assets/bridge-agent.css">
+  <link rel="stylesheet" href="assets/bridge-assistant.css">
+  <script src="assets/i18n.js"></script>
+  <script src="config.js"></script>
+  <script src="assets/bridge-agent.js"></script>
+  <script src="assets/bridge-assistant.js"></script>
+  <script src="data/bridges-data.js?v=3"></script>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    html { scroll-behavior: smooth; -webkit-font-smoothing: antialiased; }
+    body {
+      font-family: "Noto Serif SC", "Source Han Serif CN", "SimSun", serif;
+      min-height: 100vh;
+      padding: 0;
+      line-height: 1.5;
+      color: #e8e4dc;
+      background: #060a0f;
+    }
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      z-index: 0;
+      pointer-events: none;
+      background:
+        linear-gradient(90deg, rgba(255,255,255,0.011) 1px, transparent 1px) 0 0 / 28px 28px,
+        linear-gradient(0deg, rgba(255,255,255,0.009) 1px, transparent 1px) 0 0 / 28px 28px,
+        repeating-linear-gradient(118deg, rgba(255,255,255,0.012) 0 0.5px, transparent 0.5px 11px),
+        radial-gradient(ellipse 85% 58% at 50% 42%, rgba(38, 40, 42, 0.4) 0%, transparent 68%),
+        radial-gradient(ellipse 100% 70% at 50% -15%, rgba(115, 78, 42, 0.19) 0%, transparent 52%),
+        radial-gradient(ellipse 55% 45% at 100% 38%, rgba(44, 42, 40, 0.32) 0%, transparent 52%),
+        radial-gradient(ellipse 52% 42% at 0% 78%, rgba(52, 44, 36, 0.24) 0%, transparent 48%),
+        linear-gradient(172deg, rgba(11, 13, 14, 0.88) 0%, rgba(19, 24, 28, 0.86) 36%, rgba(13, 16, 20, 0.88) 70%, rgba(6, 7, 8, 0.9) 100%),
+        url("assets/ink-bridge-bg.png") center center / cover no-repeat fixed;
+    }
+    body::after {
+      content: '';
+      position: fixed;
+      inset: 0;
+      z-index: 0;
+      pointer-events: none;
+      opacity: 0.052;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+    }
+    .page {
+      position: relative;
+      z-index: 1;
+      max-width: 960px;
+      margin: 0 auto;
+      padding: 28px 24px 48px;
+    }
+    .back-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-bottom: 28px;
+      padding-bottom: 18px;
+      border-bottom: 1px solid transparent;
+      border-image: linear-gradient(90deg, transparent, rgba(180, 150, 100, 0.38) 18%, rgba(180, 150, 100, 0.38) 82%, transparent) 1;
+    }
+    .back-bar a {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      color: #8a7d72;
+      text-decoration: none;
+      font-size: 0.88rem;
+      letter-spacing: 0.08em;
+      transition: color 0.2s;
+    }
+    .back-bar a:hover { color: #d4b896; }
+    .hero {
+      margin-bottom: 28px;
+      padding: 36px 32px 32px;
+      position: relative;
+      overflow: visible;
+      border-radius: 2px;
+      border: 1px solid rgba(160, 130, 85, 0.35);
+      background-color: transparent;
+      background-image:
+        radial-gradient(ellipse 75% 55% at 50% 0%, rgba(255,255,255,0.045) 0%, transparent 55%),
+        repeating-linear-gradient(122deg, rgba(255,255,255,0.016) 0 0.5px, transparent 0.5px 12px),
+        linear-gradient(165deg, rgba(22, 28, 36, 0.96) 0%, rgba(14, 17, 22, 0.99) 100%);
+      box-shadow:
+        0 24px 56px rgba(0,0,0,0.45),
+        inset 0 1px 0 rgba(255,255,255,0.04);
+    }
+    .hero::before,
+    .hero::after {
+      content: '';
+      position: absolute;
+      width: 18px;
+      height: 18px;
+      border-color: rgba(180, 150, 100, 0.5);
+      border-style: solid;
+      pointer-events: none;
+    }
+    .hero::before { top: 14px; left: 14px; border-width: 2px 0 0 2px; }
+    .hero::after { bottom: 14px; right: 14px; border-width: 0 2px 2px 0; }
+    .hero-corner-tl { position: absolute; top: 14px; right: 14px; width: 18px; height: 18px; border-top: 2px solid rgba(180, 150, 100, 0.38); border-right: 2px solid rgba(180, 150, 100, 0.38); pointer-events: none; }
+    .hero-corner-br { position: absolute; bottom: 14px; left: 14px; width: 18px; height: 18px; border-bottom: 2px solid rgba(180, 150, 100, 0.38); border-left: 2px solid rgba(180, 150, 100, 0.38); pointer-events: none; }
+    .hero h1 {
+      font-family: "Ma Shan Zheng", "Noto Serif SC", serif;
+      position: relative;
+      display: inline-block;
+      font-size: clamp(2.15rem, 5.5vw, 3.05rem);
+      font-weight: 400;
+      color: #f4ebd4;
+      letter-spacing: 0.14em;
+      text-indent: 0.14em;
+      margin-bottom: 14px;
+      line-height: 1.28;
+      text-shadow:
+        0 1px 0 rgba(255,255,255,0.12),
+        0 3px 16px rgba(0,0,0,0.65),
+        0 0 56px rgba(230, 190, 120, 0.32),
+        0 0 90px rgba(160, 120, 65, 0.18);
+      filter: drop-shadow(0 4px 12px rgba(0,0,0,0.5));
+    }
+    .hero h1::before {
+      content: '';
+      position: absolute;
+      z-index: -1;
+      left: 50%;
+      transform: translateX(-50%);
+      top: -0.35em;
+      bottom: -0.18em;
+      width: min(112%, 26em);
+      background: radial-gradient(ellipse 70% 100% at 50% 40%, rgba(55, 46, 28, 0.65) 0%, rgba(26, 22, 16, 0.38) 50%, transparent 76%);
+      border-radius: 8px;
+      pointer-events: none;
+    }
+    .hero h1::after {
+      content: '';
+      position: absolute;
+      left: 50%;
+      transform: translateX(-50%);
+      bottom: -0.1em;
+      width: min(58%, 15em);
+      height: 2px;
+      background: linear-gradient(90deg, transparent, rgba(220, 188, 130, 0.48), rgba(255, 235, 190, 0.5), rgba(220, 188, 130, 0.48), transparent);
+      border-radius: 2px;
+      box-shadow: 0 0 10px rgba(212, 180, 110, 0.3);
+    }
+    .hero .subtitle {
+      font-size: 0.95rem;
+      color: #a0988c;
+      letter-spacing: 0.05em;
+      font-weight: 400;
+      line-height: 1.65;
+    }
+    .entry3d-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      margin-top: 26px;
+      padding: 14px 32px;
+      border-radius: 2px;
+      border: 1px solid rgba(160, 130, 85, 0.45);
+      color: #1a1510;
+      text-decoration: none;
+      font-size: 0.95rem;
+      font-weight: 600;
+      letter-spacing: 0.14em;
+      text-indent: 0.14em;
+      background: linear-gradient(180deg, #e8d5bc 0%, #c9a87a 45%, #a08055 100%);
+      box-shadow:
+        0 4px 20px rgba(0,0,0,0.35),
+        inset 0 1px 0 rgba(255,255,255,0.22);
+      transition: filter 0.15s ease, box-shadow 0.2s ease, transform 0.15s ease;
+    }
+    .entry3d-link:hover {
+      filter: brightness(1.06);
+      box-shadow: 0 6px 28px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.28);
+    }
+    .entry3d-link:active { transform: scale(0.99); }
+    .card {
+      position: relative;
+      background-color: transparent;
+      background-image:
+        radial-gradient(ellipse 88% 60% at 50% 0%, rgba(255,255,255,0.035) 0%, transparent 58%),
+        radial-gradient(ellipse 100% 80% at 50% 100%, rgba(0,0,0,0.18) 0%, transparent 52%),
+        repeating-linear-gradient(125deg, rgba(255,255,255,0.016) 0 0.5px, transparent 0.5px 13px),
+        linear-gradient(165deg, rgba(22, 28, 36, 0.93) 0%, rgba(14, 17, 22, 0.97) 100%);
+      border: 18px solid transparent;
+      border-image-source: url("assets/huiwen-frame.jpg");
+      border-image-slice: 160;
+      border-image-width: 18px;
+      border-image-outset: 0;
+      border-image-repeat: stretch;
+      border-radius: 0;
+      padding: 22px 22px 20px;
+      margin-bottom: 22px;
+      box-shadow:
+        0 16px 40px rgba(0,0,0,0.35),
+        inset 0 1px 0 rgba(255,255,255,0.03);
+      transition: box-shadow 0.2s;
+    }
+    .card:hover {
+      box-shadow: 0 20px 48px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.04);
+    }
+    .card h2 {
+      font-size: 0.92rem;
+      font-weight: 600;
+      color: #c9a87a;
+      margin-bottom: 16px;
+      letter-spacing: 0.14em;
+      padding-bottom: 12px;
+      border-bottom: 1px solid transparent;
+      border-image: linear-gradient(90deg, rgba(180,150,100,0.45), transparent 70%) 1;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .card h2::before {
+      content: '';
+      width: 4px;
+      height: 15px;
+      background: linear-gradient(180deg, #c9a87a, #8b7355);
+      border-radius: 1px;
+    }
+    .info-wrap { overflow-x: auto; border-radius: 6px; background: rgba(10, 14, 22, 0.55); border: 1px solid rgba(120, 100, 75, 0.2); }
+    .info-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.88rem;
+    }
+    .info-table th, .info-table td {
+      padding: 12px 16px;
+      text-align: left;
+      border-bottom: 1px solid rgba(100, 90, 75, 0.2);
+    }
+    .info-table tr:last-child th, .info-table tr:last-child td { border-bottom: none; }
+    .info-table th {
+      color: #8a7d72;
+      font-weight: 500;
+      width: 130px;
+      letter-spacing: 0.04em;
+    }
+    .info-table td { color: #e8e4dc; }
+    .info-table tr:hover td { background: rgba(90, 70, 45, 0.12); }
+    .grid-2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 24px;
+    }
+    @media (max-width: 720px) { .grid-2 { grid-template-columns: 1fr; } }
+    .diagram-box {
+      min-width: 0;
+      background: rgba(10, 14, 22, 0.55);
+      border: 1px solid rgba(160, 130, 85, 0.22);
+      border-radius: 2px;
+      padding: 18px;
+      text-align: center;
+    }
+    .diagram-box h3 {
+      font-size: 0.82rem;
+      color: #c9a87a;
+      margin-bottom: 14px;
+      letter-spacing: 0.1em;
+      font-weight: 600;
+    }
+    .diagram-box .svg-wrap {
+      width: 100%;
+      min-height: 180px;
+      height: auto;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    #appearanceBox.svg-wrap { min-height: 220px; }
+    .diagram-box .svg-wrap svg { max-width: 100%; max-height: 100%; }
+    .diagram-box .appearance-img,
+    .diagram-box .structure-img {
+      width: 100%;
+      max-height: 280px;
+      object-fit: contain;
+      border-radius: 4px;
+      border: 1px solid rgba(140, 115, 80, 0.35);
+    }
+    .diagram-box .appearance-img { max-height: 280px; object-fit: cover; }
+    .diagram-box .structure-img { max-height: 220px; }
+    .card-images .images-desc {
+      font-size: 0.85rem;
+      color: #8a7d72;
+      margin: -4px 0 16px 0;
+      line-height: 1.6;
+    }
+    .card-images .images-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+      align-items: start;
+    }
+    @media (max-width: 720px) { .card-images .images-grid { grid-template-columns: 1fr; } }
+    .card-images .image-panel {
+      background: rgba(10, 14, 22, 0.5);
+      border-radius: 2px;
+      padding: 14px;
+      border: 1px solid rgba(160, 130, 85, 0.22);
+    }
+    .card-images .image-panel h3 {
+      font-size: 0.88rem;
+      color: #c9a87a;
+      margin-bottom: 10px;
+      text-align: center;
+      letter-spacing: 0.08em;
+    }
+    .card-images .img-wrap {
+      min-height: 220px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .card-images .img-wrap .appearance-img,
+    .card-images .img-wrap .structure-img {
+      max-height: 320px;
+    }
+    .card-images .line-art-actions { margin-top: 8px; }
+    .card-images .line-art-actions a {
+      color: #d4b896;
+      text-decoration: none;
+      font-size: 0.85rem;
+    }
+    .card-images .line-art-actions a:hover { text-decoration: underline; color: #e8d5b7; }
+    .compare-slider-wrap {
+      margin-top: 24px;
+      padding-top: 20px;
+      border-top: 1px solid rgba(120, 100, 75, 0.25);
+    }
+    .compare-slider-wrap h3 { font-size: 0.95rem; color: #c9a87a; margin-bottom: 4px; letter-spacing: 0.06em; }
+    .compare-hint { font-size: 0.8rem; color: #8a7d72; margin-bottom: 12px; }
+    .compare-slider {
+      position: relative;
+      height: 280px;
+      max-width: 100%;
+      background: rgba(8, 12, 18, 0.65);
+      border-radius: 2px;
+      overflow: hidden;
+      border: 1px solid rgba(160, 130, 85, 0.28);
+    }
+    .compare-slider .compare-left {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 0;
+    }
+    .compare-slider .compare-right {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 1;
+      clip-path: inset(0 0 0 50%);
+    }
+    .compare-slider .compare-left img,
+    .compare-slider .compare-right img {
+      max-width: 100%;
+      max-height: 100%;
+      object-fit: contain;
+    }
+    .compare-slider .compare-divider {
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      left: 50%;
+      width: 6px;
+      margin-left: -3px;
+      background: linear-gradient(180deg, rgba(200,170,130,0.95), rgba(160,120,85,0.9));
+      cursor: ew-resize;
+      z-index: 2;
+      border-radius: 1px;
+      box-shadow: 0 0 12px rgba(0,0,0,0.35);
+    }
+    .compare-slider .compare-divider::before {
+      content: '⋮';
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      transform: translate(-50%, -50%);
+      color: rgba(20, 18, 14, 0.9);
+      font-size: 14px;
+      pointer-events: none;
+    }
+    .diagram-box .img-caption { font-size: 0.7rem; color: #6d655c; margin-top: 8px; }
+    .card.poetry-card { margin-bottom: 0; }
+    .poetry-rich { font-size: 0.92rem; line-height: 1.85; color: #e8e4dc; }
+    .poetry-block {
+      font-size: 1.02rem;
+      line-height: 2;
+      color: #d4b896;
+      font-style: italic;
+      letter-spacing: 0.04em;
+      padding: 4px 0;
+    }
+    .poetry-epigraph { margin-bottom: 16px; }
+    .poetry-section { margin-top: 18px; }
+    .poetry-section:first-of-type { margin-top: 0; }
+    .poetry-section h3 {
+      font-size: 0.82rem;
+      font-weight: 600;
+      color: #c9a87a;
+      letter-spacing: 0.1em;
+      margin-bottom: 10px;
+      padding-bottom: 0;
+      border: none;
+      display: block;
+    }
+    .poetry-section h3::before { display: none; }
+    .poetry-section p {
+      font-size: 0.92rem;
+      line-height: 1.9;
+      color: #c4bcb0;
+      font-style: normal;
+      letter-spacing: 0.02em;
+    }
+    .no-data { color: #6d655c; font-size: 0.9rem; }
+    .not-found {
+      text-align: center;
+      padding: 60px 24px;
+      color: #8a7d72;
+      max-width: 400px;
+      margin: 0 auto;
+    }
+    .not-found p { margin-bottom: 12px; }
+    .not-found a { color: #d4b896; text-decoration: none; }
+    .not-found a:hover { text-decoration: underline; color: #e8d5b7; }
+    /* 图片点击放大灯箱 */
+    .lightbox {
+      position: fixed;
+      inset: 0;
+      z-index: 9999;
+      background: rgba(0,0,0,0.85);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+      opacity: 0;
+      visibility: hidden;
+      transition: opacity 0.25s ease, visibility 0.25s ease;
+    }
+    .lightbox.open {
+      opacity: 1;
+      visibility: visible;
+    }
+    .lightbox-inner {
+      position: relative;
+      max-width: 95vw;
+      max-height: 90vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .lightbox-inner img,
+    .lightbox-inner .lightbox-svg {
+      max-width: 95vw;
+      max-height: 90vh;
+      width: auto;
+      height: auto;
+      object-fit: contain;
+      border-radius: 4px;
+      box-shadow: 0 12px 48px rgba(0,0,0,0.55);
+      border: 1px solid rgba(160, 130, 85, 0.35);
+    }
+    .lightbox-inner .lightbox-svg { background: rgba(14, 18, 26, 0.96); padding: 24px; }
+    .lightbox-inner .lightbox-svg svg { max-width: 100%; height: auto; display: block; }
+    .lightbox-close {
+      position: absolute;
+      top: -44px;
+      right: 0;
+      width: 36px;
+      height: 36px;
+      border: 1px solid rgba(160, 130, 85, 0.4);
+      background: rgba(22, 26, 34, 0.9);
+      color: #e8d5b7;
+      font-size: 1.5rem;
+      line-height: 1;
+      border-radius: 2px;
+      cursor: pointer;
+      transition: background 0.2s, color 0.2s, border-color 0.2s;
+    }
+    .lightbox-close:hover { background: rgba(40, 36, 30, 0.95); color: #fff; border-color: rgba(200, 170, 130, 0.55); }
+    .lightbox-hint {
+      position: absolute;
+      bottom: -28px;
+      left: 50%;
+      transform: translateX(-50%);
+      font-size: 0.8rem;
+      color: rgba(255,255,255,0.6);
+    }
+    .diagram-box .svg-wrap,
+    .diagram-box img[src] { cursor: pointer; }
+    .diagram-box .svg-wrap:hover img,
+    .diagram-box img[src]:hover { opacity: 0.92; }
+    /* 详细介绍 · 语音讲解 */
+    .intro-body {
+      font-size: 0.98rem;
+      line-height: 1.85;
+      color: #e8e4dc;
+      white-space: pre-wrap;
+      margin-bottom: 18px;
+    }
+    .voice-bar {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 10px;
+      padding: 14px 16px;
+      background: rgba(12, 16, 24, 0.88);
+      border: 14px solid transparent;
+      border-image-source: url("assets/huiwen-frame.jpg");
+      border-image-slice: 160;
+      border-image-width: 14px;
+      border-image-outset: 0;
+      border-image-repeat: stretch;
+      border-radius: 0;
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04);
+    }
+    .voice-bar button {
+      font-family: inherit;
+      cursor: pointer;
+      padding: 8px 18px;
+      border-radius: 2px;
+      border: 1px solid rgba(180, 150, 100, 0.48);
+      background: linear-gradient(180deg, rgba(55, 44, 32, 0.55) 0%, rgba(28, 22, 16, 0.75) 100%);
+      color: #e8dcc8;
+      font-size: 0.86rem;
+      letter-spacing: 0.08em;
+      transition: background 0.2s, border-color 0.2s, box-shadow 0.2s;
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06);
+    }
+    .voice-bar button:hover:not(:disabled) {
+      background: linear-gradient(180deg, rgba(75, 58, 40, 0.55) 0%, rgba(38, 30, 22, 0.82) 100%);
+      border-color: rgba(200, 170, 130, 0.58);
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08);
+    }
+    .voice-bar button:disabled { opacity: 0.45; cursor: not-allowed; }
+    /* 未朗读时只显示「朗读讲解」，避免误以为多出两个按钮 */
+    .voice-bar:not(.voice-active) .voice-secondary {
+      display: none;
+    }
+    .voice-hint {
+      font-size: 0.78rem;
+      color: #8a7d72;
+      flex: 1 1 100%;
+      margin: 0;
+    }
+    .voice-audio-wrap { margin-top: 12px; }
+    .voice-audio-wrap audio { width: 100%; max-width: 420px; vertical-align: middle; }
+    /* 科普视频 */
+    .video-list { display: flex; flex-direction: column; gap: 20px; }
+    .video-item h3 {
+      font-size: 0.88rem;
+      color: #c9a87a;
+      margin-bottom: 10px;
+      font-weight: 600;
+      letter-spacing: 0.06em;
+    }
+    .video-embed {
+      position: relative;
+      width: 100%;
+      padding-bottom: 56.25%;
+      height: 0;
+      overflow: hidden;
+      border-radius: 2px;
+      border: 1px solid rgba(160, 130, 85, 0.3);
+      background: #0a0e14;
+    }
+    .video-embed iframe {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      border: none;
+    }
+    .video-embed--idle {
+      cursor: pointer;
+    }
+    .video-embed--idle .video-play-btn {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      z-index: 1;
+    }
+    .video-embed--idle .video-play-btn:hover {
+      transform: translate(-50%, calc(-50% - 1px));
+    }
+    .video-play-btn {
+      font-family: inherit;
+      font-size: 0.95rem;
+      letter-spacing: 0.12em;
+      color: #f4ebd4;
+      background: linear-gradient(145deg, rgba(196, 92, 62, 0.92) 0%, rgba(139, 51, 40, 0.95) 100%);
+      border: 1px solid rgba(220, 180, 140, 0.45);
+      border-radius: 4px;
+      padding: 14px 28px;
+      cursor: pointer;
+      box-shadow: 0 4px 18px rgba(0, 0, 0, 0.45);
+      transition: transform 0.15s, box-shadow 0.15s;
+    }
+    .video-embed:not(.video-embed--idle) .video-play-btn:hover {
+      box-shadow: 0 6px 22px rgba(0, 0, 0, 0.5);
+    }
+    .video-play-hint {
+      position: absolute;
+      bottom: 12px;
+      left: 0;
+      right: 0;
+      text-align: center;
+      font-size: 0.72rem;
+      color: #8a7d72;
+      letter-spacing: 0.06em;
+      pointer-events: none;
+    }
+  </style>
+</head>
+<body>
+  <div id="lightbox" class="lightbox" aria-hidden="true">
+    <div class="lightbox-inner">
+      <button type="button" class="lightbox-close" id="lightboxClose" data-i18n-aria="detail.close" aria-label="关闭">×</button>
+      <div id="lightboxContent"></div>
+      <span class="lightbox-hint" id="lightboxHint" data-i18n="detail.lightboxHint">点击空白处或按 Esc 关闭</span>
+    </div>
+  </div>
+  <div class="page">
+    <div class="back-bar" id="backBar">
+      <a href="museum.html" id="backLink" data-i18n="detail.back">← 返回地图大屏</a>
+      <a href="knowledge.html" data-i18n="nav.knowledge" style="color:#8a7d72;text-decoration:none;font-size:0.88rem;letter-spacing:0.08em;">智能驿站</a>
+      <a href="#" class="qh-agent-nav" id="navArchivist" data-i18n="nav.archivist" style="font-size:0.88rem;letter-spacing:0.08em;">档案员</a>
+      <button type="button" class="lang-btn" data-lang-toggle aria-label="English">EN</button>
+      <button type="button" class="music-btn music-btn--solo" id="musicToggle" data-i18n="music.label" data-i18n-aria="music.aria" data-i18n-title="music.title" aria-pressed="false" aria-label="背景音乐：高山流水" title="背景音乐《高山流水》">音乐</button>
+    </div>
+    <div id="content">
+      <div class="not-found" id="notFound" style="display:none;">
+        <p data-i18n="detail.notFound">未找到该桥梁信息。</p>
+        <p><a href="museum.html" id="backLinkNotFound" data-i18n="detail.backShort">返回地图</a></p>
+      </div>
+      <div id="detailWrap" style="display:none;">
+        <header class="hero">
+          <span class="hero-corner-tl" aria-hidden="true"></span>
+          <span class="hero-corner-br" aria-hidden="true"></span>
+          <h1 id="bridgeName"></h1>
+          <p class="subtitle" id="bridgeSubtitle"></p>
+          <a href="#" id="entry3dLink" class="entry3d-link" style="display:inline-flex;" data-i18n="detail.entry3d">进入 →</a>
+        </header>
+        <div class="card">
+          <h2 data-i18n="detail.basic">基础信息</h2>
+          <div class="info-wrap">
+            <table class="info-table" id="infoTable"></table>
+          </div>
+        </div>
+        <div class="card" id="introCard" style="display:none;">
+          <h2 data-i18n="detail.intro">详细介绍</h2>
+          <div class="intro-body" id="introText"></div>
+          <div class="voice-bar" id="voiceBar">
+            <button type="button" id="btnSpeak" data-i18n="detail.speak" data-i18n-title="detail.speak" title="使用浏览器语音合成朗读">朗读讲解</button>
+            <button type="button" class="voice-secondary" id="btnPauseSpeech" aria-hidden="true" tabindex="-1" data-i18n="detail.pause" data-i18n-title="detail.pause" title="暂停朗读">暂停</button>
+            <button type="button" class="voice-secondary" id="btnStopSpeech" aria-hidden="true" tabindex="-1" data-i18n="detail.stop" data-i18n-title="detail.stop" title="结束朗读">结束</button>
+          </div>
+          <div class="voice-audio-wrap" id="voiceAudioWrap" style="display:none;"></div>
+        </div>
+        <div class="card" id="videoCard" style="display:none;">
+          <h2 data-i18n="detail.videos">科普视频</h2>
+          <p class="images-desc" id="videoDesc" data-i18n="detail.videoDesc" style="margin:-4px 0 16px 0;">精选与古桥、桥梁史相关的公开科普资源（来源见各平台）。</p>
+          <div class="video-list" id="videoList"></div>
+        </div>
+        <div class="card card-images">
+          <h2 data-i18n="detail.images">桥体图像 · 外观与线稿</h2>
+          <p class="images-desc" data-i18n="detail.imagesDesc">左侧为桥体外观图，右侧为结构线稿图，便于对照观赏。</p>
+          <div class="grid-2 images-grid">
+            <div class="diagram-box image-panel">
+              <h3 data-i18n="detail.appearance">外观图</h3>
+              <div class="svg-wrap img-wrap" id="appearanceBox"></div>
+              <p class="img-caption" id="appearanceCaption" data-i18n="detail.imgSource" style="display:none;">图源：网络</p>
+            </div>
+            <div class="diagram-box image-panel">
+              <h3 data-i18n="detail.wireframe">线稿图</h3>
+              <div class="svg-wrap img-wrap" id="structureSvg"></div>
+              <p class="img-caption line-art-actions" id="lineArtActions"></p>
+            </div>
+          </div>
+          <div class="compare-slider-wrap" id="compareSliderWrap" style="display:none;">
+            <h3 data-i18n="detail.compare">外观与线稿对比</h3>
+            <p class="compare-hint" data-i18n="detail.compareHint">拖动中间竖线，可左右对比外观图与线稿图</p>
+            <div class="compare-slider" id="compareSlider">
+              <div class="compare-left"><img id="compareAppearance" alt="外观图"/></div>
+              <div class="compare-right"><img id="compareLineart" alt="线稿图"/></div>
+              <div class="compare-divider" id="compareDivider"></div>
+            </div>
+          </div>
+        </div>
+        <div class="card poetry-card" id="poetryCard">
+          <h2 data-i18n="detail.poetry">诗词与典故</h2>
+          <div class="poetry-rich" id="poetryRich"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    (function() {
+      function t(k, v) { return window.BridgeI18n ? window.BridgeI18n.t(k, v) : k; }
+      function f(zh) { return window.BridgeI18n ? window.BridgeI18n.field(zh) : zh; }
+      function bn(zh) { return window.BridgeI18n ? window.BridgeI18n.bridgeName(zh) : zh; }
+      function yl(year) { return window.BridgeI18n ? window.BridgeI18n.yearLabel(year) : String(year); }
+      function bi(b) { return window.BridgeI18n ? window.BridgeI18n.bridgeIntro(b) : (b && b.intro) || ''; }
+
+      var params = new URLSearchParams(window.location.search);
+      var name = (params.get('name') || '').trim();
+      if (!name && window.location.hash) name = decodeURIComponent(window.location.hash.slice(1)).trim();
+      var fromYear = params.get('fromYear') || '';
+
+      function backUrl() { return fromYear ? 'museum.html?year=' + encodeURIComponent(fromYear) : 'museum.html'; }
+
+      var bridge = null;
+      var bridges = [];
+
+      var bridgeFolder = '桥/';
+      function tryImageWithFallback(container, urls, fallbackHtml, imgClassName, onSuccess) {
+        if (!urls.length) { container.innerHTML = fallbackHtml; return; }
+        var img = document.createElement('img');
+        img.alt = '';
+        if (imgClassName) img.className = imgClassName;
+        img.onload = function() { if (onSuccess) onSuccess(); };
+        img.onerror = function() {
+          tryImageWithFallback(container, urls.slice(1), fallbackHtml, imgClassName, onSuccess);
+        };
+        img.src = urls[0];
+        container.innerHTML = '';
+        container.appendChild(img);
+      }
+      function getLineArtUrls(name) {
+        return [bridgeFolder + name + ' 线稿图.png', bridgeFolder + name + '  线稿图.png'];
+      }
+      function getAppearanceUrls(name) {
+        return [bridgeFolder + name + ' 外观图.jpg', bridgeFolder + name + ' 外观图.png'];
+      }
+      function getStructureSvg(type) {
+        type = type || '拱桥';
+        var w = 280, h = 120;
+        if (type === '拱桥') {
+          return '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ' + w + ' ' + h + '" width="100%" style="max-width:280px">' +
+            '<path d="M40,100 L40,70 Q140,20 240,70 L240,100" fill="none" stroke="#7f8c8d" stroke-width="2"/>' +
+            '<line x1="40" y1="100" x2="240" y2="100" stroke="#95a5a6" stroke-width="1.5"/>' +
+            '<path d="M90,100 V70 M140,100 V50 M190,100 V70" fill="none" stroke="#6c757d" stroke-width="1"/>' +
+            '<text x="140" y="115" text-anchor="middle" fill="#c9a87a" font-size="10">拱券 · 桥面</text></svg>';
+        }
+        if (type === '梁桥') {
+          return '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ' + w + ' ' + h + '" width="100%" style="max-width:280px">' +
+            '<rect x="20" y="75" width="240" height="8" fill="none" stroke="#7f8c8d" stroke-width="2"/>' +
+            '<line x1="60" y1="100" x2="60" y2="83" stroke="#95a5a6" stroke-width="1.5"/>' +
+            '<line x1="140" y1="100" x2="140" y2="83" stroke="#95a5a6" stroke-width="1.5"/>' +
+            '<line x1="220" y1="100" x2="220" y2="83" stroke="#95a5a6" stroke-width="1.5"/>' +
+            '<text x="140" y="115" text-anchor="middle" fill="#c9a87a" font-size="10">梁 · 桥墩</text></svg>';
+        }
+        if (type === '索桥') {
+          return '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ' + w + ' ' + h + '" width="100%" style="max-width:280px">' +
+            '<path d="M20,60 Q140,30 260,60" fill="none" stroke="#457b9d" stroke-width="1.5"/>' +
+            '<path d="M20,75 Q140,45 260,75" fill="none" stroke="#457b9d" stroke-width="1.5"/>' +
+            '<line x1="20" y1="100" x2="20" y2="60" stroke="#6c757d" stroke-width="1"/>' +
+            '<line x1="260" y1="100" x2="260" y2="60" stroke="#6c757d" stroke-width="1"/>' +
+            '<line x1="50" y1="68" x2="50" y2="72" stroke="#7f8c8d" stroke-width="1"/>' +
+            '<line x1="140" y1="52" x2="140" y2="78" stroke="#7f8c8d" stroke-width="1"/>' +
+            '<line x1="230" y1="68" x2="230" y2="72" stroke="#7f8c8d" stroke-width="1"/>' +
+            '<text x="140" y="115" text-anchor="middle" fill="#c9a87a" font-size="10">索 · 锚碇</text></svg>';
+        }
+        if (type === '浮桥') {
+          return '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ' + w + ' ' + h + '" width="100%" style="max-width:280px">' +
+            '<path d="M30,85 L80,85 L130,85 L180,85 L250,85" fill="none" stroke="#8b7355" stroke-width="2"/>' +
+            '<rect x="45" y="70" width="35" height="18" rx="2" fill="none" stroke="#95a5a6" stroke-width="1"/>' +
+            '<rect x="115" y="70" width="35" height="18" rx="2" fill="none" stroke="#95a5a6" stroke-width="1"/>' +
+            '<rect x="185" y="70" width="35" height="18" rx="2" fill="none" stroke="#95a5a6" stroke-width="1"/>' +
+            '<path d="M20,95 Q140,92 260,95" fill="none" stroke="#457b9d" stroke-width="1" opacity="0.8"/>' +
+            '<text x="140" y="115" text-anchor="middle" fill="#c9a87a" font-size="10">舟体 · 浮梁</text></svg>';
+        }
+        return getStructureSvg('拱桥');
+      }
+
+      /** 对比条须在两张图都 fallback 成功并 onload 后再赋 src，否则会把首张失败 URL 写进对比区导致裂图 */
+      function syncCompareSlider() {
+        var compareWrap = document.getElementById('compareSliderWrap');
+        var compareApp = document.getElementById('compareAppearance');
+        var compareLine = document.getElementById('compareLineart');
+        var compareDiv = document.getElementById('compareDivider');
+        var appearanceBox = document.getElementById('appearanceBox');
+        var structureBox = document.getElementById('structureSvg');
+        if (!compareWrap || !compareApp || !compareLine || !compareDiv || !appearanceBox || !structureBox) return;
+        var appearanceImg = appearanceBox.querySelector('img');
+        var lineArtImg = structureBox.querySelector('img');
+        if (!appearanceImg || !lineArtImg) {
+          compareWrap.style.display = 'none';
+          return;
+        }
+        if (!appearanceImg.complete || !appearanceImg.naturalWidth || !lineArtImg.complete || !lineArtImg.naturalWidth) {
+          return;
+        }
+        compareWrap.style.display = 'block';
+        compareApp.src = appearanceImg.src;
+        compareLine.src = lineArtImg.src;
+        var rightPanel = compareWrap.querySelector('.compare-right');
+        var pct = 50;
+        function setCompare(p) {
+          pct = Math.max(2, Math.min(98, p));
+          compareDiv.style.left = pct + '%';
+          if (rightPanel) rightPanel.style.clipPath = 'inset(0 0 0 ' + pct + '%)';
+        }
+        setCompare(50);
+        compareDiv.onmousedown = function(e) {
+          e.preventDefault();
+          function move(e2) {
+            var rect = compareWrap.querySelector('.compare-slider').getBoundingClientRect();
+            setCompare(((e2.clientX - rect.left) / rect.width) * 100);
+          }
+          function up() {
+            document.removeEventListener('mousemove', move);
+            document.removeEventListener('mouseup', up);
+          }
+          document.addEventListener('mousemove', move);
+          document.addEventListener('mouseup', up);
+        };
+      }
+
+      function getAppearanceSvg(type) {
+        type = type || '拱桥';
+        var w = 280, h = 140;
+        if (type === '拱桥') {
+          return '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ' + w + ' ' + h + '" width="100%" style="max-width:280px">' +
+            '<defs><linearGradient id="g1" x1="0%" y1="0%" x2="0%" y2="100%"><stop offset="0%" stop-color="#4a5568"/><stop offset="100%" stop-color="#2d3748"/></linearGradient></defs>' +
+            '<ellipse cx="140" cy="125" rx="100" ry="8" fill="rgba(69,123,157,0.3)"/>' +
+            '<path d="M45,95 Q140,35 235,95 L235,100 L45,100 Z" fill="url(#g1)" stroke="#718096" stroke-width="1"/>' +
+            '<path d="M45,100 Q140,42 235,100" fill="none" stroke="#a0aec0" stroke-width="1.5"/>' +
+            '<text x="140" y="20" text-anchor="middle" fill="#c9a87a" font-size="11">石拱桥外观示意</text></svg>';
+        }
+        if (type === '梁桥') {
+          return '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ' + w + ' ' + h + '" width="100%" style="max-width:280px">' +
+            '<defs><linearGradient id="g2" x1="0%" y1="0%" x2="0%" y2="100%"><stop offset="0%" stop-color="#5a4a3a"/><stop offset="100%" stop-color="#3d3228"/></linearGradient></defs>' +
+            '<rect x="30" y="75" width="220" height="12" fill="url(#g2)" stroke="#8b7355" stroke-width="1"/>' +
+            '<rect x="70" y="88" width="12" height="35" fill="#4a5568" stroke="#718096"/>' +
+            '<rect x="138" y="88" width="12" height="35" fill="#4a5568" stroke="#718096"/>' +
+            '<rect x="206" y="88" width="12" height="35" fill="#4a5568" stroke="#718096"/>' +
+            '<text x="140" y="20" text-anchor="middle" fill="#c9a87a" font-size="11">石梁桥外观示意</text></svg>';
+        }
+        if (type === '索桥') {
+          return '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ' + w + ' ' + h + '" width="100%" style="max-width:280px">' +
+            '<path d="M25,55 Q140,25 255,55" fill="none" stroke="#2c5282" stroke-width="3"/>' +
+            '<path d="M25,68 Q140,38 255,68" fill="none" stroke="#2c5282" stroke-width="2"/>' +
+            '<line x1="25" y1="100" x2="25" y2="55" stroke="#4a5568" stroke-width="2"/>' +
+            '<line x1="255" y1="100" x2="255" y2="55" stroke="#4a5568" stroke-width="2"/>' +
+            '<ellipse cx="140" cy="125" rx="110" ry="6" fill="rgba(69,123,157,0.2)"/>' +
+            '<text x="140" y="20" text-anchor="middle" fill="#c9a87a" font-size="11">铁索桥外观示意</text></svg>';
+        }
+        if (type === '浮桥') {
+          return '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ' + w + ' ' + h + '" width="100%" style="max-width:280px">' +
+            '<ellipse cx="140" cy="120" rx="120" ry="10" fill="rgba(69,123,157,0.4)"/>' +
+            '<rect x="50" y="85" width="45" height="25" rx="3" fill="#5a4a3a" stroke="#8b7355"/>' +
+            '<rect x="115" y="85" width="45" height="25" rx="3" fill="#5a4a3a" stroke="#8b7355"/>' +
+            '<rect x="185" y="85" width="45" height="25" rx="3" fill="#5a4a3a" stroke="#8b7355"/>' +
+            '<path d="M35,95 L245,95" stroke="#7f8c8d" stroke-width="2"/>' +
+            '<text x="140" y="20" text-anchor="middle" fill="#c9a87a" font-size="11">浮桥外观示意</text></svg>';
+        }
+        return getAppearanceSvg('拱桥');
+      }
+
+      function buildDefaultIntro(b) {
+        var y = '';
+        if (b.year != null) y = b.year < 0 ? '约公元前 ' + (-b.year) + ' 年' : '约公元 ' + b.year + ' 年';
+        var lines = [
+          b.name + '位于' + (b.province || '') + (b.city || '') + '，是一座' + (b.dynasty || '') + '时期的' + (b.type || '古桥') + '。',
+          y ? '年代参考：' + y + '。' : '',
+          (b.length != null || b.span != null || b.width != null)
+            ? '尺度概览：' + [
+                b.length != null ? '桥长约 ' + b.length + ' 米' : null,
+                b.span != null ? '最大单孔跨度约 ' + b.span + ' 米' : null,
+                b.width != null ? '桥面宽约 ' + b.width + ' 米' : null
+              ].filter(Boolean).join('；') + '。'
+            : '',
+          (b.material ? '主要材质：' + b.material + '。' : ''),
+          (b.poetry ? '文化印记：「' + b.poetry + '」。' : '')
+        ].filter(function(s) { return s; });
+        return lines.join('\n\n');
+      }
+
+      function normalizeEmbedUrl(url) {
+        if (!url || typeof url !== 'string') return '';
+        var u = url.trim();
+        if (u.indexOf('//') === 0) u = 'https:' + u;
+        if (/bilibili\.com/i.test(u)) {
+          u = u.replace(/([?&])autoplay=1/gi, '$1autoplay=0');
+          if (!/[?&]autoplay=/i.test(u)) u += (u.indexOf('?') >= 0 ? '&' : '?') + 'autoplay=0';
+        }
+        if (/youtube\.com|youtu\.be/i.test(u)) {
+          u = u.replace(/([?&])autoplay=1/gi, '$1autoplay=0');
+          if (!/[?&]autoplay=/i.test(u)) u += (u.indexOf('?') >= 0 ? '&' : '?') + 'autoplay=0';
+        }
+        return u;
+      }
+
+      function mountVideoEmbeds(container) {
+        if (!container) return;
+        var blocks = container.querySelectorAll('.video-embed--idle');
+        blocks.forEach(function (block) {
+          var embed = block.getAttribute('data-embed');
+          var title = block.getAttribute('data-title') || '视频';
+          if (!embed) return;
+          function activate() {
+            if (block.getAttribute('data-loaded') === '1') return;
+            block.setAttribute('data-loaded', '1');
+            block.classList.remove('video-embed--idle');
+            block.innerHTML =
+              '<iframe src="' + embed.replace(/"/g, '&quot;') + '" title="' + title.replace(/"/g, '&quot;') + '" allowfullscreen allow="accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture"></iframe>';
+          }
+          var btn = block.querySelector('.video-play-btn');
+          if (btn) btn.addEventListener('click', function (e) { e.stopPropagation(); activate(); });
+          block.addEventListener('click', function (e) {
+            if (e.target === block || e.target.classList.contains('video-play-hint')) activate();
+          });
+        });
+      }
+
+      var speechSynth = window.speechSynthesis || null;
+      var introSpeakHandlers = null;
+
+      function setupIntroSpeech(introPlain) {
+        var btnSpeak = document.getElementById('btnSpeak');
+        var btnPause = document.getElementById('btnPauseSpeech');
+        var btnStop = document.getElementById('btnStopSpeech');
+        var voiceBar = document.getElementById('voiceBar');
+        /* 不用 speechSynth.paused 驱动文案（Safari 等常不同步），按用户点击切换 */
+        var userPausedSpeech = false;
+        function applyPauseButtonLabel() {
+          if (!btnPause) return;
+          if (userPausedSpeech) {
+            btnPause.textContent = (window.BridgeI18n && window.BridgeI18n.getLang()==='en') ? 'Resume' : '继续';
+            btnPause.title = '继续朗读';
+            btnPause.setAttribute('aria-label', '继续朗读');
+          } else {
+            btnPause.textContent = t('detail.pause');
+            btnPause.title = '暂停朗读';
+            btnPause.setAttribute('aria-label', '暂停朗读');
+          }
+        }
+        function setVoiceActive(active) {
+          if (!voiceBar) return;
+          if (!active) userPausedSpeech = false;
+          voiceBar.classList.toggle('voice-active', !!active);
+          if (btnPause) {
+            btnPause.setAttribute('aria-hidden', active ? 'false' : 'true');
+            btnPause.setAttribute('tabindex', active ? '0' : '-1');
+            if (active) userPausedSpeech = false;
+            applyPauseButtonLabel();
+          }
+          if (btnStop) {
+            btnStop.setAttribute('aria-hidden', active ? 'false' : 'true');
+            btnStop.setAttribute('tabindex', active ? '0' : '-1');
+          }
+        }
+        if (!btnSpeak || !speechSynth) {
+          if (btnSpeak) btnSpeak.disabled = true;
+          if (btnPause) btnPause.disabled = true;
+          if (btnStop) btnStop.disabled = true;
+          setVoiceActive(false);
+          return;
+        }
+        if (introSpeakHandlers) {
+          introSpeakHandlers.forEach(function(off) { off(); });
+          introSpeakHandlers = null;
+        }
+        setVoiceActive(false);
+        var speakGen = 0;
+        function cancelSpeech() {
+          try { speechSynth.cancel(); } catch (e) {}
+        }
+        function onSpeak() {
+          speakGen++;
+          var g = speakGen;
+          cancelSpeech();
+          setVoiceActive(false);
+          var u = new SpeechSynthesisUtterance(introPlain);
+          u.lang = 'zh-CN';
+          u.rate = 0.92;
+          u.pitch = 1;
+          var voices = speechSynth.getVoices();
+          for (var i = 0; i < voices.length; i++) {
+            if (voices[i].lang && voices[i].lang.indexOf('zh') === 0) {
+              u.voice = voices[i];
+              break;
+            }
+          }
+          u.onstart = function() { if (g === speakGen) setVoiceActive(true); };
+          u.onend = function() { if (g === speakGen) setVoiceActive(false); };
+          u.onerror = function() { if (g === speakGen) setVoiceActive(false); };
+          speechSynth.speak(u);
+        }
+        function onPause() {
+          if (!speechSynth) return;
+          if (userPausedSpeech) {
+            try { speechSynth.resume(); } catch (e) {}
+            userPausedSpeech = false;
+          } else {
+            try { speechSynth.pause(); } catch (e) {}
+            userPausedSpeech = true;
+          }
+          applyPauseButtonLabel();
+        }
+        function onStop() {
+          cancelSpeech();
+          setVoiceActive(false);
+        }
+        btnSpeak.onclick = onSpeak;
+        btnPause.onclick = onPause;
+        btnStop.onclick = onStop;
+        btnSpeak.disabled = false;
+        btnPause.disabled = false;
+        btnStop.disabled = false;
+        introSpeakHandlers = [
+          function() {
+            btnSpeak.onclick = null;
+            btnPause.onclick = null;
+            btnStop.onclick = null;
+            cancelSpeech();
+            setVoiceActive(false);
+          }
+        ];
+        if (speechSynth.getVoices().length === 0) {
+          speechSynth.addEventListener('voiceschanged', function once() {
+            speechSynth.removeEventListener('voiceschanged', once);
+          });
+        }
+      }
+
+      function renderIntroAndVideos(b) {
+        var introCard = document.getElementById('introCard');
+        var introEl = document.getElementById('introText');
+        var audioWrap = document.getElementById('voiceAudioWrap');
+        var text = (b.intro && String(b.intro).trim()) ? String(b.intro).trim() : buildDefaultIntro(b);
+        if (introEl) introEl.textContent = bi(b) || text || t('detail.noIntro');
+        if (audioWrap) {
+          audioWrap.innerHTML = '';
+          audioWrap.style.display = 'none';
+          if (b.audioUrl && String(b.audioUrl).trim()) {
+            var au = document.createElement('audio');
+            au.controls = true;
+            au.preload = 'metadata';
+            au.src = String(b.audioUrl).trim();
+            audioWrap.appendChild(au);
+            var cap = document.createElement('p');
+            cap.className = 'voice-hint';
+            cap.style.marginTop = '8px';
+            cap.textContent = '预录讲解音频';
+            audioWrap.appendChild(cap);
+            audioWrap.style.display = 'block';
+          }
+        }
+        if (introCard) introCard.style.display = 'block';
+        setupIntroSpeech(text);
+
+        var videoCard = document.getElementById('videoCard');
+        var videoList = document.getElementById('videoList');
+        var videos = b.videos;
+        if (!videos || !videos.length) {
+          if (videoCard) videoCard.style.display = 'none';
+          return;
+        }
+        if (videoList) {
+          videoList.innerHTML = videos.map(function(v, idx) {
+            var title = (v && v.title) ? v.title : '视频 ' + (idx + 1);
+            var embed = normalizeEmbedUrl(v && (v.embed || v.embedUrl || v.src || v.url));
+            if (!embed) return '';
+            return (
+              '<div class="video-item">' +
+              '<h3>' + title.replace(/</g, '&lt;') + '</h3>' +
+              '<div class="video-embed video-embed--idle" data-embed="' + embed.replace(/"/g, '&quot;') + '" data-title="' + title.replace(/"/g, '&quot;') + '">' +
+              '<button type="button" class="video-play-btn">' + t('detail.playVideo') + '</button>' +
+              '<span class="video-play-hint">' + t('detail.playHint') + '</span>' +
+              '</div>' +
+              '</div>'
+            );
+          }).filter(Boolean).join('');
+          mountVideoEmbeds(videoList);
+        }
+        if (videoCard) videoCard.style.display = videoList && videoList.innerHTML.trim() ? 'block' : 'none';
+      }
+
+      function formatProtection(bridge) {
+        var val = bridge && bridge.protection;
+        var batch = bridge && bridge.protectionBatch;
+        var batchLabel = batch ? f(batch) : '';
+        if (!val) return '—';
+        if (val === '国保') {
+          return batch ? t('detail.nationalHeritage', { batch: batchLabel }) : t('detail.nationalHeritageDefault');
+        }
+        if (val === '省保') {
+          return batch
+            ? (window.BridgeI18n && window.BridgeI18n.getLang() === 'en' ? 'Provincial heritage (' + batchLabel + ')' : '省级文物保护单位（' + batch + '）')
+            : (window.BridgeI18n && window.BridgeI18n.getLang() === 'en' ? 'Provincial heritage' : '省级文物保护单位');
+        }
+        if (val === '市保') {
+          return batch
+            ? (window.BridgeI18n && window.BridgeI18n.getLang() === 'en' ? 'Municipal heritage (' + batchLabel + ')' : '市级文物保护单位（' + batch + '）')
+            : (window.BridgeI18n && window.BridgeI18n.getLang() === 'en' ? 'Municipal heritage' : '市级文物保护单位');
+        }
+        var otherZh = { '已毁': '已毁（历史上存在，今不存）', '遗址': '遗址（考古遗存）', '多次重修': '多次重修（历代有维修）', '多次毁修': '多次毁修（历代有毁建）' };
+        var otherEn = { '已毁': 'Destroyed (historical; no longer extant)', '遗址': 'Archaeological site', '多次重修': 'Repeatedly repaired', '多次毁修': 'Repeatedly destroyed and rebuilt' };
+        if (window.BridgeI18n && window.BridgeI18n.getLang() === 'en') return otherEn[val] || f(val) || val;
+        return otherZh[val] || val;
+      }
+
+      function escapeHtml(s) {
+        if (s == null || s === '') return '';
+        var d = document.createElement('div');
+        d.textContent = s;
+        return d.innerHTML;
+      }
+
+      function renderPoetryRich(b, entry) {
+        var el = document.getElementById('poetryRich');
+        if (!el) return;
+        var hasRich = entry && (entry.anecdote || entry.poetryRefs || entry.culturalInsight);
+        if (!hasRich) {
+          if (b.poetry) el.innerHTML = '<p class="poetry-block poetry-epigraph">「' + escapeHtml(b.poetry) + '」</p>';
+          else el.innerHTML = '<span class="no-data">' + t('detail.noPoetry') + '</span>';
+          return;
+        }
+        var html = '';
+        if (b.poetry) {
+          html += '<p class="poetry-block poetry-epigraph">「' + escapeHtml(b.poetry) + '」</p>';
+        }
+        if (entry.anecdote) {
+          html += '<section class="poetry-section"><h3>' + t('detail.anecdote') + '</h3><p>' + escapeHtml(entry.anecdote) + '</p>' + (window.BridgeI18n && window.BridgeI18n.getLang()==='en' ? '<p class="images-desc">' + t('detail.cultureZhNote') + '</p>' : '') + '</section>';
+        }
+        if (entry.poetryRefs) {
+          html += '<section class="poetry-section"><h3>' + t('detail.poetryRefs') + '</h3><p>' + escapeHtml(entry.poetryRefs) + '</p></section>';
+        }
+        if (entry.culturalInsight) {
+          html += '<section class="poetry-section"><h3>' + t('detail.insight') + '</h3><p>' + escapeHtml(entry.culturalInsight) + '</p></section>';
+        }
+        el.innerHTML = html;
+      }
+
+      function render(b, cultureEntry) {
+        window.__detailBridge = b; window.__detailCulture = cultureEntry;
+        document.getElementById('bridgeName').textContent = bn(b.name);
+        document.getElementById('bridgeSubtitle').textContent = (f(b.dynasty) || '') + (b.year != null ? ' · ' + yl(b.year) : '') + ' · ' + (f(b.province) || '') + (b.city ? ' ' + b.city : '');
+        var rows = [
+          [t('detail.place'), (f(b.province) || '—') + (b.city ? ' / ' + b.city : '')],
+          [t('detail.type'), f(b.type) || '—'],
+          [t('detail.material'), f(b.material) || '—'],
+          [t('detail.length'), b.length != null ? b.length + ' m' : '—'],
+          [t('detail.span'), b.span != null ? b.span + ' m' : '—'],
+          [t('detail.width'), b.width != null ? b.width + ' m' : '—'],
+          [t('detail.protection'), formatProtection(b)]
+        ];
+        document.getElementById('infoTable').innerHTML = rows.map(function(r) {
+          return '<tr><th>' + r[0] + '</th><td>' + r[1] + '</td></tr>';
+        }).join('');
+        var compareWrapReset = document.getElementById('compareSliderWrap');
+        if (compareWrapReset) compareWrapReset.style.display = 'none';
+
+        var appearanceBox = document.getElementById('appearanceBox');
+        var structureBox = document.getElementById('structureSvg');
+        var captionEl = document.getElementById('appearanceCaption');
+        var appearanceUrls = getAppearanceUrls(b.name).concat(b.image ? [b.image] : []);
+        /* 须先换外观再换线稿：否则线稿 onload 若同步触发，appearanceBox 仍为上一座桥的图，对比条会错配 */
+        tryImageWithFallback(appearanceBox, appearanceUrls, getAppearanceSvg(b.type), 'appearance-img', function() {
+          var img = appearanceBox.querySelector('img');
+          var fromBridgeFolder = img && img.src && (img.src.indexOf(bridgeFolder) === 0 || img.src.indexOf('/桥/') >= 0 || img.src.indexOf('%E6%A1%A5/') >= 0);
+          captionEl.style.display = fromBridgeFolder ? 'none' : 'block';
+          syncCompareSlider();
+        });
+        captionEl.style.display = 'none';
+
+        tryImageWithFallback(structureBox, getLineArtUrls(b.name), getStructureSvg(b.type), 'structure-img', syncCompareSlider);
+
+        var lineArtImg = structureBox.querySelector('img');
+        var lineArtActionsEl = document.getElementById('lineArtActions');
+        if (lineArtActionsEl) {
+          if (lineArtImg && lineArtImg.src) {
+            var safeName = (b.name || '线稿').replace(/[/\\?*:|"]/g, '-');
+            lineArtActionsEl.innerHTML = '点击图片可放大 · <a href="' + lineArtImg.src + '" download="' + safeName + '-线稿图.png">下载线稿图</a>';
+            lineArtActionsEl.style.display = 'block';
+          } else {
+            lineArtActionsEl.innerHTML = '点击示意图可放大';
+            lineArtActionsEl.style.display = 'block';
+          }
+        }
+
+        syncCompareSlider();
+        renderIntroAndVideos(b);
+
+        renderPoetryRich(b, cultureEntry || null);
+        document.getElementById('poetryCard').style.display = 'block';
+        var entry3d = document.getElementById('entry3dLink');
+        if (entry3d) {
+          entry3d.textContent = (window.BridgeI18n && window.BridgeI18n.getLang()==='en' ? 'Enter ' : '进入 ') + bn(b.name) + ' →';
+          entry3d.href = 'bridge-3d.html?name=' + encodeURIComponent(b.name) + '&from=detail';
+          entry3d.style.display = 'inline-flex';
+        }
+        document.getElementById('detailWrap').style.display = 'block';
+        document.getElementById('backLink').href = backUrl();
+      }
+
+      function openLightbox(content) {
+        var lb = document.getElementById('lightbox');
+        var contentEl = document.getElementById('lightboxContent');
+        contentEl.innerHTML = '';
+        contentEl.removeAttribute('class');
+        if (typeof content === 'string') {
+          if (content.indexOf('<') >= 0) {
+            contentEl.innerHTML = content;
+            var svg = contentEl.querySelector('svg');
+            if (svg) {
+              svg.removeAttribute('style');
+              contentEl.className = 'lightbox-svg';
+            }
+          } else {
+            var img = document.createElement('img');
+            img.src = content;
+            img.alt = '大图预览';
+            contentEl.appendChild(img);
+          }
+        } else if (content && content.tagName === 'IMG') {
+          var img2 = document.createElement('img');
+          img2.src = content.src;
+          img2.alt = content.alt || '大图预览';
+          contentEl.appendChild(img2);
+        }
+        lb.classList.add('open');
+        lb.setAttribute('aria-hidden', 'false');
+        document.body.style.overflow = 'hidden';
+      }
+      function closeLightbox() {
+        var lb = document.getElementById('lightbox');
+        lb.classList.remove('open');
+        lb.setAttribute('aria-hidden', 'true');
+        document.body.style.overflow = '';
+      }
+      function setupLightbox() {
+        var detailWrap = document.getElementById('detailWrap');
+        var lb = document.getElementById('lightbox');
+        if (!detailWrap || !lb) return;
+        detailWrap.addEventListener('click', function(e) {
+          var box = e.target.closest('.diagram-box');
+          if (!box) return;
+          var wrap = box.querySelector('.svg-wrap');
+          var img = box.querySelector('img');
+          var clickedInWrap = wrap && wrap.contains(e.target);
+          if (img && img.src && (e.target === img || clickedInWrap)) {
+            e.preventDefault();
+            openLightbox(img.src);
+          } else if (clickedInWrap && wrap.querySelector('svg')) {
+            e.preventDefault();
+            openLightbox(wrap.innerHTML.trim());
+          }
+        });
+        lb.addEventListener('click', function(e) {
+          if (e.target === lb || e.target.closest('.lightbox-close')) closeLightbox();
+        });
+        document.getElementById('lightboxClose').addEventListener('click', closeLightbox);
+        document.addEventListener('keydown', function(e) {
+          if (e.key === 'Escape' && lb.classList.contains('open')) closeLightbox();
+        });
+      }
+
+      function init() {
+        document.getElementById('backLink').href = backUrl();
+        var notFoundBack = document.getElementById('backLinkNotFound');
+        if (notFoundBack) notFoundBack.href = backUrl();
+        setupLightbox();
+        if (!name) {
+          document.getElementById('notFound').style.display = 'block';
+          return;
+        }
+        Promise.all([
+          fetch('data/bridges.json').then(function(r) { return r.json(); }),
+          fetch('data/poetry-culture.json').then(function(r) { return r.json(); }).catch(function() { return { entries: {} }; })
+        ])
+          .then(function(results) {
+            bridges = results[0];
+            var pc = results[1] || {};
+            var entries = pc.entries || {};
+            bridge = bridges.filter(function(b) { return b.name === name; })[0];
+            if (bridge) {
+              document.title = bridge.name + ' - 桥梁档案 · 千古飞虹';
+              render(bridge, entries[bridge.name]);
+            } else {
+              document.getElementById('notFound').style.display = 'block';
+            }
+          })
+          .catch(function() { document.getElementById('notFound').style.display = 'block'; });
+      }
+      if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
+      else init();
+    
+      document.addEventListener('bridge:langchange', function () {
+        if (window.__detailBridge) render(window.__detailBridge, window.__detailCulture);
+      });
+})();
+  </script>
+  <audio id="bgMusic" loop playsinline preload="metadata">
+    <source src="assets/高山流水.mp3" type="audio/mpeg">
+  </audio>
+  <script src="assets/bg-music.js" defer></script>
+  <script>
+    (function () {
+      if (!window.QianhongAgent) return;
+      QianhongAgent.init({
+        getBridge: function () {
+          return new URLSearchParams(location.search).get('name') || '';
+        }
+      });
+      var nav = document.getElementById('navArchivist');
+      if (nav) {
+        nav.addEventListener('click', function (e) {
+          e.preventDefault();
+          var name = new URLSearchParams(location.search).get('name') || '';
+          QianhongAgent.openArchivist({
+            bridge: name || undefined,
+            q: name ? '介绍' + name : '',
+            autoAsk: !!name,
+            source: 'bridge_detail'
+          });
+        });
+      }
+    })();
+  </script>
+</body>
+</html>

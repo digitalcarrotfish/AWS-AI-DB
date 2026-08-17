@@ -50,8 +50,7 @@ CREATE TABLE IF NOT EXISTS bridge_embeddings (
 );
 
 CREATE VECTOR INDEX IF NOT EXISTS idx_bridge_embeddings_vector
-  ON bridge_embeddings (dynasty, embedding)
-  USING cspann WITH (distance_metric = 'cosine');
+  ON bridge_embeddings (embedding vector_cosine_ops);
 
 -- Agent 会话与多轮对话
 CREATE TABLE IF NOT EXISTS sessions (

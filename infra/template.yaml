@@ -54,14 +54,19 @@ Resources:
           LLM_MODE: !Ref LlmMode
           AWS_REGION: !Ref AWS::Region
           BEDROCK_MODEL_ID: !Ref BedrockModelId
-          BRIDGE_DATA_DIR: /var/task/bridge/data
+          BRIDGE_DATA_DIR: /var/task/data
+          S3_BUCKET: !Ref AgentReportsBucket
+          S3_PREFIX: qianhong
       Policies:
         - AWSLambdaBasicExecutionRole
+        - S3WritePolicy:
+            BucketName: !Ref AgentReportsBucket
         - Statement:
             - Effect: Allow
               Action:
                 - bedrock:InvokeModel
                 - bedrock:InvokeModelWithResponseStream
+                - bedrock:Converse
               Resource: '*'
       Events:
         ApiProxy:

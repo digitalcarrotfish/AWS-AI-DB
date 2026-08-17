@@ -119,7 +119,8 @@ def extract_interests(query: str, sources: list[str]) -> list[str]:
     for t in re.findall(r"(拱桥|梁桥|索桥|浮桥)", query):
         if t not in interests:
             interests.append(t)
-    for s in sources[:3]:
-        if s not in interests:
+    # 桥名最多记 2 个，避免兴趣标签被检索 sources 刷屏
+    for s in sources[:2]:
+        if s and s not in interests:
             interests.append(s)
     return interests[:8]

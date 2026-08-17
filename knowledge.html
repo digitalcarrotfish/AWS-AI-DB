@@ -1,0 +1,1384 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title data-i18n="knowledge.title">智能文化驿站 — 千古飞虹</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,500&family=Noto+Serif+SC:wght@400;500;600;700&family=Ma+Shan+Zheng&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="assets/bg-music.css">
+  <link rel="stylesheet" href="assets/bridge-agent.css">
+  <link rel="stylesheet" href="assets/bridge-assistant.css">
+  <script src="assets/i18n.js"></script>
+  <script src="config.js"></script>
+  <script src="assets/bridge-agent.js"></script>
+  <script src="assets/bridge-assistant.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/echarts-wordcloud@2.1.0/dist/echarts-wordcloud.min.js"></script>
+  <script src="data/bridges-data.js?v=3"></script>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    html { scroll-behavior: smooth; -webkit-font-smoothing: antialiased; }
+    body {
+      font-family: "Noto Serif SC", "Source Han Serif CN", "SimSun", serif;
+      min-height: 100vh;
+      color: #e8e4dc;
+      background: #060a0f;
+    }
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      z-index: 0;
+      pointer-events: none;
+      background:
+        radial-gradient(ellipse 100% 70% at 50% -15%, rgba(115, 78, 42, 0.19) 0%, transparent 52%),
+        linear-gradient(172deg, rgba(11, 13, 14, 0.88) 0%, rgba(19, 24, 28, 0.86) 36%, rgba(6, 7, 8, 0.9) 100%),
+        url("assets/ink-bridge-bg.png") center center / cover no-repeat fixed;
+    }
+    .page {
+      position: relative;
+      z-index: 1;
+      max-width: 1280px;
+      margin: 0 auto;
+      padding: 24px 20px 48px;
+    }
+    .top-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-bottom: 20px;
+      padding-bottom: 18px;
+      border-bottom: 1px solid transparent;
+      border-image: linear-gradient(90deg, transparent, rgba(180, 150, 100, 0.38) 18%, rgba(180, 150, 100, 0.38) 82%, transparent) 1;
+    }
+    .top-bar a { color: #8a7d72; text-decoration: none; font-size: 0.88rem; letter-spacing: 0.08em; }
+    .top-bar a:hover { color: #d4b896; }
+    .site-nav { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+    .nav-sep { color: rgba(160, 140, 120, 0.4); }
+    .hero { margin-bottom: 20px; text-align: center; }
+    .hero h1 {
+      font-family: "Ma Shan Zheng", "Noto Serif SC", serif;
+      font-size: clamp(2rem, 5vw, 2.75rem);
+      color: #f4ebd4;
+      letter-spacing: 0.14em;
+      margin-bottom: 8px;
+    }
+    .hero p {
+      font-size: 0.88rem;
+      color: #9a8c7a;
+      max-width: 40em;
+      margin: 0 auto;
+      line-height: 1.65;
+    }
+    .tabs {
+      display: flex;
+      justify-content: center;
+      gap: 8px;
+      margin-bottom: 18px;
+      flex-wrap: wrap;
+    }
+    .tab-btn {
+      font-family: inherit;
+      font-size: 0.82rem;
+      letter-spacing: 0.1em;
+      padding: 8px 20px;
+      border: 1px solid rgba(160, 130, 85, 0.35);
+      background: rgba(22, 26, 34, 0.7);
+      color: #9a8c7a;
+      border-radius: 2px;
+      cursor: pointer;
+      transition: background 0.2s, color 0.2s, border-color 0.2s;
+    }
+    .tab-btn:hover { color: #e8d5b7; border-color: rgba(180, 150, 100, 0.5); }
+    .tab-btn.active {
+      color: #1a1510;
+      background: linear-gradient(180deg, #e8d5bc, #b89870);
+      border-color: rgba(160, 130, 85, 0.6);
+    }
+    .tab-panel { display: none; }
+    .tab-panel.active { display: block; }
+    .viz-layout {
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 18px;
+    }
+    @media (min-width: 960px) {
+      .grid--words { grid-template-columns: 1fr; }
+    }
+    .card {
+      border: 1px solid rgba(160, 130, 85, 0.35);
+      border-radius: 2px;
+      background: linear-gradient(165deg, rgba(22, 28, 36, 0.96) 0%, rgba(14, 17, 22, 0.99) 100%);
+      box-shadow: 0 16px 40px rgba(0, 0, 0, 0.4);
+      overflow: hidden;
+    }
+    .card-head {
+      padding: 14px 18px 10px;
+      border-bottom: 1px solid rgba(160, 130, 85, 0.2);
+    }
+    .card-head h2 { font-size: 1rem; font-weight: 600; color: #e8d5b7; letter-spacing: 0.12em; }
+    .card-head p { margin-top: 6px; font-size: 0.72rem; color: #8a7d72; line-height: 1.5; }
+    .chart-box { width: 100%; height: 400px; }
+    .graph-card { overflow: visible; }
+    .graph-card-head {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 14px 18px 12px;
+      border-bottom: 1px solid rgba(160, 130, 85, 0.2);
+    }
+    .graph-card-head .title-block h2 {
+      font-size: 1rem;
+      font-weight: 600;
+      color: #e8d5b7;
+      letter-spacing: 0.12em;
+    }
+    .graph-card-head .title-block p {
+      margin-top: 4px;
+      font-size: 0.72rem;
+      color: #8a7d72;
+    }
+    .graph-toolbar {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 8px;
+    }
+    .graph-search {
+      font-family: inherit;
+      font-size: 0.78rem;
+      padding: 7px 12px;
+      width: min(200px, 42vw);
+      border: 1px solid rgba(160, 130, 85, 0.35);
+      border-radius: 2px;
+      background: rgba(8, 12, 18, 0.85);
+      color: #e8e4dc;
+    }
+    .graph-search:focus {
+      outline: none;
+      border-color: rgba(200, 170, 120, 0.5);
+    }
+    .graph-tool-btn {
+      font-family: inherit;
+      font-size: 0.72rem;
+      letter-spacing: 0.06em;
+      padding: 6px 12px;
+      border: 1px solid rgba(160, 130, 85, 0.35);
+      background: rgba(18, 22, 30, 0.9);
+      color: #b8a898;
+      border-radius: 2px;
+      cursor: pointer;
+      transition: color 0.15s, border-color 0.15s, background 0.15s;
+    }
+    .graph-tool-btn:hover { color: #f4ebd4; border-color: rgba(180, 150, 100, 0.45); }
+    .graph-zoom-group {
+      display: inline-flex;
+      align-items: stretch;
+      border: 1px solid rgba(160, 130, 85, 0.35);
+      border-radius: 2px;
+      overflow: hidden;
+    }
+    .graph-zoom-group .graph-tool-btn {
+      border: none;
+      border-radius: 0;
+      min-width: 36px;
+      padding: 6px 10px;
+    }
+    .graph-zoom-group .graph-tool-btn + .graph-tool-btn {
+      border-left: 1px solid rgba(160, 130, 85, 0.35);
+    }
+    .graph-body {
+      display: grid;
+      grid-template-columns: 1fr 280px;
+      gap: 0;
+      min-height: 480px;
+    }
+    @media (max-width: 960px) {
+      .graph-body { grid-template-columns: 1fr; }
+    }
+    .graph-main {
+      position: relative;
+      min-height: 460px;
+    }
+    .graph-chart-box {
+      width: 100%;
+      height: 460px;
+    }
+    .graph-hint {
+      position: absolute;
+      left: 12px;
+      bottom: 10px;
+      font-size: 0.62rem;
+      color: rgba(138, 125, 114, 0.85);
+      pointer-events: none;
+      letter-spacing: 0.04em;
+    }
+    .graph-side {
+      border-left: 1px solid rgba(160, 130, 85, 0.2);
+      padding: 14px 14px 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      background: rgba(10, 14, 20, 0.45);
+    }
+    @media (max-width: 960px) {
+      .graph-side {
+        border-left: none;
+        border-top: 1px solid rgba(160, 130, 85, 0.2);
+      }
+    }
+    .graph-filters h3 {
+      font-size: 0.72rem;
+      color: #c9a87a;
+      letter-spacing: 0.1em;
+      margin-bottom: 8px;
+      font-weight: 600;
+    }
+    .graph-legend {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    .graph-legend-btn {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      width: 100%;
+      font-family: inherit;
+      font-size: 0.72rem;
+      color: #9a8c7a;
+      padding: 6px 8px;
+      border: 1px solid transparent;
+      border-radius: 2px;
+      background: transparent;
+      cursor: pointer;
+      text-align: left;
+      transition: background 0.15s, border-color 0.15s, color 0.15s;
+    }
+    .graph-legend-btn:hover { color: #e8d5b7; background: rgba(255,255,255,0.04); }
+    .graph-legend-btn.active { border-color: rgba(160, 130, 85, 0.35); background: rgba(212, 160, 80, 0.1); color: #e8d5b7; }
+    .graph-legend-btn.off { opacity: 0.4; }
+    .graph-legend-btn i {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+    .graph-focus {
+      flex: 1;
+      min-height: 120px;
+      padding: 12px;
+      border: 1px solid rgba(160, 130, 85, 0.25);
+      border-radius: 2px;
+      background: rgba(8, 12, 18, 0.6);
+    }
+    .graph-focus.empty {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      font-size: 0.74rem;
+      color: #6d655c;
+      line-height: 1.55;
+    }
+    .graph-focus h3 {
+      font-size: 0.95rem;
+      color: #f4ebd4;
+      margin-bottom: 6px;
+      line-height: 1.35;
+    }
+    .graph-focus .meta {
+      font-size: 0.76rem;
+      color: #b8a898;
+      line-height: 1.55;
+      white-space: pre-wrap;
+    }
+    .graph-focus .tag-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-top: 10px;
+    }
+    .graph-focus .tag {
+      font-size: 0.65rem;
+      padding: 3px 8px;
+      border-radius: 2px;
+      border: 1px solid rgba(160, 130, 85, 0.3);
+      color: #c9a87a;
+      background: rgba(22, 28, 36, 0.8);
+    }
+    .graph-focus-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 12px;
+    }
+    .graph-focus-actions a,
+    .graph-focus-actions button {
+      font-family: inherit;
+      font-size: 0.72rem;
+      padding: 6px 12px;
+      border-radius: 2px;
+      cursor: pointer;
+      text-decoration: none;
+      letter-spacing: 0.04em;
+    }
+    .graph-focus-actions .btn-primary {
+      border: 1px solid rgba(160, 130, 85, 0.5);
+      background: linear-gradient(180deg, #e8d5bc, #a08055);
+      color: #1a1510;
+    }
+    .graph-focus-actions .btn-ghost {
+      border: 1px solid rgba(160, 130, 85, 0.35);
+      background: transparent;
+      color: #d4b896;
+    }
+    .graph-bridge-list {
+      margin-top: 8px;
+      max-height: 140px;
+      overflow-y: auto;
+      font-size: 0.72rem;
+      color: #9a8c7a;
+    }
+    .graph-bridge-list button {
+      display: block;
+      width: 100%;
+      text-align: left;
+      font-family: inherit;
+      font-size: inherit;
+      padding: 5px 0;
+      border: none;
+      background: none;
+      color: #c9a87a;
+      cursor: pointer;
+      border-bottom: 1px solid rgba(160, 130, 85, 0.12);
+    }
+    .graph-bridge-list button:hover { color: #f4ebd4; }
+
+    /* AI 助手 */
+    .ai-layout {
+      display: grid;
+      grid-template-columns: 1fr 300px;
+      gap: 16px;
+      min-height: 520px;
+    }
+    @media (max-width: 900px) {
+      .ai-layout { grid-template-columns: 1fr; }
+    }
+    .ai-chat {
+      display: flex;
+      flex-direction: column;
+      min-height: 520px;
+    }
+    .ai-messages {
+      flex: 1;
+      overflow-y: auto;
+      padding: 16px 18px;
+      min-height: 360px;
+      max-height: 480px;
+    }
+    .ai-msg {
+      margin-bottom: 14px;
+      max-width: 92%;
+    }
+    .ai-msg.user { margin-left: auto; }
+    .ai-msg .bubble {
+      padding: 12px 14px;
+      border-radius: 2px;
+      font-size: 0.84rem;
+      line-height: 1.65;
+      white-space: pre-wrap;
+      word-break: break-word;
+    }
+    .ai-msg.user .bubble {
+      background: linear-gradient(145deg, rgba(196, 92, 62, 0.35), rgba(139, 51, 40, 0.4));
+      border: 1px solid rgba(200, 150, 100, 0.35);
+      color: #f4ebd4;
+    }
+    .ai-msg.bot .bubble {
+      background: rgba(12, 16, 24, 0.85);
+      border: 1px solid rgba(160, 130, 85, 0.28);
+      color: #d8d0c4;
+    }
+    .ai-msg .meta {
+      font-size: 0.62rem;
+      color: #6d655c;
+      margin-top: 4px;
+      padding: 0 4px;
+    }
+    .ai-msg.user .meta { text-align: right; }
+    .ai-input-row {
+      display: flex;
+      gap: 8px;
+      padding: 12px 14px;
+      border-top: 1px solid rgba(160, 130, 85, 0.2);
+      background: rgba(10, 14, 20, 0.6);
+    }
+    .ai-input-row textarea {
+      flex: 1;
+      min-height: 44px;
+      max-height: 120px;
+      resize: vertical;
+      font-family: inherit;
+      font-size: 0.86rem;
+      padding: 10px 12px;
+      border: 1px solid rgba(160, 130, 85, 0.35);
+      border-radius: 2px;
+      background: rgba(8, 12, 18, 0.9);
+      color: #e8e4dc;
+    }
+    .ai-input-row textarea:focus {
+      outline: none;
+      border-color: rgba(200, 170, 120, 0.55);
+    }
+    .ai-send {
+      font-family: inherit;
+      font-size: 0.82rem;
+      letter-spacing: 0.08em;
+      padding: 10px 18px;
+      border: 1px solid rgba(160, 130, 85, 0.45);
+      background: linear-gradient(180deg, #e8d5bc, #a08055);
+      color: #1a1510;
+      border-radius: 2px;
+      cursor: pointer;
+      align-self: flex-end;
+    }
+    .ai-send:disabled { opacity: 0.5; cursor: not-allowed; }
+    .ai-side {
+      padding: 14px 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+    .ai-side h3 {
+      font-size: 0.78rem;
+      color: #c9a87a;
+      letter-spacing: 0.1em;
+      font-weight: 600;
+    }
+    .ai-mode {
+      font-size: 0.72rem;
+      color: #8a7d72;
+      line-height: 1.5;
+      padding: 8px 10px;
+      background: rgba(8, 12, 18, 0.5);
+      border: 1px solid rgba(160, 130, 85, 0.2);
+      border-radius: 2px;
+    }
+    .ai-mode strong { color: #d4b896; }
+    .ai-chips { display: flex; flex-wrap: wrap; gap: 6px; }
+    .ai-chip {
+      font-family: inherit;
+      font-size: 0.68rem;
+      padding: 5px 10px;
+      border: 1px solid rgba(160, 130, 85, 0.3);
+      background: rgba(22, 28, 36, 0.8);
+      color: #b8a898;
+      border-radius: 2px;
+      cursor: pointer;
+      transition: color 0.15s, border-color 0.15s;
+    }
+    .ai-chip:hover { color: #f4ebd4; border-color: rgba(200, 170, 120, 0.45); }
+    .ai-context {
+      font-size: 0.72rem;
+      color: #9a8c7a;
+      padding: 8px 10px;
+      border-left: 3px solid #d4a050;
+      background: rgba(212, 160, 80, 0.08);
+      display: none;
+    }
+    .ai-context.show { display: block; }
+    .ai-llm-toggle {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.72rem;
+      color: #8a7d72;
+      cursor: pointer;
+    }
+    .ai-llm-toggle input { accent-color: #c45c3e; }
+    .ai-llm-toggle.disabled { opacity: 0.45; cursor: not-allowed; }
+    .status-msg { padding: 40px 20px; text-align: center; color: #8a7d72; }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <div class="top-bar">
+      <div class="site-nav">
+        <a href="index.html" data-i18n="nav.coverBack">← 封面</a>
+        <span class="nav-sep">·</span>
+        <a href="museum.html" data-i18n="nav.museumShort">地图大屏</a>
+        <span class="nav-sep">·</span>
+        <a href="#" class="qh-agent-nav" id="navArchivist" data-i18n="nav.archivist">档案员</a>
+        <span class="nav-sep">·</span>
+        <button type="button" class="lang-btn" data-lang-toggle aria-label="English">EN</button>
+      </div>
+      <button type="button" class="music-btn music-btn--solo" id="musicToggle" data-i18n="music.label" data-i18n-aria="music.aria" aria-pressed="false" aria-label="背景音乐：高山流水">音乐</button>
+    </div>
+    <header class="hero">
+      <h1 data-i18n="knowledge.h1">智能文化驿站</h1>
+      <p data-i18n="knowledge.sub">知识图谱与热词洞察 + 古桥智能问答。</p>
+    </header>
+    <div class="tabs" role="tablist">
+      <button type="button" class="tab-btn active" data-tab="viz" role="tab" aria-selected="true" data-i18n="knowledge.tabViz">数据洞察</button>
+      <button type="button" class="tab-btn" data-tab="ai" role="tab" aria-selected="false" data-i18n="knowledge.tabAi">AI 智能助手</button>
+    </div>
+    <div id="loadStatus" class="status-msg" data-i18n="knowledge.loading">正在加载数据…</div>
+
+    <div id="tabViz" class="tab-panel active">
+      <div class="viz-layout" id="mainGrid" style="display:none;">
+        <section class="card graph-card">
+          <div class="graph-card-head">
+            <div class="title-block">
+              <h2 data-i18n="knowledge.graphTitle">知识图谱</h2>
+              <p data-i18n="knowledge.graphSub">探索古桥与朝代、地域、桥型、材质的关联网络</p>
+            </div>
+            <div class="graph-toolbar">
+              <input type="search" class="graph-search" id="graphSearch" data-i18n-placeholder="knowledge.graphSearch" data-i18n-aria="knowledge.graphSearch" placeholder="搜索桥名、朝代、省份…" autocomplete="off" aria-label="搜索图谱节点">
+              <div class="graph-zoom-group" role="group" aria-label="图谱缩放">
+                <button type="button" class="graph-tool-btn" id="graphZoomOut" data-i18n="knowledge.zoomOut" data-i18n-title="knowledge.zoomOut" data-i18n-aria="knowledge.zoomOut" title="缩小" aria-label="缩小图谱">缩小</button>
+                <button type="button" class="graph-tool-btn" id="graphZoomIn" data-i18n="knowledge.zoomIn" data-i18n-title="knowledge.zoomIn" data-i18n-aria="knowledge.zoomIn" title="放大" aria-label="放大图谱">放大</button>
+              </div>
+              <button type="button" class="graph-tool-btn" id="graphResetView" data-i18n="knowledge.reset" data-i18n-title="knowledge.reset" title="重置缩放与布局">重置视图</button>
+              <button type="button" class="graph-tool-btn" id="graphAskAi" data-i18n="knowledge.askAi" data-i18n-title="knowledge.askAi" title="将当前选中桥梁带入 AI 提问" disabled>问 AI</button>
+              <button type="button" class="graph-tool-btn" id="graphAskArchivist" data-i18n="knowledge.askArchivist" data-i18n-title="agent.fabTitle" title="打开飞虹智忆档案员（带浏览记忆）" disabled>问档案员</button>
+            </div>
+          </div>
+          <div class="graph-body">
+            <div class="graph-main">
+              <div id="graphChart" class="graph-chart-box" role="application" aria-label="桥梁知识关系图谱，可拖拽与缩放"></div>
+              <p class="graph-hint" data-i18n="knowledge.graphHint">拖拽节点 · 滚轮或工具栏缩放 · 点击桥梁或属性节点查看详情</p>
+            </div>
+            <aside class="graph-side">
+              <div class="graph-filters">
+                <h3 data-i18n="knowledge.layers">图层筛选</h3>
+                <div class="graph-legend" id="graphLegend" role="group" aria-label="节点类型筛选"></div>
+              </div>
+              <div class="graph-focus empty" id="graphFocus" data-i18n="knowledge.graphTip" data-i18n-html>
+                点击图谱中的<strong style="color:#d4a050">桥梁节点</strong>（金色）查看档案；点击朝代、省份等节点可列出相关古桥。
+              </div>
+            </aside>
+          </div>
+        </section>
+        <div class="grid grid--words">
+          <section class="card">
+            <div class="card-head">
+              <h2 data-i18n="knowledge.hotTitle">文化热词</h2>
+              <p data-i18n="knowledge.hotSub">字号越大权重越高；点击热词可跳转 AI 助手并填入提问</p>
+            </div>
+            <div id="wordChart" class="chart-box"></div>
+          </section>
+        </div>
+      </div>
+    </div>
+
+    <div id="tabAi" class="tab-panel">
+      <section class="card ai-chat-wrap">
+        <div class="card-head">
+          <h2 data-i18n="knowledge.aiTitle">古桥 AI 助手</h2>
+          <p data-i18n="knowledge.aiSub">可问桥史、结构、诗词文化、朝代列表与名桥对比；在「数据洞察」页点击桥梁后，回答将结合该桥档案</p>
+        </div>
+        <div class="ai-layout">
+          <div class="ai-chat">
+            <div class="ai-messages" id="aiMessages" aria-live="polite"></div>
+            <div class="ai-input-row">
+              <textarea id="aiInput" rows="2" data-i18n-placeholder="knowledge.aiPh" data-i18n-aria="knowledge.aiPh" placeholder="例如：介绍赵州桥 / 宋代有哪些拱桥 / 对比赵州桥和卢沟桥" aria-label="向 AI 提问"></textarea>
+              <button type="button" class="ai-send" id="aiSend" data-i18n="knowledge.send">发送</button>
+            </div>
+          </div>
+          <aside class="card ai-side">
+            <h3 data-i18n="knowledge.engine">引擎与快捷问</h3>
+            <div class="ai-mode" id="aiModeHint">
+              <strong data-i18n="knowledge.localEngine">本地知识引擎</strong><span data-i18n="knowledge.localEngineHint">：基于本馆古桥图鉴与文献摘要即时检索作答。</span>
+            </div>
+            <label class="ai-llm-toggle" id="llmToggleWrap">
+              <input type="checkbox" id="aiUseLlm">
+              <span data-i18n="knowledge.kimi">启用 Kimi 大模型增强</span>
+            </label>
+            <div class="ai-context" id="aiContext">
+              当前上下文：<span id="aiContextName"></span>
+              <button type="button" class="ai-chip" id="aiClearCtx" style="margin-top:6px;" data-i18n="knowledge.clear">清除</button>
+            </div>
+            <div class="ai-chips" id="aiChips"></div>
+          </aside>
+        </div>
+      </section>
+    </div>
+  </div>
+  <audio id="bgMusic" loop playsinline preload="metadata">
+    <source src="assets/高山流水.mp3" type="audio/mpeg">
+  </audio>
+  <script src="assets/bg-music.js" defer></script>
+  <script src="assets/bridge-ai.js"></script>
+  <script>
+    (function () {
+      function t(k, v) { return window.BridgeI18n ? window.BridgeI18n.t(k, v) : k; }
+      function f(zh) { return window.BridgeI18n ? window.BridgeI18n.field(zh) : zh; }
+      function bn(zh) { return window.BridgeI18n ? window.BridgeI18n.bridgeName(zh) : zh; }
+      function catLabel(name) {
+        var map = { '桥梁': t('knowledge.nodeBridge').split(' · ')[0] || 'Bridge', '朝代': t('cat.dynasty'), '省份': t('cat.province'), '桥型': t('cat.type'), '材质': t('cat.material') };
+        if (window.BridgeI18n && window.BridgeI18n.getLang() === 'en') {
+          map['桥梁'] = 'Bridge';
+        }
+        return map[name] || f(name) || name;
+      }
+
+      var graphChart = null;
+      var wordChart = null;
+      var bridgesByName = {};
+      var bridgeAI = null;
+      var selectedBridgeName = null;
+      var hotWordsList = [];
+      var graphStore = null;
+      var graphCategories = [];
+      var graphResizeObs = null;
+      var graphActiveCats = { 0: true, 1: true, 2: true, 3: true, 4: true };
+      var GRAPH_CAT_META = [
+        { id: 0, name: '桥梁', color: '#d4a050' },
+        { id: 1, name: '朝代', color: '#9a8c98' },
+        { id: 2, name: '省份', color: '#5a8a9a' },
+        { id: 3, name: '桥型', color: '#c45c3e' },
+        { id: 4, name: '材质', color: '#6d8f6a' }
+      ];
+
+      var INTRO_TERMS = [
+        '敞肩', '石拱', '拱券', '单孔', '跨海', '浮桥', '索桥', '铁索', '廊桥', '梁桥', '拱桥',
+        '文物保护', '国保', '工匠', '李春', '蔡襄', '鲁班', '种蛎', '筏形', '启闭', '丝绸之路'
+      ];
+      var INTRO_TERMS_EN = {
+        '敞肩': 'open-spandrel', '石拱': 'stone arch', '拱券': 'arch ring', '单孔': 'single span',
+        '跨海': 'sea-crossing', '浮桥': 'Pontoon bridge', '索桥': 'Cable bridge', '铁索': 'iron cables',
+        '廊桥': 'covered bridge', '梁桥': 'Beam bridge', '拱桥': 'Arch bridge',
+        '文物保护': 'heritage protection', '国保': 'national heritage', '工匠': 'craftsman',
+        '李春': 'Li Chun', '蔡襄': 'Cai Xiang', '鲁班': 'Lu Ban', '种蛎': 'oyster foundation',
+        '筏形': 'raft foundation', '启闭': 'openable span', '丝绸之路': 'Silk Road'
+      };
+      var POETRY_TAG_EN = {
+        '卢沟晓月': 'Lugou Dawn Moon',
+        '枫桥夜泊': 'Mooring at Fengqiao',
+        '白蛇传': 'White Snake legend',
+        '飞夺泸定桥': 'Seizing Luding Bridge',
+        '十八梭船廿四洲': '18 boats & 24 piers',
+        '天下无桥长此桥': 'No longer bridge under heaven',
+        '洛阳之桥天下奇': 'Luoyang Bridge wonder',
+        '颐和园名桥': 'Summer Palace span',
+        '侗族风雨桥代表': 'Dong wind-rain bridge',
+        '现存最早立交': 'earliest interchange',
+        '西南丝路要津': 'Southwest Silk Road ford',
+        '水从碧玉环中过，人在苍龙背上行': 'jade ring & dragon back',
+        '天下三分明月夜，二分无赖是扬州': 'two-thirds of the moon in Yangzhou'
+      };
+
+      function isEn() {
+        return window.BridgeI18n && window.BridgeI18n.getLang() === 'en';
+      }
+
+      function loadBridges() {
+        if (typeof window.BRIDGES_DATA !== 'undefined' && Array.isArray(window.BRIDGES_DATA)) {
+          return Promise.resolve(window.BRIDGES_DATA);
+        }
+        return fetch('data/bridges.json').then(function (r) { return r.json(); });
+      }
+      function loadCulture() {
+        return fetch('data/poetry-culture.json').then(function (r) { return r.json(); }).catch(function () { return null; });
+      }
+
+      function localizeHotTag(zh) {
+        if (!zh || typeof zh !== 'string') return null;
+        zh = zh.trim();
+        if (!zh) return null;
+        if (!isEn()) return zh.replace(/\s+/g, '');
+        var asBridge = bn(zh);
+        if (asBridge !== zh) return asBridge;
+        var asField = f(zh);
+        if (asField !== zh) return asField;
+        if (INTRO_TERMS_EN[zh]) return INTRO_TERMS_EN[zh];
+        if (POETRY_TAG_EN[zh]) return POETRY_TAG_EN[zh];
+        if (/[\u4e00-\u9fff]/.test(zh)) return null;
+        return zh;
+      }
+
+      function addFreq(map, zhKey, weight, zhOf) {
+        var label = localizeHotTag(zhKey);
+        if (!label || label.length < 2) return;
+        if (isEn() && /[\u4e00-\u9fff]/.test(label)) return;
+        if (!map[label]) map[label] = { value: 0, zh: zhOf || zhKey };
+        map[label].value += weight;
+        if (zhOf) map[label].zh = zhOf;
+      }
+      function buildHotWords(bridges, culture) {
+        var freq = {};
+        bridges.forEach(function (b) {
+          addFreq(freq, b.name, 14, b.name);
+          addFreq(freq, b.dynasty, 9);
+          addFreq(freq, b.type, 9);
+          addFreq(freq, b.material, 7);
+          addFreq(freq, b.province, 6);
+          if (b.city) addFreq(freq, b.city, 4);
+          if (b.poetry) {
+            var poem = String(b.poetry).trim();
+            if (!isEn() || poem.length <= 16 || POETRY_TAG_EN[poem]) addFreq(freq, poem, 11);
+          }
+          if (b.intro) {
+            INTRO_TERMS.forEach(function (term) {
+              if (b.intro.indexOf(term) >= 0) addFreq(freq, term, 5);
+            });
+          }
+        });
+        if (culture && culture.entries) {
+          Object.keys(culture.entries).forEach(function (name) {
+            addFreq(freq, name, 8, name);
+          });
+        }
+        return Object.keys(freq).map(function (k) {
+          return { name: k, value: freq[k].value, zh: freq[k].zh };
+        }).sort(function (a, b) { return b.value - a.value; }).slice(0, 72);
+      }
+
+      function nodeId(prefix, val) { return prefix + ':' + String(val || '').replace(/\s/g, '_'); }
+
+      function bridgeSymbolSize(b) {
+        var span = b && b.span != null && b.span > 0 ? b.span : 18;
+        return Math.round(22 + Math.min(14, span / 4));
+      }
+
+      function buildGraph(bridges) {
+        var nodes = [], links = [], seen = {};
+        function ensureNode(id, name, cat, symbolSize, extra) {
+          if (seen[id]) return id;
+          seen[id] = true;
+          var n = { id: id, name: name, category: cat, symbolSize: symbolSize };
+          if (extra) Object.keys(extra).forEach(function (k) { n[k] = extra[k]; });
+          nodes.push(n);
+          return id;
+        }
+        bridges.forEach(function (b) {
+          bridgesByName[b.name] = b;
+          var bid = nodeId('bridge', b.name);
+          ensureNode(bid, bn(b.name), 0, bridgeSymbolSize(b), { bridgeName: b.name, isBridge: true, nodeKind: 'bridge' });
+          if (b.dynasty) {
+            var did = nodeId('dynasty', b.dynasty);
+            ensureNode(did, f(b.dynasty), 1, 22, { nodeKind: 'dynasty', rawName: b.dynasty });
+            links.push({ source: bid, target: did, name: window.BridgeI18n && window.BridgeI18n.getLang() === 'en' ? 'built in' : '建于' });
+          }
+          if (b.province) {
+            var pid = nodeId('province', b.province);
+            ensureNode(pid, f(b.province), 2, 20, { nodeKind: 'province', rawName: b.province });
+            links.push({ source: bid, target: pid, name: window.BridgeI18n && window.BridgeI18n.getLang() === 'en' ? 'in' : '位于' });
+          }
+          if (b.type) {
+            var tid = nodeId('type', b.type);
+            ensureNode(tid, f(b.type), 3, 20, { nodeKind: 'type', rawName: b.type });
+            links.push({ source: bid, target: tid, name: window.BridgeI18n && window.BridgeI18n.getLang() === 'en' ? 'type' : '类型' });
+          }
+          if (b.material) {
+            var mid = nodeId('material', b.material);
+            ensureNode(mid, f(b.material), 4, 18, { nodeKind: 'material', rawName: b.material });
+            links.push({ source: bid, target: mid, name: window.BridgeI18n && window.BridgeI18n.getLang() === 'en' ? 'material' : '材质' });
+          }
+        });
+        return { nodes: nodes, links: links };
+      }
+
+      function setSelectedBridge(name) {
+        selectedBridgeName = name || null;
+        var ctx = document.getElementById('aiContext');
+        var ctxName = document.getElementById('aiContextName');
+        var askBtn = document.getElementById('graphAskAi');
+        var askArchivist = document.getElementById('graphAskArchivist');
+        if (name && ctx && ctxName) {
+          ctx.classList.add('show');
+          ctxName.textContent = bn(name);
+        } else if (ctx) {
+          ctx.classList.remove('show');
+        }
+        if (askBtn) askBtn.disabled = !name;
+        if (askArchivist) askArchivist.disabled = !name;
+        if (name && window.QianhongAgent) {
+          QianhongAgent.track('select_bridge', 'knowledge_graph', name, null);
+        }
+
+      function nodeLabelById(id) {
+        if (!graphStore) return id;
+        for (var i = 0; i < graphStore.nodes.length; i++) {
+          if (graphStore.nodes[i].id === id) return graphStore.nodes[i].name;
+        }
+        return id;
+      }
+
+      function getVisibleGraphData() {
+        if (!graphStore) return { nodes: [], links: [] };
+        var nodes = graphStore.nodes.filter(function (n) { return graphActiveCats[n.category]; });
+        var idSet = {};
+        nodes.forEach(function (n) { idSet[n.id] = true; });
+        var links = graphStore.links.filter(function (l) {
+          return idSet[l.source] && idSet[l.target];
+        });
+        return { nodes: nodes, links: links };
+      }
+
+      function decorateGraphNodes(nodes) {
+        return nodes.map(function (n) {
+          var meta = GRAPH_CAT_META[n.category];
+          var color = meta ? meta.color : '#d4a050';
+          return Object.assign({}, n, {
+            itemStyle: {
+              color: color,
+              borderColor: 'rgba(255,255,255,0.22)',
+              borderWidth: n.category === 0 ? 1.5 : 1,
+              shadowBlur: n.category === 0 ? 8 : 4,
+              shadowColor: 'rgba(0,0,0,0.35)'
+            }
+          });
+        });
+      }
+
+      function attachGraphResizeObserver() {
+        var el = document.getElementById('graphChart');
+        if (!el || !window.ResizeObserver) return;
+        if (graphResizeObs) graphResizeObs.disconnect();
+        graphResizeObs = new ResizeObserver(function () {
+          if (graphChart) graphChart.resize();
+        });
+        graphResizeObs.observe(el);
+      }
+
+      function graphSeriesOption(nodes, links) {
+        return {
+          type: 'graph',
+          layout: 'force',
+          data: decorateGraphNodes(nodes),
+          links: links.map(function (l) {
+            return {
+              source: l.source,
+              target: l.target,
+              name: l.name,
+              lineStyle: { color: 'rgba(160,130,85,0.22)', curveness: 0.15 }
+            };
+          }),
+          categories: graphCategories,
+          roam: true,
+          draggable: true,
+          scaleLimit: { min: 0.35, max: 3 },
+          label: {
+            show: true,
+            position: 'right',
+            color: '#e8e4dc',
+            formatter: function (p) {
+              var n = p.name || '';
+              if (p.data && p.data.category === 0) return n;
+              return n.length > 5 ? n.slice(0, 4) + '…' : n;
+            }
+          },
+          emphasis: {
+            focus: 'adjacency',
+            scale: 1.12,
+            lineStyle: { width: 2, color: 'rgba(212,176,150,0.55)' },
+            label: { fontSize: 12, color: '#f4ebd4', fontWeight: 600 }
+          },
+          blur: {
+            itemStyle: { opacity: 0.12 },
+            label: { opacity: 0.15 }
+          },
+          force: {
+            repulsion: 280,
+            edgeLength: [80, 160],
+            gravity: 0.06,
+            friction: 0.4,
+            layoutAnimation: true
+          },
+          lineStyle: {
+            color: 'rgba(160,130,85,0.28)',
+            curveness: 0.12,
+            opacity: 0.65
+          }
+        };
+      }
+
+      function scheduleGraphResize() {
+        function resizeIfReady() {
+          if (!graphChart) return;
+          var el = document.getElementById('graphChart');
+          if (el && el.clientWidth > 0 && el.clientHeight > 0) {
+            graphChart.resize();
+          }
+        }
+        requestAnimationFrame(function () {
+          requestAnimationFrame(resizeIfReady);
+        });
+        setTimeout(resizeIfReady, 80);
+        setTimeout(resizeIfReady, 320);
+      }
+
+      function applyGraphToChart() {
+        if (!graphChart || !graphStore) return;
+        var vis = getVisibleGraphData();
+        graphChart.setOption({
+          series: [graphSeriesOption(vis.nodes, vis.links)]
+        }, { replaceMerge: ['series'] });
+        scheduleGraphResize();
+      }
+
+      function showGraphFocusEmpty() {
+        var el = document.getElementById('graphFocus');
+        if (!el) return;
+        el.className = 'graph-focus empty';
+        el.innerHTML = t('knowledge.graphTip');
+        setSelectedBridge(null);
+      }
+
+      function showBridgeFocus(name) {
+        var b = bridgesByName[name];
+        var el = document.getElementById('graphFocus');
+        if (!b || !el) return;
+        setSelectedBridge(name);
+        var yearStr = b.year != null ? (b.year < 0 ? '约公元前 ' + (-b.year) + ' 年' : '约公元 ' + b.year + ' 年') : '';
+        el.className = 'graph-focus';
+        el.innerHTML =
+          '<h3>' + escapeHtml(bn(b.name)) + '</h3>' +
+          '<p class="meta">' + escapeHtml([b.dynasty, yearStr, b.province + (b.city ? ' · ' + b.city : ''), b.type, b.material].filter(Boolean).join(' · ')) +
+          (b.poetry ? '\n「' + b.poetry + '」' : '') + '</p>' +
+          '<div class="tag-row">' +
+          (b.type ? '<span class="tag">' + escapeHtml(b.type) + '</span>' : '') +
+          (b.protection === '国保' ? '<span class="tag">' + f('国保') + '</span>' : '') +
+          (b.span != null ? '<span class="tag">' + t('detail.span') + ' ' + b.span + 'm</span>' : '') +
+          '</div>' +
+          '<div class="graph-focus-actions">' +
+          '<a class="btn-primary" href="bridge-detail.html?name=' + encodeURIComponent(b.name) + '">' + t('knowledge.viewArchive') + '</a>' +
+          '<button type="button" class="btn-ghost" id="graphFocusAskAi">' + t('knowledge.askAi') + '</button>' +
+          '<button type="button" class="btn-ghost" id="graphFocusAskArchivist">' + t('knowledge.askArchivist') + '</button>' +
+          '</div>';
+        document.getElementById('graphFocusAskAi').addEventListener('click', function () {
+          switchTab('ai');
+          var input = document.getElementById('aiInput');
+          if (input) input.value = '介绍' + b.name;
+        });
+        var archBtn = document.getElementById('graphFocusAskArchivist');
+        if (archBtn) {
+          archBtn.addEventListener('click', function () {
+            if (window.QianhongAgent) {
+              QianhongAgent.openArchivist({
+                bridge: b.name,
+                q: '介绍' + b.name,
+                autoAsk: true,
+                source: 'knowledge_graph'
+              });
+            }
+          });
+        }
+      }
+
+      function showAttrFocus(nodeData) {
+        var el = document.getElementById('graphFocus');
+        if (!el || !graphStore || !nodeData) return;
+        setSelectedBridge(null);
+        var catName = GRAPH_CAT_META[nodeData.category] ? GRAPH_CAT_META[nodeData.category].name : '属性';
+        catName = catLabel(catName);
+        var bridgeNames = [];
+        graphStore.links.forEach(function (l) {
+          if (l.target !== nodeData.id) return;
+          for (var i = 0; i < graphStore.nodes.length; i++) {
+            var n = graphStore.nodes[i];
+            if (n.id === l.source && n.isBridge) bridgeNames.push(n.name);
+          }
+        });
+        bridgeNames.sort();
+        el.className = 'graph-focus';
+        el.innerHTML =
+          '<h3>' + escapeHtml(nodeData.name) + '</h3>' +
+          '<p class="meta">' + escapeHtml(f(catName) || catName) + ' · ' + t('knowledge.related', { n: bridgeNames.length }) + '</p>' +
+          '<div class="graph-bridge-list" id="graphBridgeList"></div>';
+        var list = el.querySelector('#graphBridgeList');
+        if (!bridgeNames.length) {
+          list.innerHTML = '<span style="color:#6d655c">' + t('knowledge.noRelated') + '</span>';
+        } else {
+          bridgeNames.forEach(function (nm) {
+            var btn = document.createElement('button');
+            btn.type = 'button';
+            btn.textContent = nm;
+            btn.addEventListener('click', function () {
+              showBridgeFocus(nm);
+            });
+            list.appendChild(btn);
+          });
+        }
+      }
+
+      function initGraphLegend() {
+        var wrap = document.getElementById('graphLegend');
+        if (!wrap) return;
+        wrap.innerHTML = '';
+        GRAPH_CAT_META.forEach(function (c) {
+          var btn = document.createElement('button');
+          btn.type = 'button';
+          btn.className = 'graph-legend-btn active';
+          btn.setAttribute('data-cat', String(c.id));
+          btn.innerHTML = '<i style="background:' + c.color + '"></i>' + catLabel(c.name);
+          btn.addEventListener('click', function () {
+            var id = parseInt(btn.getAttribute('data-cat'), 10);
+            graphActiveCats[id] = !graphActiveCats[id];
+            btn.classList.toggle('active', graphActiveCats[id]);
+            btn.classList.toggle('off', !graphActiveCats[id]);
+            applyGraphToChart();
+          });
+          wrap.appendChild(btn);
+        });
+      }
+
+      function graphZoomBy(factor) {
+        if (!graphChart) return;
+        var opt = graphChart.getOption();
+        var s = opt.series && opt.series[0];
+        if (!s) return;
+        var zoom = typeof s.zoom === 'number' ? s.zoom : 1;
+        var center = s.center;
+        var next = Math.min(3, Math.max(0.35, zoom * factor));
+        var patch = { zoom: next };
+        if (center) patch.center = center;
+        graphChart.setOption({ series: [patch] });
+      }
+
+      function searchGraph(keyword) {
+        if (!graphChart || !graphStore) return;
+        var k = (keyword || '').trim().toLowerCase();
+        if (!k) {
+          graphChart.dispatchAction({ type: 'downplay', seriesIndex: 0 });
+          return;
+        }
+        var vis = getVisibleGraphData().nodes;
+        var hit = null;
+        for (var i = 0; i < vis.length; i++) {
+          if (vis[i].name && vis[i].name.toLowerCase().indexOf(k) >= 0) {
+            hit = vis[i];
+            break;
+          }
+        }
+        if (!hit) return;
+        graphChart.dispatchAction({ type: 'downplay', seriesIndex: 0 });
+        graphChart.dispatchAction({ type: 'highlight', seriesIndex: 0, name: hit.name });
+        if (hit.isBridge) showBridgeFocus(hit.bridgeName || hit.name);
+        else showAttrFocus(hit);
+      }
+
+      function initGraph(graph) {
+        var el = document.getElementById('graphChart');
+        if (!el || !window.echarts) return;
+        if (!graph.nodes.length) {
+          el.innerHTML = '<p style="padding:40px;text-align:center;color:#8a7d72;font-size:0.85rem">' + t('knowledge.noGraph') + '</p>';
+          return;
+        }
+        if (graphChart) {
+          graphChart.dispose();
+          graphChart = null;
+        }
+        el.innerHTML = '';
+        graphStore = graph;
+        graphCategories = GRAPH_CAT_META.map(function (c) {
+          return { name: catLabel(c.name), itemStyle: { color: c.color } };
+        });
+        initGraphLegend();
+        graphChart = echarts.init(el, null, { renderer: 'canvas' });
+        graphChart.setOption({
+          backgroundColor: 'transparent',
+          animationDuration: 450,
+          animationEasingUpdate: 'cubicOut',
+          tooltip: {
+            trigger: 'item',
+            backgroundColor: 'rgba(14,18,26,0.96)',
+            borderColor: 'rgba(160,130,85,0.45)',
+            textStyle: { color: '#e8e4dc', fontSize: 12 },
+            formatter: function (p) {
+              if (p.dataType === 'edge') {
+                return (p.data.name || '关联') + '<br/><span style="color:#9a8c7a">' +
+                  escapeHtml(nodeLabelById(p.data.source)) + ' → ' + escapeHtml(nodeLabelById(p.data.target)) + '</span>';
+              }
+              var d = p.data || {};
+              var cat = GRAPH_CAT_META[d.category] ? GRAPH_CAT_META[d.category].name : '';
+              if (d.isBridge) return '<strong>' + escapeHtml(bn(d.name)) + '</strong><br/><span style="color:#9a8c7a">' + t('knowledge.nodeBridge') + '</span>';
+              return '<strong>' + escapeHtml(f(d.name) || d.name) + '</strong><br/><span style="color:#9a8c7a">' + (f(cat) || cat) + ' · ' + t('knowledge.nodeCat') + '</span>';
+            }
+          },
+          series: [graphSeriesOption(graph.nodes, graph.links)]
+        }, { notMerge: true });
+        scheduleGraphResize();
+        attachGraphResizeObserver();
+
+        graphChart.on('click', function (params) {
+          if (params.dataType !== 'node' || !params.data) return;
+          if (params.data.isBridge) showBridgeFocus(params.data.bridgeName || params.data.name);
+          else showAttrFocus(params.data);
+        });
+
+        graphChart.getZr().on('click', function (e) {
+          if (!e.target) showGraphFocusEmpty();
+        });
+
+        var searchEl = document.getElementById('graphSearch');
+        if (searchEl) {
+          var searchTimer = null;
+          searchEl.addEventListener('input', function () {
+            clearTimeout(searchTimer);
+            searchTimer = setTimeout(function () { searchGraph(searchEl.value); }, 280);
+          });
+          searchEl.addEventListener('keydown', function (ev) {
+            if (ev.key === 'Enter') searchGraph(searchEl.value);
+          });
+        }
+        var zoomInBtn = document.getElementById('graphZoomIn');
+        var zoomOutBtn = document.getElementById('graphZoomOut');
+        if (zoomInBtn) {
+          zoomInBtn.addEventListener('click', function () { graphZoomBy(1.25); });
+        }
+        if (zoomOutBtn) {
+          zoomOutBtn.addEventListener('click', function () { graphZoomBy(0.8); });
+        }
+        var resetBtn = document.getElementById('graphResetView');
+        if (resetBtn) {
+          resetBtn.addEventListener('click', function () {
+            graphChart.dispatchAction({ type: 'restore' });
+            if (searchEl) searchEl.value = '';
+            showGraphFocusEmpty();
+          });
+        }
+        var askBtn = document.getElementById('graphAskAi');
+        if (askBtn) {
+          askBtn.addEventListener('click', function () {
+            if (!selectedBridgeName) return;
+            switchTab('ai');
+            var input = document.getElementById('aiInput');
+            if (input) input.value = '介绍' + selectedBridgeName;
+          });
+        }
+        var askArchivist = document.getElementById('graphAskArchivist');
+        if (askArchivist) {
+          askArchivist.addEventListener('click', function () {
+            if (!selectedBridgeName || !window.QianhongAgent) return;
+            QianhongAgent.openArchivist({
+              bridge: selectedBridgeName,
+              q: '介绍' + selectedBridgeName,
+              autoAsk: true,
+              source: 'knowledge_graph'
+            });
+          });
+        }
+      }
+
+      function initWordCloud(words) {
+        hotWordsList = words;
+        var el = document.getElementById('wordChart');
+        if (!el || !window.echarts) return;
+        wordChart = echarts.init(el);
+        wordChart.setOption({
+          backgroundColor: 'transparent',
+          series: [{
+            type: 'wordCloud', shape: 'circle', sizeRange: [14, 48],
+            rotationRange: [-25, 25], gridSize: 10,
+            textStyle: {
+              fontFamily: isEn()
+                ? 'Cormorant Garamond, Georgia, Noto Serif SC, serif'
+                : 'Noto Serif SC, serif',
+              color: function (p) {
+                var palette = ['#d4a050', '#e8d5b7', '#c9a87a', '#a08055', '#c45c3e', '#6d8f6a'];
+                var h = 0, s = p.name || '';
+                for (var i = 0; i < s.length; i++) h = (h + s.charCodeAt(i)) % palette.length;
+                return palette[h];
+              }
+            },
+            data: words
+          }]
+        });
+        wordChart.on('click', function (p) {
+          if (p.name) {
+            switchTab('ai');
+            var input = document.getElementById('aiInput');
+            if (!input) return;
+            var zh = (p.data && p.data.zh) || p.name;
+            input.value = isEn() ? ('Tell me about ' + p.name) : ('介绍' + zh);
+          }
+        });
+      }
+
+      function switchTab(id) {
+        document.querySelectorAll('.tab-btn').forEach(function (btn) {
+          var on = btn.getAttribute('data-tab') === id;
+          btn.classList.toggle('active', on);
+          btn.setAttribute('aria-selected', on ? 'true' : 'false');
+        });
+        document.querySelectorAll('.tab-panel').forEach(function (p) {
+          p.classList.toggle('active', p.id === (id === 'viz' ? 'tabViz' : 'tabAi'));
+        });
+        if (id === 'viz') {
+          scheduleGraphResize();
+          if (wordChart) setTimeout(function () { wordChart.resize(); }, 80);
+        }
+        if (id === 'ai' && wordChart) setTimeout(function () { wordChart.resize(); }, 80);
+      }
+
+      document.querySelectorAll('.tab-btn').forEach(function (btn) {
+        btn.addEventListener('click', function () { switchTab(btn.getAttribute('data-tab')); });
+      });
+
+      function appendMessage(role, text, meta) {
+        var box = document.getElementById('aiMessages');
+        if (!box) return;
+        var div = document.createElement('div');
+        div.className = 'ai-msg ' + role;
+        div.innerHTML = '<div class="bubble">' + escapeHtml(text) + '</div>' +
+          (meta ? '<div class="meta">' + escapeHtml(meta) + '</div>' : '');
+        box.appendChild(div);
+        box.scrollTop = box.scrollHeight;
+      }
+
+      function escapeHtml(s) {
+        var d = document.createElement('div');
+        d.textContent = s;
+        return d.innerHTML;
+      }
+
+      function initAiAssistant(bridges, culture) {
+        bridgeAI = new BridgeAI(bridges, culture);
+        var hint = document.getElementById('aiModeHint');
+        if (hint) {
+          hint.innerHTML = '<strong>' + t('knowledge.localEngine') + '</strong>' + t('knowledge.localEngineCount', { n: bridges.length });
+        }
+        var llmCfg = bridgeAI.getAiConfig();
+        var llmWrap = document.getElementById('llmToggleWrap');
+        var llmCheck = document.getElementById('aiUseLlm');
+        if (llmCfg) {
+          if (llmWrap) llmWrap.classList.remove('disabled');
+          if (hint) {
+            hint.innerHTML += '<br><span style="color:#c9a87a">已配置 ' + (llmCfg.providerLabel || 'Kimi') +
+              '（' + llmCfg.model + '），勾选即可使用。</span>';
+          }
+        } else {
+          if (llmWrap) llmWrap.classList.add('disabled');
+          if (llmCheck) llmCheck.disabled = true;
+        }
+
+        var chips = [
+          '介绍赵州桥', '卢沟桥的历史意义', '宋代有哪些拱桥',
+          '对比赵州桥和卢沟桥', '推荐五座必看名桥', '索桥有哪些'
+        ];
+        var chipsEl = document.getElementById('aiChips');
+        chips.forEach(function (q) {
+          var btn = document.createElement('button');
+          btn.type = 'button';
+          btn.className = 'ai-chip';
+          btn.textContent = q;
+          btn.addEventListener('click', function () {
+            document.getElementById('aiInput').value = q;
+            sendQuestion();
+          });
+          chipsEl.appendChild(btn);
+        });
+
+        appendMessage('bot',
+          '您好，我是古桥图鉴智能助手。\n\n· 可询问任意桥梁的结构、年代、文化与诗词\n· 支持「宋代有哪些拱桥」「对比赵州桥和卢沟桥」等\n· 在「数据洞察」点击图谱中的桥梁，再提问可获得更精准讲解',
+          '本地知识引擎');
+
+        document.getElementById('aiSend').addEventListener('click', sendQuestion);
+        document.getElementById('aiInput').addEventListener('keydown', function (e) {
+          if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendQuestion(); }
+        });
+        document.getElementById('aiClearCtx').addEventListener('click', function () {
+          setSelectedBridge(null);
+          showGraphFocusEmpty();
+        });
+      }
+
+      function sendQuestion() {
+        var input = document.getElementById('aiInput');
+        var q = (input && input.value || '').trim();
+        if (!q || !bridgeAI) return;
+        var useLlm = document.getElementById('aiUseLlm') && document.getElementById('aiUseLlm').checked;
+        var sendBtn = document.getElementById('aiSend');
+        sendBtn.disabled = true;
+        appendMessage('user', q);
+        input.value = '';
+        var llmLabel = bridgeAI.getAiConfig();
+        appendMessage('bot', '正在思考…', useLlm ? ((llmLabel && llmLabel.providerLabel) || 'Kimi') + ' 生成中' : '检索中');
+
+        bridgeAI.ask(q, selectedBridgeName, useLlm).then(function (res) {
+          var box = document.getElementById('aiMessages');
+          if (box.lastChild) box.removeChild(box.lastChild);
+          var meta = res.mode === 'llm'
+            ? ((res.providerLabel || 'Kimi') + ' 大模型')
+            : (res.fallback ? '本地（已回退）' : '本地知识引擎');
+          if (res.sources && res.sources.length) meta += ' · 引用：' + res.sources.slice(0, 3).join('、');
+          appendMessage('bot', res.text, meta);
+        }).catch(function (err) {
+          var box = document.getElementById('aiMessages');
+          if (box.lastChild) box.removeChild(box.lastChild);
+          appendMessage('bot', '出错了：' + err.message, '请稍后重试');
+        }).finally(function () {
+          sendBtn.disabled = false;
+        });
+      }
+
+      function onResize() {
+        if (graphChart) graphChart.resize();
+        if (wordChart) wordChart.resize();
+      }
+
+      Promise.all([loadBridges(), loadCulture()]).then(function (res) {
+        var bridges = res[0] || [];
+        var culture = res[1];
+        if (!bridges.length) {
+          document.getElementById('loadStatus').textContent = '暂无桥梁数据';
+          return;
+        }
+        document.getElementById('loadStatus').style.display = 'none';
+        document.getElementById('mainGrid').style.display = 'flex';
+        requestAnimationFrame(function () {
+          initGraph(buildGraph(bridges));
+          initWordCloud(buildHotWords(bridges, culture));
+          initAiAssistant(bridges, culture);
+          scheduleGraphResize();
+        });
+        window.addEventListener('resize', onResize);
+      }).catch(function () {
+        document.getElementById('loadStatus').textContent = '数据加载失败';
+      });
+    
+      document.addEventListener('bridge:langchange', function () {
+        location.reload();
+      });
+
+})();
+  </script>
+  <script>
+    (function () {
+      if (!window.QianhongAgent) return;
+      QianhongAgent.init({
+        getBridge: function () {
+          return QianhongAgent.getFocusBridge() || '';
+        }
+      });
+      var nav = document.getElementById('navArchivist');
+      if (nav) {
+        nav.addEventListener('click', function (e) {
+          e.preventDefault();
+          var bridge = QianhongAgent.getFocusBridge() || '';
+          QianhongAgent.openArchivist({
+            bridge: bridge || undefined,
+            q: bridge ? '介绍' + bridge : '',
+            autoAsk: !!bridge,
+            source: 'knowledge_graph'
+          });
+        });
+      }
+    })();
+  </script>
+</body>
+</html>

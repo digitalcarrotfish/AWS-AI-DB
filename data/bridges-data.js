@@ -1,0 +1,844 @@
+// 桥梁数据（供 museum.html 直接打开时使用内嵌数据；建议用本地 HTTP 服务预览）
+window.BRIDGES_DATA = [
+  {
+    "name": "赵州桥",
+    "dynasty": "隋",
+    "year": 605,
+    "province": "河北省",
+    "city": "石家庄市赵县",
+    "lon": 114.768,
+    "lat": 37.719,
+    "length": 64.4,
+    "span": 37.02,
+    "width": 9,
+    "type": "拱桥",
+    "material": "石",
+    "protection": "国保",
+    "protectionBatch": "第一批",
+    "poetry": "水从碧玉环中过，人在苍龙背上行",
+    "image": "https://images.unsplash.com/photo-1761878730874-ca29ff31696e?w=800",
+    "intro": "赵州桥（安济桥）位于河北赵县，是隋代李春主持修建的单孔敞肩石拱桥，也是世界上现存最早、保存最完好的古代敞肩拱桥之一。主拱跨度大，拱肩两侧各开两个小拱，既减轻桥身自重，又便于洪水通过，体现了极高的结构智慧。\n\n桥身由二十八道并列拱券纵向砌筑，并以腰铁、钩石等加强整体性，栏板与望柱上的龙兽浮雕具有重要艺术价值。1961 年列入第一批全国重点文物保护单位。",
+    "videos": [
+      {
+        "title": "【科普】用三维动画演示赵州桥的建造过程",
+        "embed": "https://player.bilibili.com/player.html?bvid=BV12b411i7yh&page=1&high_quality=1&danmaku=0"
+      },
+      {
+        "title": "动画讲解赵州桥的建造工艺",
+        "embed": "https://player.bilibili.com/player.html?bvid=BV1v7411E7z7&page=1&high_quality=1&danmaku=0"
+      }
+    ]
+  },
+  {
+    "name": "卢沟桥",
+    "dynasty": "金",
+    "year": 1189,
+    "province": "北京市",
+    "city": "丰台区",
+    "lon": 116.217,
+    "lat": 39.856,
+    "length": 266.5,
+    "span": 13.5,
+    "width": 9.3,
+    "type": "拱桥",
+    "material": "石",
+    "protection": "国保",
+    "protectionBatch": "第一批",
+    "poetry": "卢沟晓月",
+    "image": "https://images.unsplash.com/photo-1759046048973-1dab72e28e74?w=800",
+    "videos": [
+      {
+        "title": "3D 动画重现卢沟桥设计与工匠精神",
+        "embed": "https://player.bilibili.com/player.html?bvid=BV1jJUCBuExz&page=1&high_quality=1&danmaku=0"
+      },
+      {
+        "title": "【央视纪录片选段】卢沟桥事变与全面抗战",
+        "embed": "https://player.bilibili.com/player.html?bvid=BV1dh4y1A7PE&page=1&high_quality=1&danmaku=0"
+      }
+    ]
+  },
+  {
+    "name": "广济桥",
+    "dynasty": "宋",
+    "year": 1171,
+    "province": "广东省",
+    "city": "潮州市",
+    "lon": 116.623,
+    "lat": 23.679,
+    "length": 518,
+    "span": 13.7,
+    "width": 6,
+    "type": "浮桥",
+    "material": "石/木",
+    "protection": "国保",
+    "protectionBatch": "第一批",
+    "poetry": "十八梭船廿四洲",
+    "image": "https://images.unsplash.com/photo-1769628357927-54b9d24e183d?w=800",
+    "videos": [
+      {
+        "title": "广济桥开合全过程：世界上最早的启闭式桥梁之一",
+        "embed": "https://player.bilibili.com/player.html?bvid=BV1rC4y127CH&page=1&high_quality=1&danmaku=0"
+      },
+      {
+        "title": "【广东印记】潮州广济桥（湘子桥）",
+        "embed": "https://player.bilibili.com/player.html?bvid=BV1PR4y1j7XJ&page=1&high_quality=1&danmaku=0"
+      }
+    ]
+  },
+  {
+    "name": "洛阳桥",
+    "dynasty": "宋",
+    "year": 1053,
+    "province": "福建省",
+    "city": "泉州市",
+    "lon": 118.675,
+    "lat": 24.957,
+    "length": 834,
+    "span": 11,
+    "width": 7,
+    "type": "梁桥",
+    "material": "石",
+    "protection": "国保",
+    "protectionBatch": "第一批",
+    "poetry": "洛阳之桥天下奇",
+    "image": "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=800",
+    "videos": [
+      {
+        "title": "洛阳桥：用生蚝「焊」出来的跨海石桥（种蛎固基）",
+        "embed": "https://player.bilibili.com/player.html?bvid=BV1XFcjznEjm&page=1&high_quality=1&danmaku=0"
+      },
+      {
+        "title": "生蚝也能搞基建？海内第一桥——洛阳桥",
+        "embed": "https://player.bilibili.com/player.html?bvid=BV1QV4y1o7TR&page=1&high_quality=1&danmaku=0"
+      }
+    ]
+  },
+  {
+    "name": "安平桥",
+    "dynasty": "南宋",
+    "year": 1138,
+    "province": "福建省",
+    "city": "泉州市",
+    "lon": 118.449,
+    "lat": 24.712,
+    "length": 2255,
+    "span": 8,
+    "width": 3.5,
+    "type": "梁桥",
+    "material": "石",
+    "protection": "国保",
+    "protectionBatch": "第一批",
+    "poetry": "天下无桥长此桥",
+    "image": "https://images.unsplash.com/photo-1761878730874-ca29ff31696e?w=800",
+    "videos": [
+      {
+        "title": "「天下无桥长此桥」——安平桥为何增补为世遗点",
+        "embed": "https://player.bilibili.com/player.html?bvid=BV1Uf4y157tU&page=1&high_quality=1&danmaku=0"
+      },
+      {
+        "title": "【泉州】世上无桥长此桥·安平桥（五里桥）",
+        "embed": "https://player.bilibili.com/player.html?bvid=BV1GU4y1u7QJ&page=1&high_quality=1&danmaku=0"
+      }
+    ]
+  },
+  {
+    "name": "泸定桥",
+    "dynasty": "清",
+    "year": 1706,
+    "province": "四川省",
+    "city": "甘孜州泸定县",
+    "lon": 102.235,
+    "lat": 29.914,
+    "length": 103.6,
+    "span": 100,
+    "width": 3,
+    "type": "索桥",
+    "material": "铁",
+    "protection": "国保",
+    "protectionBatch": "第一批",
+    "poetry": "飞夺泸定桥",
+    "image": "images/泸定桥.jpg",
+    "videos": [
+      {
+        "title": "15 分钟看懂：飞夺泸定桥与整场战略部署",
+        "embed": "https://player.bilibili.com/player.html?bvid=BV1rW4y1k74z&page=1&high_quality=1&danmaku=0"
+      },
+      {
+        "title": "沙盘推演：强渡大渡河 + 飞夺泸定桥（下）",
+        "embed": "https://player.bilibili.com/player.html?bvid=BV1VD4y1m7P7&page=1&high_quality=1&danmaku=0"
+      }
+    ]
+  },
+  {
+    "name": "霁虹桥",
+    "dynasty": "明",
+    "year": 1470,
+    "province": "云南省",
+    "city": "保山市",
+    "lon": 99.0,
+    "lat": 25.2,
+    "length": null,
+    "span": 50,
+    "width": null,
+    "type": "索桥",
+    "material": "铁/藤",
+    "protection": "已毁",
+    "poetry": "西南丝路要津",
+    "image": "https://images.unsplash.com/photo-1609137144813-7d9921338f24?w=800",
+    "videos": [
+      {
+        "title": "纪录片《跨越》· 中国桥梁（第 1 集）",
+        "embed": "https://player.bilibili.com/player.html?bvid=BV1Rt411t7qv&page=1&high_quality=1&danmaku=0"
+      }
+    ]
+  },
+  {
+    "name": "二十四桥",
+    "dynasty": "唐",
+    "year": 800,
+    "province": "江苏省",
+    "city": "扬州市",
+    "lon": 119.43,
+    "lat": 32.39,
+    "length": null,
+    "span": 5,
+    "width": null,
+    "type": "拱桥",
+    "material": "石",
+    "protection": "省保",
+    "protectionBatch": "省级第一批",
+    "poetry": "天下三分明月夜，二分无赖是扬州",
+    "image": "https://images.unsplash.com/photo-1769628357927-54b9d24e183d?w=800",
+    "videos": [
+      {
+        "title": "纪录片《跨越》· 桥梁与人文（选段）",
+        "embed": "https://player.bilibili.com/player.html?bvid=BV1Rt411t7qv&page=2&high_quality=1&danmaku=0"
+      }
+    ]
+  },
+  {
+    "name": "枫桥",
+    "dynasty": "唐",
+    "year": 750,
+    "province": "江苏省",
+    "city": "苏州市",
+    "lon": 120.574,
+    "lat": 31.318,
+    "length": 26,
+    "span": 4,
+    "width": 4.5,
+    "type": "拱桥",
+    "material": "石",
+    "protection": "省保",
+    "protectionBatch": "省级第一批",
+    "poetry": "枫桥夜泊",
+    "image": "https://images.unsplash.com/photo-1769628357927-54b9d24e183d?w=800",
+    "videos": [
+      {
+        "title": "苏州枫桥 · 寒山寺与张继《枫桥夜泊》",
+        "embed": "https://player.bilibili.com/player.html?bvid=BV1Rt411t7qv&page=1&high_quality=1&danmaku=0"
+      }
+    ]
+  },
+  {
+    "name": "玉带桥",
+    "dynasty": "清",
+    "year": 1760,
+    "province": "北京市",
+    "city": "海淀区颐和园",
+    "lon": 116.275,
+    "lat": 39.999,
+    "length": 36,
+    "span": 10,
+    "width": 4.5,
+    "type": "拱桥",
+    "material": "石",
+    "protection": "国保",
+    "protectionBatch": "第三批",
+    "poetry": "颐和园名桥",
+    "image": "https://images.unsplash.com/photo-1759046048973-1dab72e28e74?w=800",
+    "videos": [
+      {
+        "title": "颐和园西堤六桥与昆明湖风光",
+        "embed": "https://player.bilibili.com/player.html?bvid=BV1Rt411t7qv&page=2&high_quality=1&danmaku=0"
+      }
+    ]
+  },
+  {
+    "name": "程阳永济桥",
+    "dynasty": "清",
+    "year": 1910,
+    "province": "广西壮族自治区",
+    "city": "柳州市三江",
+    "lon": 109.6,
+    "lat": 25.8,
+    "length": 64.4,
+    "span": 14.2,
+    "width": 3.4,
+    "type": "梁桥",
+    "material": "木/石",
+    "protection": "国保",
+    "protectionBatch": "第五批",
+    "poetry": "侗族风雨桥代表",
+    "image": "https://images.unsplash.com/photo-1609137144813-7d9921338f24?w=800",
+    "videos": [
+      {
+        "title": "侗族风雨桥与程阳桥文化",
+        "embed": "https://player.bilibili.com/player.html?bvid=BV1Rt411t7qv&page=3&high_quality=1&danmaku=0"
+      }
+    ]
+  },
+  {
+    "name": "普济桥",
+    "dynasty": "金",
+    "year": 1189,
+    "province": "山西省",
+    "city": "原平市",
+    "lon": 112.7,
+    "lat": 38.7,
+    "length": 30,
+    "span": 8,
+    "width": 5,
+    "type": "拱桥",
+    "material": "石",
+    "protection": "省保",
+    "protectionBatch": "省级第一批",
+    "poetry": "",
+    "image": "https://images.unsplash.com/photo-1761878730874-ca29ff31696e?w=800",
+    "videos": [
+      {
+        "title": "中国古石桥与遗产概览",
+        "embed": "https://player.bilibili.com/player.html?bvid=BV1Rt411t7qv&page=5&high_quality=1&danmaku=0"
+      }
+    ]
+  },
+  {
+    "name": "通济桥",
+    "dynasty": "明",
+    "year": 1380,
+    "province": "浙江省",
+    "city": "宁波市",
+    "lon": 121.55,
+    "lat": 29.87,
+    "length": 90,
+    "span": 12,
+    "width": 5,
+    "type": "拱桥",
+    "material": "石",
+    "protection": "省保",
+    "protectionBatch": "省级第一批",
+    "poetry": "",
+    "image": "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=800",
+    "videos": [
+      {
+        "title": "浙东运河与余姚古桥",
+        "embed": "https://player.bilibili.com/player.html?bvid=BV1Rt411t7qv&page=4&high_quality=1&danmaku=0"
+      }
+    ]
+  },
+  {
+    "name": "八字桥",
+    "dynasty": "宋",
+    "year": 1256,
+    "province": "浙江省",
+    "city": "绍兴市",
+    "lon": 120.585,
+    "lat": 30.002,
+    "length": 5,
+    "span": 4,
+    "width": 3,
+    "type": "梁桥",
+    "material": "石",
+    "protection": "国保",
+    "protectionBatch": "第一批",
+    "poetry": "现存最早立交",
+    "image": "https://images.unsplash.com/photo-1761878730874-ca29ff31696e?w=800",
+    "videos": [
+      {
+        "title": "绍兴水乡古桥与运河遗产",
+        "embed": "https://player.bilibili.com/player.html?bvid=BV1Rt411t7qv&page=4&high_quality=1&danmaku=0"
+      }
+    ]
+  },
+  {
+    "name": "断桥",
+    "dynasty": "唐",
+    "year": 800,
+    "province": "浙江省",
+    "city": "杭州市",
+    "lon": 120.141,
+    "lat": 30.257,
+    "length": 8.8,
+    "span": 6,
+    "width": 6,
+    "type": "拱桥",
+    "material": "石",
+    "protection": "省保",
+    "protectionBatch": "省级第一批",
+    "poetry": "白蛇传",
+    "image": "https://images.unsplash.com/photo-1769628357927-54b9d24e183d?w=800",
+    "videos": [
+      {
+        "title": "西湖断桥与白蛇传传说（风光介绍）",
+        "embed": "https://player.bilibili.com/player.html?bvid=BV1Rt411t7qv&page=5&high_quality=1&danmaku=0"
+      }
+    ]
+  },
+  {
+    "name": "淇水石梁遗址",
+    "dynasty": "周",
+    "year": -600,
+    "province": "河南省",
+    "city": "鹤壁市淇县",
+    "lon": 114.2,
+    "lat": 35.6,
+    "length": null,
+    "span": 4,
+    "width": null,
+    "type": "梁桥",
+    "material": "石",
+    "protection": "已毁",
+    "poetry": "淇水汤汤",
+    "image": "https://images.unsplash.com/photo-1761878730874-ca29ff31696e?w=800",
+    "videos": [
+      {
+        "title": "纪录片《跨越》· 工程与遗产",
+        "embed": "https://player.bilibili.com/player.html?bvid=BV1Rt411t7qv&page=4&high_quality=1&danmaku=0"
+      }
+    ]
+  },
+  {
+    "name": "蓝桥",
+    "dynasty": "周",
+    "year": -500,
+    "province": "陕西省",
+    "city": "西安市蓝田县",
+    "lon": 109.32,
+    "lat": 34.15,
+    "length": 8,
+    "span": 4,
+    "width": 3,
+    "type": "梁桥",
+    "material": "木/石",
+    "protection": "多次重修",
+    "poetry": "尾生抱柱",
+    "image": "https://images.unsplash.com/photo-1769628357927-54b9d24e183d?w=800",
+    "videos": [
+      {
+        "title": "纪录片《跨越》· 桥梁文化",
+        "embed": "https://player.bilibili.com/player.html?bvid=BV1Rt411t7qv&page=5&high_quality=1&danmaku=0"
+      }
+    ]
+  },
+  {
+    "name": "灞桥",
+    "dynasty": "汉",
+    "year": -200,
+    "province": "陕西省",
+    "city": "西安市灞桥区",
+    "lon": 109.07,
+    "lat": 34.28,
+    "length": 386,
+    "span": 7,
+    "width": 7,
+    "type": "梁桥",
+    "material": "石/木",
+    "protection": "多次毁修",
+    "poetry": "灞柳风雪",
+    "image": "https://images.unsplash.com/photo-1761878730874-ca29ff31696e?w=800",
+    "videos": [
+      {
+        "title": "关中古桥与「折柳送别」文化",
+        "embed": "https://player.bilibili.com/player.html?bvid=BV1Rt411t7qv&page=1&high_quality=1&danmaku=0"
+      }
+    ]
+  },
+  {
+    "name": "河桥",
+    "dynasty": "晋",
+    "year": 270,
+    "province": "河南省",
+    "city": "洛阳市孟津区",
+    "lon": 112.45,
+    "lat": 34.82,
+    "length": null,
+    "span": 50,
+    "width": null,
+    "type": "浮桥",
+    "material": "木/铁",
+    "protection": "已毁",
+    "poetry": "杜预造桥富平津",
+    "image": "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=800",
+    "videos": [
+      {
+        "title": "浮桥与古代渡河工程",
+        "embed": "https://player.bilibili.com/player.html?bvid=BV1Rt411t7qv&page=1&high_quality=1&danmaku=0"
+      }
+    ]
+  },
+  {
+    "name": "观音桥",
+    "dynasty": "宋",
+    "year": 1014,
+    "province": "江西省",
+    "city": "九江市星子县",
+    "lon": 116.05,
+    "lat": 29.45,
+    "length": 24.4,
+    "span": 10.3,
+    "width": 4.8,
+    "type": "拱桥",
+    "material": "石",
+    "protection": "国保",
+    "protectionBatch": "第三批",
+    "poetry": "三峡桥",
+    "image": "https://images.unsplash.com/photo-1761878730874-ca29ff31696e?w=800",
+    "videos": [
+      {
+        "title": "庐山观音桥（三峡桥）· 古桥与山水",
+        "embed": "https://player.bilibili.com/player.html?bvid=BV1Rt411t7qv&page=3&high_quality=1&danmaku=0"
+      }
+    ]
+  },
+  {
+    "name": "永通桥",
+    "dynasty": "金",
+    "year": 1185,
+    "province": "河北省",
+    "city": "石家庄市赵县",
+    "lon": 114.77,
+    "lat": 37.72,
+    "length": 32,
+    "span": 8.7,
+    "width": 6.3,
+    "type": "拱桥",
+    "material": "石",
+    "protection": "国保",
+    "protectionBatch": "第一批",
+    "poetry": "小石桥",
+    "image": "https://images.unsplash.com/photo-1761878730874-ca29ff31696e?w=800",
+    "videos": [
+      {
+        "title": "赵县「小石桥」与敞肩拱传承",
+        "embed": "https://player.bilibili.com/player.html?bvid=BV12b411i7yh&page=1&high_quality=1&danmaku=0"
+      }
+    ]
+  },
+  {
+    "name": "朝宗桥",
+    "dynasty": "明",
+    "year": 1446,
+    "province": "北京市",
+    "city": "昌平区",
+    "lon": 116.22,
+    "lat": 40.12,
+    "length": 130,
+    "span": 10,
+    "width": 13,
+    "type": "拱桥",
+    "material": "石",
+    "protection": "市保",
+    "protectionBatch": "市级第一批",
+    "poetry": "京北咽喉",
+    "image": "https://images.unsplash.com/photo-1759046048973-1dab72e28e74?w=800",
+    "videos": [
+      {
+        "title": "明十三陵古道与京北古桥",
+        "embed": "https://player.bilibili.com/player.html?bvid=BV1Rt411t7qv&page=5&high_quality=1&danmaku=0"
+      }
+    ]
+  },
+  {
+    "name": "双龙桥",
+    "dynasty": "清",
+    "year": 1776,
+    "province": "云南省",
+    "city": "红河州建水县",
+    "lon": 102.83,
+    "lat": 23.62,
+    "length": 148,
+    "span": 8,
+    "width": 5,
+    "type": "拱桥",
+    "material": "石",
+    "protection": "国保",
+    "protectionBatch": "第三批",
+    "poetry": "十七孔",
+    "image": "https://images.unsplash.com/photo-1609137144813-7d9921338f24?w=800",
+    "videos": [
+      {
+        "title": "云南建水十七孔桥（双龙桥）风光",
+        "embed": "https://player.bilibili.com/player.html?bvid=BV1Rt411t7qv&page=1&high_quality=1&danmaku=0"
+      }
+    ]
+  },
+  {
+    "name": "纤道桥",
+    "dynasty": "清",
+    "year": 1862,
+    "province": "浙江省",
+    "city": "绍兴市",
+    "lon": 120.58,
+    "lat": 30.05,
+    "length": 386.2,
+    "span": 2,
+    "width": 1.5,
+    "type": "梁桥",
+    "material": "石",
+    "protection": "国保",
+    "protectionBatch": "第三批",
+    "poetry": "白玉长堤",
+    "image": "https://images.unsplash.com/photo-1761878730874-ca29ff31696e?w=800",
+    "videos": [
+      {
+        "title": "浙东运河与古纤道",
+        "embed": "https://player.bilibili.com/player.html?bvid=BV1Rt411t7qv&page=2&high_quality=1&danmaku=0"
+      }
+    ]
+  },
+  {
+    "name": "宝带桥",
+    "dynasty": "唐",
+    "year": 816,
+    "province": "江苏省",
+    "city": "苏州市",
+    "lon": 120.67,
+    "lat": 31.25,
+    "length": 317,
+    "span": 4.6,
+    "width": 4.1,
+    "type": "拱桥",
+    "material": "石",
+    "protection": "国保",
+    "protectionBatch": "第五批",
+    "poetry": "苏州城南五十三孔",
+    "image": "https://images.unsplash.com/photo-1769628357927-54b9d24e183d?w=800",
+    "videos": [
+      {
+        "title": "苏州宝带桥 · 大运河与古桥（资料类解说）",
+        "embed": "https://player.bilibili.com/player.html?bvid=BV1Xd4y127vH&page=1&high_quality=1&danmaku=0"
+      }
+    ]
+  },
+  {
+    "name": "五亭桥",
+    "dynasty": "清",
+    "year": 1757,
+    "province": "江苏省",
+    "city": "扬州市瘦西湖",
+    "lon": 119.43,
+    "lat": 32.41,
+    "length": 55,
+    "span": 7,
+    "width": 18,
+    "type": "拱桥",
+    "material": "石",
+    "protection": "国保",
+    "protectionBatch": "第三批",
+    "poetry": "中国最美桥",
+    "image": "https://images.unsplash.com/photo-1769628357927-54b9d24e183d?w=800",
+    "videos": [
+      {
+        "title": "扬州瘦西湖五亭桥（莲花桥）",
+        "embed": "https://player.bilibili.com/player.html?bvid=BV1Rt411t7qv&page=2&high_quality=1&danmaku=0"
+      }
+    ]
+  },
+  {
+    "name": "十七孔桥",
+    "dynasty": "清",
+    "year": 1750,
+    "province": "北京市",
+    "city": "海淀区颐和园",
+    "lon": 116.272,
+    "lat": 39.998,
+    "length": 150,
+    "span": 8,
+    "width": 8,
+    "type": "拱桥",
+    "material": "石",
+    "protection": "国保",
+    "protectionBatch": "第三批",
+    "poetry": "颐和园十七孔",
+    "image": "https://images.unsplash.com/photo-1759046048973-1dab72e28e74?w=800",
+    "videos": [
+      {
+        "title": "颐和园十七孔桥与「金光穿洞」",
+        "embed": "https://player.bilibili.com/player.html?bvid=BV1Rt411t7qv&page=3&high_quality=1&danmaku=0"
+      }
+    ]
+  },
+  {
+    "name": "小商桥",
+    "dynasty": "隋",
+    "year": 584,
+    "province": "河南省",
+    "city": "漯河市临颍县",
+    "lon": 113.95,
+    "lat": 33.82,
+    "length": 21,
+    "span": 11.6,
+    "width": 6.5,
+    "type": "拱桥",
+    "material": "石",
+    "protection": "国保",
+    "protectionBatch": "第五批",
+    "poetry": "天下第一桥",
+    "image": "https://images.unsplash.com/photo-1761878730874-ca29ff31696e?w=800",
+    "intro": "小商桥位于河南省漯河市临颍县，为隋代敞肩单孔石拱桥，有「天下第一桥」之誉。其主拱与拱肩小拱构成敞肩形式，结构轻巧、便于排洪，是研究早期敞肩拱桥技术的重要实例。\n\n红褐色石材砌筑，桥面与栏杆做法具有典型时代特征。可与赵州桥等对照阅读，理解中国古代石拱桥在跨度、砌筑与装饰上的传承与发展。",
+    "videos": [
+      {
+        "title": "隋代敞肩石拱桥与古桥技术（参考：赵州桥同类科普）",
+        "embed": "https://player.bilibili.com/player.html?bvid=BV12b411i7yh&page=1&high_quality=1&danmaku=0"
+      },
+      {
+        "title": "动画讲解敞肩拱桥建造工艺",
+        "embed": "https://player.bilibili.com/player.html?bvid=BV1v7411E7z7&page=1&high_quality=1&danmaku=0"
+      }
+    ]
+  },
+  {
+    "name": "鱼沼飞梁",
+    "dynasty": "宋",
+    "year": 1023,
+    "province": "山西省",
+    "city": "太原市晋祠",
+    "lon": 112.44,
+    "lat": 37.71,
+    "length": 18,
+    "span": 4,
+    "width": 4,
+    "type": "梁桥",
+    "material": "石",
+    "protection": "国保",
+    "protectionBatch": "第三批",
+    "poetry": "现存最早十字桥",
+    "image": "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=800",
+    "videos": [
+      {
+        "title": "晋祠古建与十字桥（遗产类介绍）",
+        "embed": "https://player.bilibili.com/player.html?bvid=BV1Rt411t7qv&page=4&high_quality=1&danmaku=0"
+      }
+    ]
+  },
+  {
+    "name": "万安桥",
+    "dynasty": "宋",
+    "year": 1090,
+    "province": "福建省",
+    "city": "宁德市屏南县",
+    "lon": 118.98,
+    "lat": 26.92,
+    "length": 98.2,
+    "span": 15.3,
+    "width": 4.7,
+    "type": "梁桥",
+    "material": "木",
+    "protection": "国保",
+    "protectionBatch": "第五批",
+    "poetry": "木拱廊桥之冠",
+    "image": "https://images.unsplash.com/photo-1609137144813-7d9921338f24?w=800",
+    "videos": [
+      {
+        "title": "闽浙木拱廊桥与古桥技艺",
+        "embed": "https://player.bilibili.com/player.html?bvid=BV1Rt411t7qv&page=5&high_quality=1&danmaku=0"
+      }
+    ]
+  },
+  {
+    "name": "彩虹桥",
+    "dynasty": "南宋",
+    "year": 1137,
+    "province": "江西省",
+    "city": "上饶市婺源县",
+    "lon": 117.85,
+    "lat": 29.25,
+    "length": 140,
+    "span": 5,
+    "width": 3,
+    "type": "梁桥",
+    "material": "木/石",
+    "protection": "国保",
+    "protectionBatch": "第五批",
+    "poetry": "廊桥遗梦",
+    "image": "https://images.unsplash.com/photo-1609137144813-7d9921338f24?w=800",
+    "videos": [
+      {
+        "title": "婺源徽派廊桥与彩虹桥",
+        "embed": "https://player.bilibili.com/player.html?bvid=BV1Rt411t7qv&page=1&high_quality=1&danmaku=0"
+      }
+    ]
+  },
+  {
+    "name": "放生桥",
+    "dynasty": "明",
+    "year": 1571,
+    "province": "上海市",
+    "city": "青浦区朱家角",
+    "lon": 121.05,
+    "lat": 31.11,
+    "length": 70.8,
+    "span": 13,
+    "width": 5.8,
+    "type": "拱桥",
+    "material": "石",
+    "protection": "市保",
+    "protectionBatch": "市级第一批",
+    "poetry": "沪上第一桥",
+    "image": "https://images.unsplash.com/photo-1769628357927-54b9d24e183d?w=800",
+    "videos": [
+      {
+        "title": "朱家角古镇与放生桥",
+        "embed": "https://player.bilibili.com/player.html?bvid=BV1Rt411t7qv&page=2&high_quality=1&danmaku=0"
+      }
+    ]
+  },
+  {
+    "name": "龙脑桥",
+    "dynasty": "明",
+    "year": 1385,
+    "province": "四川省",
+    "city": "泸州市泸县",
+    "lon": 105.38,
+    "lat": 29.15,
+    "length": 54,
+    "span": 4.5,
+    "width": 1.9,
+    "type": "梁桥",
+    "material": "石",
+    "protection": "国保",
+    "protectionBatch": "第五批",
+    "poetry": "石雕龙桥",
+    "image": "https://images.unsplash.com/photo-1761878730874-ca29ff31696e?w=800",
+    "videos": [
+      {
+        "title": "泸县龙桥群与明代石雕",
+        "embed": "https://player.bilibili.com/player.html?bvid=BV1Rt411t7qv&page=3&high_quality=1&danmaku=0"
+      }
+    ]
+  },
+  {
+    "name": "江东桥",
+    "dynasty": "宋",
+    "year": 1190,
+    "province": "福建省",
+    "city": "漳州市",
+    "lon": 117.65,
+    "lat": 24.52,
+    "length": 284,
+    "span": 20,
+    "width": 5.6,
+    "type": "梁桥",
+    "material": "石",
+    "protection": "国保",
+    "protectionBatch": "第五批",
+    "poetry": "虎渡桥巨石",
+    "image": "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=800",
+    "videos": [
+      {
+        "title": "中国古代石梁桥工程（纪录片《跨越》选段）",
+        "embed": "https://player.bilibili.com/player.html?bvid=BV1Rt411t7qv&page=4&high_quality=1&danmaku=0"
+      }
+    ]
+  }
+];

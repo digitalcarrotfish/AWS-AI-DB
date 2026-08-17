@@ -1,0 +1,147 @@
+/* 背景音乐《高山流水》控制按钮 — 全站共用 */
+.music-btn {
+  margin-left: 4px;
+  background: rgba(12, 16, 24, 0.6);
+  border: 1px solid rgba(160, 130, 85, 0.35);
+  color: #9a8c7a;
+  cursor: pointer;
+  padding: 6px 12px;
+  font-size: 0.78rem;
+  letter-spacing: 0.12em;
+  border-radius: 2px;
+  transition: color 0.2s, border-color 0.2s, background 0.2s;
+  font-family: inherit;
+}
+.music-btn:hover {
+  color: #d4b896;
+  border-color: rgba(212, 184, 150, 0.4);
+  background: rgba(18, 22, 30, 0.85);
+}
+.music-btn.on {
+  color: #c9a87a;
+  border-color: rgba(180, 150, 100, 0.5);
+}
+.music-btn--solo {
+  margin-left: 0;
+}
+/* 三维页：固定在顶栏，与「返回」错开 */
+.music-btn--fixed {
+  position: fixed;
+  top: 20px;
+  right: 200px;
+  z-index: 25;
+  margin-left: 0;
+  pointer-events: auto;
+}
+@media (max-width: 520px) {
+  .music-btn--fixed {
+    right: auto;
+    left: 16px;
+    top: auto;
+    bottom: 20px;
+  }
+}
+
+/* 中英切换 */
+.lang-btn {
+  margin-left: 4px;
+  background: rgba(12, 16, 24, 0.6);
+  border: 1px solid rgba(160, 130, 85, 0.35);
+  color: #c9a87a;
+  cursor: pointer;
+  padding: 6px 12px;
+  font-size: 0.72rem;
+  letter-spacing: 0.14em;
+  border-radius: 2px;
+  transition: color 0.2s, border-color 0.2s, background 0.2s;
+  font-family: inherit;
+  min-width: 2.6em;
+}
+.lang-btn:hover {
+  color: #e8d5bc;
+  border-color: rgba(212, 184, 150, 0.5);
+  background: rgba(18, 22, 30, 0.85);
+}
+.lang-btn--fixed {
+  position: fixed;
+  top: 20px;
+  right: 280px;
+  z-index: 25;
+  margin-left: 0;
+}
+@media (max-width: 520px) {
+  .lang-btn--fixed {
+    right: auto;
+    left: 88px;
+    top: auto;
+    bottom: 20px;
+  }
+}
+/* English: Latin display serif — never use Ma Shan Zheng on Latin glyphs */
+html[data-lang="en"] body {
+  letter-spacing: 0.01em;
+}
+html[data-lang="en"] .brand-title,
+html[data-lang="en"] .hero-title,
+html[data-lang="en"] .stamp,
+html[data-lang="en"] .vertical-title,
+html[data-lang="en"] .hero h1,
+html[data-lang="en"] .hero-card h1,
+html[data-lang="en"] header.museum-header h1,
+html[data-lang="en"] header.hero h1,
+html[data-lang="en"] .hero > h1 {
+  font-family: "Cormorant Garamond", "Noto Serif SC", Georgia, "Times New Roman", serif;
+  letter-spacing: 0.04em;
+  text-indent: 0;
+}
+html[data-lang="en"] .hero-title,
+html[data-lang="en"] .hero-card h1,
+html[data-lang="en"] .hero h1,
+html[data-lang="en"] header.museum-header h1,
+html[data-lang="en"] header.hero h1,
+html[data-lang="en"] .hero > h1 {
+  font-weight: 600;
+  font-style: italic;
+  line-height: 1.2;
+}
+
+html[data-lang="en"] .search-seal,
+html[data-lang="en"] .search-seal--red {
+  font-family: "Cormorant Garamond", "Noto Serif SC", Georgia, serif;
+  font-size: 0.82rem;
+  font-weight: 700;
+  font-style: normal;
+  letter-spacing: 0.04em;
+}
+
+/* English side panel: horizontal wordmark — not stacked Latin letters */
+html[data-lang="en"] .hero-side {
+  align-items: flex-start;
+  justify-content: flex-end;
+  padding: 36px 32px 40px;
+}
+html[data-lang="en"] .vertical-title {
+  writing-mode: horizontal-tb;
+  text-orientation: mixed;
+  font-size: clamp(2.1rem, 3.4vw, 2.85rem);
+  font-weight: 600;
+  font-style: italic;
+  letter-spacing: 0.06em;
+  line-height: 1.15;
+  color: rgba(232, 220, 196, 0.72);
+  max-width: 7.5em;
+}
+html[data-lang="en"] .side-rule {
+  width: 56px;
+  height: 1px;
+  margin: 18px 0 16px;
+  background: linear-gradient(90deg, rgba(180, 150, 100, 0.5), transparent);
+}
+html[data-lang="en"] .side-caption {
+  writing-mode: horizontal-tb;
+  font-size: 0.78rem;
+  letter-spacing: 0.1em;
+  line-height: 1.55;
+  color: #7a7268;
+  max-width: 14em;
+}

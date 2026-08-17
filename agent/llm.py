@@ -74,27 +74,54 @@ def _openai_chat(
     return text.strip()
 
 
+def _bedrock_client():
+    import boto3
+
+    kwargs: dict[str, Any] = {"region_name": settings.aws_region}
+    if settings.aws_access_key_id and settings.aws_secret_access_key:
+        kwargs["aws_access_key_id"] = settings.aws_access_key_id
+        kwargs["aws_secret_access_key"] = settings.aws_secret_access_key
+    return boto3.client("bedrock-runtime", **kwargs)
+
+
 def _bedrock_chat(
     system: str,
     history: list[dict[str, str]],
     user_message: str,
 ) -> str:
-    import boto3
-
-    client = boto3.client("bedrock-runtime", region_name=settings.aws_region)
-    messages = []
+    client = _bedrock_client()
+    converse_messages = []
+    anthropic_messages = []
     for m in history[-12:]:
         if m["role"] in ("user", "assistant"):
-            messages.append({
+            converse_messages.append({
                 "role": m["role"],
                 "content": [{"text": m["content"]}],
             })
-    messages.append({"role": "user", "content": [{"text": user_message}]})
+            anthropic_messages.append({"role": m["role"], "content": m["content"]})
+    converse_messages.append({"role": "user", "content": [{"text": user_message}]})
+    anthropic_messages.append({"role": "user", "content": user_message})
+
+    # 优先 Converse API（Claude 3/3.5 更稳）
+    try:
+        resp = client.converse(
+            modelId=settings.bedrock_model_id,
+            system=[{"text": system}],
+            messages=converse_messages,
+            inferenceConfig={"maxTokens": 1200, "temperature": 0.6},
+        )
+        parts = resp.get("output", {}).get("message", {}).get("content") or []
+        text = "".join(p.get("text", "") for p in parts if isinstance(p, dict))
+        if text.strip():
+            return text.strip()
+    except Exception:
+        pass
+
     body = {
         "anthropic_version": "bedrock-2023-05-31",
         "max_tokens": 1200,
         "system": system,
-        "messages": messages,
+        "messages": anthropic_messages,
     }
     resp = client.invoke_model(
         modelId=settings.bedrock_model_id,

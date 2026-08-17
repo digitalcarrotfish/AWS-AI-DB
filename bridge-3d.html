@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title data-i18n="3d.title">桥梁 - 千古飞虹</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="assets/bg-music.css">
+  <link rel="stylesheet" href="assets/bridge-agent.css">
+  <link rel="stylesheet" href="assets/bridge-assistant.css">
+  <script src="assets/i18n.js"></script>
+  <script src="config.js"></script>
+  <script src="assets/bridge-agent.js"></script>
+  <script src="assets/bridge-assistant.js"></script>
+  <script type="importmap">
+  {
+    "imports": {
+      "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
+      "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
+    }
+  }
+  </script>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    html, body { height: 100%; overflow: hidden; }
+    body {
+      font-family: "Noto Serif SC", "Source Han Serif CN", "SimSun", serif;
+      background: #0c1018;
+      color: #E0D9C8;
+    }
+    #canvas3d {
+      position: fixed;
+      inset: 0;
+      display: block;
+      width: 100%;
+      height: 100%;
+      touch-action: none;
+    }
+    .ui-top {
+      position: fixed;
+      z-index: 10;
+      left: 0;
+      right: 0;
+      top: 0;
+      padding: 22px 120px 48px 24px;
+      pointer-events: none;
+      background: linear-gradient(180deg, rgba(12, 16, 24, 0.88) 0%, transparent 100%);
+    }
+    .ui-top h1 {
+      font-size: clamp(1.25rem, 3.5vw, 1.85rem);
+      font-weight: 700;
+      letter-spacing: 0.18em;
+      text-shadow: 0 2px 16px rgba(0,0,0,0.6);
+    }
+    .ui-hint {
+      margin-top: 8px;
+      font-size: 0.72rem;
+      color: #8a7d72;
+      letter-spacing: 0.06em;
+    }
+    .back-link {
+      position: fixed;
+      top: 20px;
+      right: 24px;
+      z-index: 20;
+      color: #E0D9C8;
+      text-decoration: none;
+      font-size: 0.88rem;
+      padding: 10px 18px;
+      background: rgba(40, 44, 52, 0.92);
+      border: 1px solid rgba(160, 130, 95, 0.35);
+      border-radius: 8px;
+      transition: background 0.2s, color 0.2s, border-color 0.2s;
+    }
+    .back-link:hover {
+      color: #f4ebd4;
+      background: rgba(55, 58, 68, 0.95);
+      border-color: rgba(200, 170, 120, 0.45);
+    }
+    .status-overlay {
+      position: fixed;
+      inset: 0;
+      z-index: 5;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      pointer-events: none;
+      padding: 24px;
+      text-align: center;
+    }
+    .status-overlay p {
+      max-width: 22em;
+      font-size: 0.92rem;
+      line-height: 1.65;
+      color: #b8a898;
+      text-shadow: 0 2px 12px rgba(0,0,0,0.75);
+    }
+    .status-overlay.hidden { display: none; }
+    .status-overlay.error p { color: #c9a090; }
+  </style>
+</head>
+<body>
+  <canvas id="canvas3d" data-i18n-aria="3d.canvasAria" aria-label="三维桥梁模型"></canvas>
+  <div class="ui-top">
+    <h1 id="bridgeTitle">桥梁</h1>
+    <p class="ui-hint" id="uiHint" data-i18n="3d.hint">拖拽旋转 · 滚轮缩放 · 右键平移</p>
+  </div>
+  <button type="button" class="lang-btn lang-btn--fixed" data-lang-toggle aria-label="English">EN</button>
+  <button type="button" class="music-btn music-btn--fixed music-btn--solo" id="musicToggle" data-i18n="music.label" data-i18n-aria="music.aria" data-i18n-title="music.title" aria-pressed="false" aria-label="背景音乐：高山流水" title="背景音乐《高山流水》">音乐</button>
+  <a class="back-link" id="backLink" href="museum.html" data-i18n="3d.back">← 返回地图大屏</a>
+  <div class="status-overlay" id="statusOverlay">
+    <p id="statusText" data-i18n="3d.init">正在初始化…</p>
+  </div>
+
+  <script src="assets/i18n.js"></script>
+  <script type="module">
+    import * as THREE from 'three';
+    import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+    import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
+
+    /** 根目录替换 cvvggh.glb / 卢沟桥.glb / 洛阳桥.glb 后请改大此值，避免浏览器或 CDN 仍用旧缓存 */
+    var GLB_ASSET_VERSION = '20260420';
+
+    function glbRequestUrl(path) {
+      var sep = path.indexOf('?') >= 0 ? '&' : '?';
+      return encodeURI(path) + sep + 'v=' + encodeURIComponent(GLB_ASSET_VERSION);
+    }
+
+    var params = new URLSearchParams(window.location.search);
+    var name = (params.get('name') || '').trim();
+    var modelParam = (params.get('model') || '').trim().toLowerCase();
+    var fromDetail = params.get('from') === 'detail';
+
+    function glbPathForBridge() {
+      if (modelParam === 'cvvggh' || modelParam === 'cvvggh.glb') return 'cvvggh.glb';
+      if (name === '赵州桥') return 'cvvggh.glb';
+      if (name === '卢沟桥' || modelParam === 'lugou' || modelParam === 'lugouqiao' || modelParam === '卢沟桥.glb')
+        return '卢沟桥.glb';
+      if (name === '洛阳桥' || modelParam === 'luoyang' || modelParam === 'luoyangqiao' || modelParam === 'luoyang.glb')
+        return 'luoyang.glb';
+      return '';
+    }
+
+    var glbUrl = glbPathForBridge();
+    var titleEl = document.getElementById('bridgeTitle');
+    var hintEl = document.getElementById('uiHint');
+    var backLink = document.getElementById('backLink');
+    var statusOverlay = document.getElementById('statusOverlay');
+    var statusText = document.getElementById('statusText');
+
+    function I18n() { return window.BridgeI18n; }
+    function t(k, v) { return I18n() ? I18n().t(k, v) : k; }
+    function bn(n) { return I18n() ? I18n().bridgeName(n) : n; }
+
+    function refreshChrome() {
+      if (name) {
+        titleEl.textContent = bn(name);
+        document.title = bn(name) + (I18n() && I18n().getLang() === 'en' ? ' · 3D — Eternal Rainbows' : ' · 三维建模 — 千古飞虹');
+      }
+      backLink.setAttribute('data-i18n', fromDetail ? '3d.backDetail' : '3d.back');
+      if (I18n()) I18n().apply(document);
+    }
+
+    if (name) {
+      titleEl.textContent = bn(name);
+      document.title = bn(name) + (I18n() && I18n().getLang() === 'en' ? ' · 3D — Eternal Rainbows' : ' · 三维建模 — 千古飞虹');
+    }
+    backLink.href = fromDetail
+      ? 'bridge-detail.html?name=' + encodeURIComponent(name || '')
+      : 'museum.html';
+    backLink.setAttribute('data-i18n', fromDetail ? '3d.backDetail' : '3d.back');
+    if (I18n()) I18n().apply(document);
+    document.addEventListener('bridge:langchange', refreshChrome);
+
+    function showStatus(msg, isError) {
+      statusText.textContent = msg;
+      statusOverlay.classList.toggle('error', !!isError);
+      statusOverlay.classList.remove('hidden');
+    }
+    function isMemoryAllocationError(e) {
+      var m = (e && (e.message || e.toString && e.toString())) || String(e || '');
+      return /Array buffer allocation failed|allocation failed|out of memory|Invalid array buffer length|RangeError/i.test(m);
+    }
+    function modelLoadErrorMessage(e) {
+      if (isMemoryAllocationError(e)) {
+        return (
+          '浏览器内存不足，无法加载该模型。\n\n' +
+          '部分 .glb 体积较大，解码时往往需要数倍内存。可尝试：关闭其它标签页后刷新；换用 Chrome 64 位；或在电脑上用 Blender / gltf-pipeline 做网格减面、Draco 压缩后替换为更小的 .glb。'
+        );
+      }
+      var m = e && e.message ? e.message : String(e || '');
+      return m ? '模型处理失败：' + m : '模型加载失败，请确认同目录下存在该 .glb 且允许本地或站点访问。';
+    }
+    function hideStatus() {
+      statusOverlay.classList.add('hidden');
+    }
+
+    if (!glbUrl) {
+      hintEl.style.display = 'none';
+      showStatus(
+        (name ? '「' + name + '」' : '该桥') +
+          ' 的三维模型尚未接入。\n三大名桥已接入：赵州桥（cvvggh.glb）、卢沟桥（卢沟桥.glb）、洛阳桥（luoyang.glb）；可在地图大屏「三维建模」入口打开。'
+      );
+    } else {
+      var canvas = document.getElementById('canvas3d');
+      var renderer = new THREE.WebGLRenderer({
+        canvas: canvas,
+        antialias: true,
+        alpha: false,
+        stencil: false,
+        powerPreference: 'high-performance',
+      });
+      function effectivePixelRatio() {
+        var dpr = Math.min(window.devicePixelRatio || 1, 2);
+        var w = window.innerWidth;
+        var h = window.innerHeight;
+        if (w * h * dpr * dpr > 5e6) dpr = Math.min(dpr, 1.5);
+        return Math.max(1, dpr);
+      }
+      renderer.setPixelRatio(effectivePixelRatio());
+      renderer.setSize(window.innerWidth, window.innerHeight, false);
+      renderer.outputColorSpace = THREE.SRGBColorSpace;
+      renderer.toneMapping = THREE.ACESFilmicToneMapping;
+      renderer.toneMappingExposure = 1.12;
+
+      var scene = new THREE.Scene();
+      scene.background = new THREE.Color(0x1a1e28);
+      scene.fog = new THREE.Fog(0x1a1e28, 28, 110);
+
+      var camera = new THREE.PerspectiveCamera(42, window.innerWidth / window.innerHeight, 0.01, 500);
+      camera.position.set(4, 2.2, 6);
+
+      var hemi = new THREE.HemisphereLight(0xe8e2dc, 0x283038, 0.72);
+      scene.add(hemi);
+      var dir = new THREE.DirectionalLight(0xfff6ec, 1.05);
+      dir.position.set(7, 12, 6);
+      scene.add(dir);
+      var fill = new THREE.DirectionalLight(0xb8c4d8, 0.42);
+      fill.position.set(-5, 3, -4);
+      scene.add(fill);
+      var rim = new THREE.DirectionalLight(0xc8d8f0, 0.22);
+      rim.position.set(0, 2, -8);
+      scene.add(rim);
+
+      var controls = new OrbitControls(camera, canvas);
+      controls.enableDamping = true;
+      controls.dampingFactor = 0.08;
+      controls.screenSpacePanning = true;
+      controls.minDistance = 0.35;
+      controls.maxDistance = 120;
+      controls.maxPolarAngle = Math.PI * 0.495;
+      controls.target.set(0, 0.3, 0);
+
+      showStatus(
+        '正在加载三维模型…\n（该文件较大，首次加载可能较慢；若提示内存错误，请关闭其它网页后重试或换用压缩后的模型。）'
+      );
+
+      var loader = new GLTFLoader();
+      loader.load(
+        glbRequestUrl(glbUrl),
+        function (gltf) {
+          try {
+            var root = gltf.scene;
+            var maxAniso = renderer.capabilities.getMaxAnisotropy();
+            root.traverse(function (o) {
+              if (!o.isMesh || !o.material) return;
+              var mats = Array.isArray(o.material) ? o.material : [o.material];
+              for (var mi = 0; mi < mats.length; mi++) {
+                var mat = mats[mi];
+                if (!mat) continue;
+                var colorKeys = ['map', 'emissiveMap'];
+                for (var ki = 0; ki < colorKeys.length; ki++) {
+                  var tex = mat[colorKeys[ki]];
+                  if (tex && tex.isTexture) tex.colorSpace = THREE.SRGBColorSpace;
+                }
+                var otherKeys = ['normalMap', 'roughnessMap', 'metalnessMap', 'aoMap'];
+                for (var oi = 0; oi < otherKeys.length; oi++) {
+                  var tt = mat[otherKeys[oi]];
+                  if (tt && tt.isTexture) tt.anisotropy = maxAniso;
+                }
+                if (mat.map && mat.map.isTexture) mat.map.anisotropy = maxAniso;
+              }
+            });
+            scene.add(root);
+
+            var box = new THREE.Box3().setFromObject(root);
+            var size = box.getSize(new THREE.Vector3());
+            var center = box.getCenter(new THREE.Vector3());
+            root.position.sub(center);
+
+            var maxDim = Math.max(size.x, size.y, size.z, 0.001);
+            var scale = 3.2 / maxDim;
+            root.scale.multiplyScalar(scale);
+
+            box.setFromObject(root);
+            var c2 = box.getCenter(new THREE.Vector3());
+            root.position.sub(c2);
+            controls.target.set(0, box.max.y * 0.2, 0);
+
+            var dist = maxDim * scale * 1.8;
+            camera.position.set(dist * 0.85, dist * 0.45, dist * 0.95);
+            camera.near = Math.max(0.001, dist / 2000);
+            camera.far = dist * 200;
+            camera.updateProjectionMatrix();
+            controls.update();
+
+            hideStatus();
+          } catch (e) {
+            console.error(e);
+            showStatus(modelLoadErrorMessage(e), true);
+          }
+        },
+        undefined,
+        function (err) {
+          console.error(err);
+          showStatus(modelLoadErrorMessage(err), true);
+        }
+      );
+
+      function onResize() {
+        var w = window.innerWidth;
+        var h = window.innerHeight;
+        camera.aspect = w / h;
+        camera.updateProjectionMatrix();
+        renderer.setPixelRatio(effectivePixelRatio());
+        renderer.setSize(w, h, false);
+      }
+      window.addEventListener('resize', onResize);
+
+      function tick() {
+        requestAnimationFrame(tick);
+        if (document.hidden) return;
+        controls.update();
+        renderer.render(scene, camera);
+      }
+      tick();
+    }
+  </script>
+  <audio id="bgMusic" loop playsinline preload="metadata">
+    <source src="assets/高山流水.mp3" type="audio/mpeg">
+  </audio>
+  <script src="assets/bg-music.js" defer></script>
+  <script>
+    (function () {
+      if (!window.QianhongAgent) return;
+      QianhongAgent.init({
+        getBridge: function () {
+          return new URLSearchParams(location.search).get('name') || '';
+        }
+      });
+    })();
+  </script>
+</body>
+</html>

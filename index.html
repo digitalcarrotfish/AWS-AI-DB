@@ -1,0 +1,600 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+  <title data-i18n="index.title">古桥雅韵 · 中国古代桥梁数字博物馆</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,500&family=Noto+Serif+SC:wght@400;500;600;700&family=Ma+Shan+Zheng&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="assets/bg-music.css">
+  <link rel="stylesheet" href="assets/bridge-agent.css">
+  <link rel="stylesheet" href="assets/bridge-assistant.css">
+  <script src="config.js"></script>
+  <script src="assets/bridge-agent.js"></script>
+  <script src="assets/bridge-assistant.js"></script>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      font-family: "Noto Serif SC", "Source Han Serif CN", "SimSun", serif;
+      min-height: 100dvh;
+      overflow-x: hidden;
+      -webkit-font-smoothing: antialiased;
+      color: #e8e4dc;
+      background: #060a0f;
+    }
+    body::-webkit-scrollbar { width: 8px; }
+    body::-webkit-scrollbar-track { background: rgba(20,24,32,0.6); }
+    body::-webkit-scrollbar-thumb { background: rgba(139,115,85,0.45); border-radius: 4px; }
+    body.fade-out {
+      opacity: 0;
+      transition: opacity 0.4s ease;
+    }
+
+    /* 层叠背景：深靛、暖金晕、 subtle 纹理 */
+    .shell {
+      min-height: 100dvh;
+      position: relative;
+      display: flex;
+      flex-direction: column;
+    }
+    .shell::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      z-index: 0;
+      pointer-events: none;
+      background:
+        linear-gradient(90deg, rgba(255,255,255,0.011) 1px, transparent 1px) 0 0 / 28px 28px,
+        linear-gradient(0deg, rgba(255,255,255,0.009) 1px, transparent 1px) 0 0 / 28px 28px,
+        repeating-linear-gradient(118deg, rgba(255,255,255,0.012) 0 0.5px, transparent 0.5px 11px),
+        radial-gradient(ellipse 85% 58% at 50% 42%, rgba(38, 40, 42, 0.4) 0%, transparent 68%),
+        radial-gradient(ellipse 120% 80% at 50% -20%, rgba(90, 60, 30, 0.2) 0%, transparent 55%),
+        radial-gradient(ellipse 70% 50% at 100% 50%, rgba(44, 42, 40, 0.3) 0%, transparent 50%),
+        radial-gradient(ellipse 60% 45% at 0% 80%, rgba(52, 44, 36, 0.22) 0%, transparent 48%),
+        linear-gradient(168deg, rgba(11, 13, 14, 0.88) 0%, rgba(19, 24, 28, 0.86) 35%, rgba(13, 16, 20, 0.88) 70%, rgba(6, 7, 8, 0.9) 100%),
+        url("assets/ink-bridge-bg.png") center center / cover no-repeat fixed;
+    }
+    .shell::after {
+      content: '';
+      position: fixed;
+      inset: 0;
+      z-index: 0;
+      pointer-events: none;
+      opacity: 0.052;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+    }
+
+    .content {
+      position: relative;
+      z-index: 1;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      max-width: 1200px;
+      margin: 0 auto;
+      width: 100%;
+      padding: 20px 24px 32px;
+    }
+
+    /* 顶栏：金线、馆名更醒目 */
+    .top-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      flex-wrap: wrap;
+      padding-bottom: 18px;
+      margin-bottom: 8px;
+      border-bottom: 1px solid transparent;
+      border-image: linear-gradient(90deg, transparent, rgba(180, 150, 100, 0.45) 20%, rgba(180, 150, 100, 0.45) 80%, transparent) 1;
+    }
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      min-width: 0;
+    }
+    .seal {
+      width: 52px;
+      height: 52px;
+      flex-shrink: 0;
+      background: linear-gradient(145deg, rgba(35, 40, 48, 0.95) 0%, rgba(20, 24, 30, 0.98) 100%);
+      border: 2px solid rgba(180, 145, 95, 0.55);
+      border-radius: 4px;
+      color: #d4b896;
+      font-weight: 700;
+      font-size: 1.5rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow:
+        0 0 0 1px rgba(0,0,0,0.5),
+        0 8px 32px rgba(0,0,0,0.45),
+        inset 0 1px 0 rgba(255,255,255,0.06);
+    }
+    .brand-text { min-width: 0; }
+    .brand-title {
+      font-size: clamp(1.2rem, 2.8vw, 1.45rem);
+      font-weight: 700;
+      letter-spacing: 0.22em;
+      color: #e6dcc8;
+      line-height: 1.3;
+      text-shadow: 0 2px 24px rgba(0,0,0,0.5);
+    }
+    .brand-sub {
+      font-size: 0.72rem;
+      color: #8a7d72;
+      margin-top: 6px;
+      letter-spacing: 0.14em;
+    }
+
+    .top-right {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      flex-wrap: wrap;
+    }
+    .site-nav {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.78rem;
+      letter-spacing: 0.12em;
+    }
+    .site-nav a {
+      color: #9a8c7a;
+      text-decoration: none;
+      transition: color 0.2s;
+    }
+    .site-nav a:hover { color: #d4b896; }
+    .site-nav .dot { color: rgba(180,150,100,0.35); user-select: none; }
+
+    /* 封面寻桥：与图鉴页一致的双层描金 + 祥云 + 朱印 */
+    .page-header { margin-bottom: 4px; }
+    .search-banner {
+      margin-top: 16px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 10px;
+    }
+    .search-chrome {
+      position: relative;
+      width: min(520px, 100%);
+    }
+    .search-gilt {
+      padding: 1px;
+      border-radius: 12px;
+      background: linear-gradient(160deg, #ebe0cc 0%, #c4ae88 42%, #a8926e 100%);
+      box-shadow: 0 6px 28px rgba(0, 0, 0, 0.42);
+    }
+    .search-rabbet {
+      padding: 2px;
+      border-radius: 11px;
+      background: linear-gradient(180deg, #12151a 0%, #0c0e12 100%);
+    }
+    .huiwen-frame {
+      display: block;
+      box-sizing: border-box;
+      border: 14px solid transparent;
+      border-image-source: url("assets/huiwen-frame.jpg");
+      border-image-slice: 160;
+      border-image-width: 14px;
+      border-image-outset: 0;
+      border-image-repeat: stretch;
+    }
+    .huiwen-frame .search-face {
+      border: none;
+      border-radius: 0;
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.05);
+    }
+    .search-face {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      min-height: 50px;
+      padding: 8px 10px 8px 8px;
+      border-radius: 9px;
+      background: #2c323b;
+      border: 1px solid rgba(212, 196, 168, 0.42);
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04);
+      transition: box-shadow 0.2s ease;
+    }
+    .search-face:focus-within {
+      box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, 0.07),
+        inset 0 0 0 1px rgba(212, 190, 150, 0.15);
+    }
+    .search-cloud {
+      flex-shrink: 0;
+      width: 42px;
+      height: 34px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: rgba(212, 200, 176, 0.88);
+      pointer-events: none;
+      opacity: 0.92;
+    }
+    .search-cloud--r { transform: scaleX(-1); }
+    .search-cloud svg { width: 100%; height: 100%; display: block; }
+    .search-face .search-ico {
+      flex-shrink: 0;
+      width: 18px;
+      height: 18px;
+      color: #e8d9b0;
+    }
+    .search-face:focus-within .search-ico { color: #f2e6c8; }
+    .search-face input {
+      flex: 1;
+      min-width: 0;
+      border: none;
+      outline: none;
+      font-family: "Noto Serif SC", "PingFang SC", "Microsoft YaHei", sans-serif;
+      font-size: 0.84rem;
+      letter-spacing: 0.02em;
+      color: #e8e6e0;
+      background: transparent;
+      padding: 10px 6px;
+    }
+    .search-face input::placeholder {
+      color: rgba(168, 166, 158, 0.82);
+    }
+    .search-seal--red {
+      flex-shrink: 0;
+      width: 38px;
+      height: 38px;
+      margin-left: 2px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: "Ma Shan Zheng", "Noto Serif SC", serif;
+      font-size: 1.08rem;
+      color: rgba(255, 252, 248, 0.96);
+      background: linear-gradient(145deg, #e53935 0%, #b71c1c 48%, #7f1010 100%);
+      border: 1px solid rgba(255, 192, 180, 0.38);
+      border-radius: 3px;
+      box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, 0.2),
+        0 2px 10px rgba(0, 0, 0, 0.45);
+      text-shadow: 0 1px 1px rgba(0, 0, 0, 0.4);
+      user-select: none;
+      line-height: 1;
+    }
+    .search-hint {
+      font-size: 0.68rem;
+      letter-spacing: 0.2em;
+      color: rgba(140, 130, 118, 0.65);
+      text-indent: 0.2em;
+    }
+    @media (max-width: 480px) {
+      .search-cloud { display: none; }
+      .search-face { padding-left: 12px; padding-right: 10px; }
+    }
+
+    /* 主区：大屏左右分栏 */
+    .hero-wrap {
+      flex: 1;
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 28px;
+      align-items: stretch;
+      min-height: 0;
+      padding-top: 12px;
+    }
+    @media (min-width: 900px) {
+      .hero-wrap {
+        grid-template-columns: minmax(0, 1.05fr) minmax(280px, 0.75fr);
+        gap: 40px;
+        align-items: center;
+      }
+    }
+
+    .hero-card {
+      position: relative;
+      text-align: left;
+      padding: 40px 36px 44px;
+      background: linear-gradient(165deg, rgba(22, 28, 38, 0.92) 0%, rgba(14, 18, 26, 0.96) 100%);
+      border: 1px solid rgba(160, 130, 85, 0.28);
+      border-radius: 2px;
+      box-shadow:
+        0 24px 64px rgba(0,0,0,0.5),
+        inset 0 1px 0 rgba(255,255,255,0.04);
+    }
+    .hero-card::before,
+    .hero-card::after {
+      content: '';
+      position: absolute;
+      width: 20px;
+      height: 20px;
+      border-color: rgba(180, 150, 100, 0.45);
+      border-style: solid;
+      pointer-events: none;
+    }
+    .hero-card::before {
+      top: 12px; left: 12px;
+      border-width: 2px 0 0 2px;
+    }
+    .hero-card::after {
+      bottom: 12px; right: 12px;
+      border-width: 0 2px 2px 0;
+    }
+    .corner-br {
+      position: absolute;
+      top: 12px; right: 12px;
+      width: 20px;
+      height: 20px;
+      border-top: 2px solid rgba(180, 150, 100, 0.35);
+      border-right: 2px solid rgba(180, 150, 100, 0.35);
+      pointer-events: none;
+    }
+    .corner-bl {
+      position: absolute;
+      bottom: 12px; left: 12px;
+      width: 20px;
+      height: 20px;
+      border-bottom: 2px solid rgba(180, 150, 100, 0.35);
+      border-left: 2px solid rgba(180, 150, 100, 0.35);
+      pointer-events: none;
+    }
+
+    .stamp {
+      display: inline-block;
+      padding: 10px 22px;
+      border: 1px solid rgba(180, 150, 100, 0.5);
+      color: #c9a87a;
+      font-size: 0.82rem;
+      font-weight: 600;
+      letter-spacing: 0.42em;
+      text-indent: 0.42em;
+      margin-bottom: 28px;
+      background: rgba(8, 12, 18, 0.6);
+      position: relative;
+    }
+    .stamp::before {
+      content: '';
+      position: absolute;
+      inset: -5px;
+      border: 1px dashed rgba(160, 130, 90, 0.22);
+      pointer-events: none;
+    }
+
+    .hero-title {
+      font-family: "Ma Shan Zheng", "Noto Serif SC", serif;
+      font-size: clamp(2rem, 5.5vw, 2.85rem);
+      font-weight: 400;
+      line-height: 1.3;
+      margin-bottom: 22px;
+      color: #f0e8dc;
+      text-shadow:
+        0 2px 1px rgba(0,0,0,0.45),
+        0 8px 32px rgba(0,0,0,0.35),
+        0 0 80px rgba(160, 120, 70, 0.12);
+    }
+    .hero-lead {
+      font-size: 0.95rem;
+      line-height: 1.85;
+      color: #a0988c;
+      max-width: 36em;
+      margin-bottom: 36px;
+      font-weight: 400;
+    }
+
+    .cta-row {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 16px;
+    }
+    .cta {
+      appearance: none;
+      border: none;
+      cursor: pointer;
+      font-family: inherit;
+      font-size: 0.95rem;
+      font-weight: 600;
+      letter-spacing: 0.18em;
+      text-indent: 0.18em;
+      color: #1a1510;
+      background: linear-gradient(180deg, #e8d5bc 0%, #c9a87a 45%, #a08055 100%);
+      padding: 16px 40px;
+      border-radius: 2px;
+      box-shadow:
+        0 4px 20px rgba(0,0,0,0.35),
+        inset 0 1px 0 rgba(255,255,255,0.25);
+      transition: transform 0.15s ease, filter 0.15s ease, box-shadow 0.2s;
+    }
+    .cta:hover {
+      filter: brightness(1.06);
+      box-shadow: 0 6px 28px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.3);
+    }
+    .cta:active { transform: scale(0.99); }
+    .cta::after {
+      content: ' →';
+      font-weight: 500;
+      letter-spacing: 0;
+    }
+
+    .cta-note {
+      font-size: 0.72rem;
+      color: #6d655c;
+      letter-spacing: 0.08em;
+    }
+
+    /* 右侧庄重装饰区 */
+    .hero-side {
+      display: none;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      position: relative;
+      min-height: 280px;
+      padding: 24px;
+      border: 1px solid rgba(120, 100, 70, 0.15);
+      background: linear-gradient(160deg, rgba(18, 22, 32, 0.5) 0%, rgba(10, 14, 22, 0.65) 100%);
+      border-radius: 2px;
+    }
+    @media (min-width: 900px) {
+      .hero-side { display: flex; }
+    }
+    .hero-side::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(ellipse at 50% 30%, rgba(160, 120, 70, 0.12) 0%, transparent 55%);
+      pointer-events: none;
+    }
+    .vertical-title {
+      writing-mode: vertical-rl;
+      text-orientation: mixed;
+      font-family: "Ma Shan Zheng", serif;
+      font-size: clamp(2.5rem, 4.2vw, 3.2rem);
+      letter-spacing: 0.35em;
+      color: rgba(200, 175, 130, 0.22);
+      user-select: none;
+      line-height: 1.6;
+      text-shadow: 0 0 40px rgba(0,0,0,0.5);
+    }
+    .side-rule {
+      width: 1px;
+      height: 120px;
+      margin: 24px 0;
+      background: linear-gradient(180deg, transparent, rgba(180, 150, 100, 0.35), transparent);
+    }
+    .side-caption {
+      writing-mode: vertical-rl;
+      font-size: 0.75rem;
+      letter-spacing: 0.55em;
+      color: #6d655c;
+      line-height: 2;
+    }
+
+    .footer-hint {
+      text-align: center;
+      font-size: 0.65rem;
+      color: #4a453e;
+      margin-top: auto;
+      padding-top: 28px;
+      letter-spacing: 0.12em;
+    }
+  </style>
+</head>
+<body>
+  <div class="shell">
+    <div class="content">
+      <header class="page-header">
+        <div class="top-bar">
+          <div class="brand">
+            <div class="seal" aria-hidden="true">桥</div>
+            <div class="brand-text">
+              <div class="brand-title" data-i18n="brand.title">古桥 雅韵</div>
+              <div class="brand-sub" data-i18n="brand.sub">中国古代桥梁 · 数字博物馆</div>
+            </div>
+          </div>
+          <div class="top-right">
+            <nav class="site-nav" data-i18n-aria="nav.site" aria-label="站内导航">
+              <a href="museum.html" data-i18n="nav.museum">图鉴主展区</a>
+              <span class="dot" aria-hidden="true">·</span>
+              <a href="knowledge.html" data-i18n="nav.knowledge">智能驿站</a>
+              <span class="dot" aria-hidden="true">·</span>
+              <a href="#" class="qh-agent-nav" id="navArchivist" data-i18n="nav.archivist">档案员</a>
+              <span class="dot" aria-hidden="true">·</span>
+              <a href="closing.html" data-i18n="nav.closing">余韵</a>
+              <span class="dot" aria-hidden="true">·</span>
+              <button type="button" class="lang-btn" data-lang-toggle aria-label="English">EN</button>
+              <button type="button" class="music-btn" id="musicToggle" data-i18n="music.label" data-i18n-aria="music.aria" data-i18n-title="music.title" aria-pressed="false" aria-label="背景音乐：高山流水" title="背景音乐《高山流水》">音乐</button>
+            </nav>
+          </div>
+        </div>
+        <div class="search-banner" role="search" data-i18n-aria="index.searchAria" aria-label="寻桥">
+          <div class="search-chrome">
+            <div class="search-gilt">
+              <div class="search-rabbet">
+                <div class="huiwen-frame">
+                <div class="search-face">
+                  <span class="search-cloud search-cloud--l" aria-hidden="true">
+                    <svg viewBox="0 0 56 36" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                      <path d="M6 26c0-10 8-16 16-14 2-8 12-12 20-6 4 6 2 14-6 18M10 28c8-4 16-10 22-18" stroke="currentColor" stroke-width="0.9" stroke-linecap="round" stroke-linejoin="round"/>
+                      <path d="M4 20c6-12 18-14 28-8 4-6 14-4 18 4" stroke="currentColor" stroke-width="0.75" stroke-linecap="round" opacity="0.85"/>
+                      <path d="M14 30c10-2 20-8 26-16" stroke="currentColor" stroke-width="0.65" stroke-linecap="round" opacity="0.7"/>
+                    </svg>
+                  </span>
+                  <svg class="search-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7.5"/><path d="m21 21-4.35-4.35"/></svg>
+                  <input type="search" id="landingSearch" data-i18n-placeholder="index.searchPh" data-i18n-aria="index.searchInputAria" placeholder="寻桥 · 名称或地域" enterkeyhint="search" autocomplete="off" aria-label="寻桥，将跳转至图鉴内搜索">
+                  <span class="search-seal--red" aria-hidden="true" data-i18n="index.searchSeal" data-i18n-title="index.searchSealTitle" title="寻桥">鉴</span>
+                  <span class="search-cloud search-cloud--r" aria-hidden="true">
+                    <svg viewBox="0 0 56 36" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                      <path d="M6 26c0-10 8-16 16-14 2-8 12-12 20-6 4 6 2 14-6 18M10 28c8-4 16-10 22-18" stroke="currentColor" stroke-width="0.9" stroke-linecap="round" stroke-linejoin="round"/>
+                      <path d="M4 20c6-12 18-14 28-8 4-6 14-4 18 4" stroke="currentColor" stroke-width="0.75" stroke-linecap="round" opacity="0.85"/>
+                      <path d="M14 30c10-2 20-8 26-16" stroke="currentColor" stroke-width="0.65" stroke-linecap="round" opacity="0.7"/>
+                    </svg>
+                  </span>
+                </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <p class="search-hint" data-i18n="index.searchHint">回车跳转图鉴</p>
+        </div>
+      </header>
+
+      <div class="hero-wrap">
+        <main class="hero-card">
+          <span class="corner-br" aria-hidden="true"></span>
+          <span class="corner-bl" aria-hidden="true"></span>
+          <div class="stamp" data-i18n="index.stamp">千年遗韵</div>
+          <h1 class="hero-title" data-i18n="index.hero" data-i18n-html>连接古今<br>的纽带</h1>
+          <p class="hero-lead" data-i18n="index.lead">从赵州桥的巧夺天工到卢沟桥的晓月风光，每一座古桥都是凝固的诗、立体的画；在此以图鉴与数据，致敬跨越千年的营造与智慧。</p>
+          <div class="cta-row">
+            <button type="button" class="cta" id="ctaExplore" data-i18n="index.cta">开始探索</button>
+            <span class="cta-note" data-i18n="index.ctaNote">进入交互地图与桥梁档案</span>
+          </div>
+        </main>
+        <aside class="hero-side" aria-hidden="true">
+          <div class="vertical-title" data-i18n="index.sideTitle">千古飞虹</div>
+          <div class="side-rule"></div>
+          <p class="side-caption" data-i18n="index.sideCaption">石梁铁索承风雨</p>
+        </aside>
+      </div>
+
+      <p class="footer-hint" data-i18n="index.footer">《千古飞虹》交互图鉴 · 数据可视化与数字展陈</p>
+    </div>
+  </div>
+  <audio id="bgMusic" loop playsinline preload="metadata">
+    <source src="assets/高山流水.mp3" type="audio/mpeg">
+  </audio>
+  <script src="assets/i18n.js"></script>
+  <script src="assets/bg-music.js" defer></script>
+  <script>
+    (function () {
+      function goMuseum() {
+        document.body.classList.add('fade-out');
+        setTimeout(function () { window.location.href = 'museum.html'; }, 360);
+      }
+      document.getElementById('ctaExplore').addEventListener('click', goMuseum);
+      var search = document.getElementById('landingSearch');
+      search.addEventListener('keydown', function (e) {
+        if (e.key === 'Enter') {
+          e.preventDefault();
+          var q = (search.value || '').trim();
+          if (q) window.location.href = 'museum.html?q=' + encodeURIComponent(q);
+          else goMuseum();
+        }
+      });
+      if (window.QianhongAgent) {
+        QianhongAgent.init({ autoTrack: false });
+        var nav = document.getElementById('navArchivist');
+        if (nav) {
+          nav.addEventListener('click', function (e) {
+            e.preventDefault();
+            QianhongAgent.openArchivist({ source: 'museum' });
+          });
+        }
+      }
+    })();
+  </script>
+</body>
+</html>

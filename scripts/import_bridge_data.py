@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""将 bridge/data 导入 CockroachDB，并写入向量 embedding。"""
+"""将 data/ 古桥数据导入 CockroachDB，并写入向量 embedding。"""
 from __future__ import annotations
 
 import json
@@ -26,11 +26,28 @@ def main() -> None:
 
     schema = (ROOT / "db" / "schema.sql").read_text(encoding="utf-8")
 
-    with psycopg.connect(dsn) as conn:
+    with psycopg.connect(dsn, autocommit=True) as conn:
+        # CockroachDB 26+：启用分布式向量索引（需 autocommit）
+        try:
+            conn.execute("SET CLUSTER SETTING feature.vector_index.enabled = true")
+            print("vector_index.enabled = true")
+        except Exception as exc:
+            print("warn: enable vector_index:", exc)
+
         for stmt in _split_sql(schema):
-            if stmt.strip():
+            if not stmt.strip():
+                continue
+            try:
                 conn.execute(stmt)
-        conn.commit()
+            except Exception as exc:
+                msg = str(exc).lower()
+                if "already exists" in msg or "duplicate" in msg:
+                    print("skip:", stmt.strip().split("\n", 1)[0][:80], "…")
+                    continue
+                if "vector index" in stmt.lower() or "create vector index" in stmt.lower():
+                    print("warn vector index:", exc)
+                    continue
+                raise
 
         for b in bridges:
             name = b["name"]
@@ -90,19 +107,18 @@ def main() -> None:
                 if not text.strip():
                     continue
                 vec = embed_text(text)
+                vec_lit = "[" + ",".join(f"{x:.8f}" for x in vec) + "]"
                 conn.execute(
                     """
                     INSERT INTO bridge_embeddings (bridge_id, dynasty, content_type, content_text, embedding)
-                    VALUES (%s, %s, %s, %s, %s)
+                    VALUES (%s, %s, %s, %s, %s::vector)
                     ON CONFLICT (bridge_id, content_type) DO UPDATE SET
                       content_text = EXCLUDED.content_text,
                       embedding = EXCLUDED.embedding
                     """,
-                    (bridge_id, b.get("dynasty"), ctype, text[:4000], vec),
+                    (bridge_id, b.get("dynasty"), ctype, text[:4000], vec_lit),
                 )
-        conn.commit()
-
-    print(f"已导入 {len(bridges)} 座桥梁 → {dsn}")
+        print(f"已导入 {len(bridges)} 座桥梁 → {dsn}")
 
 
 def _content_chunks(bridge: dict, culture: dict) -> list[tuple[str, str]]:

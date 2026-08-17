@@ -1,6 +1,6 @@
 # CockroachDB × AWS Hackathon 提交指南
 
-> **项目**：飞虹智忆（qianhong-agent）+ 千古飞虹（bridge）  
+> **项目**：千古飞虹（博物馆）+ 飞虹智忆（Agent）— 同一仓库  
 > **Devpost**：[cockroachdb-ai.devpost.com](https://cockroachdb-ai.devpost.com/)  
 > **截止**：2026-08-18 17:00 EDT
 
@@ -16,13 +16,13 @@
 
 ```mermaid
 flowchart TB
-    subgraph Museum["bridge 静态博物馆"]
+    subgraph Museum["博物馆静态站（仓库根目录）"]
         Map[museum.html 地图]
         Graph[knowledge.html 图谱]
         Detail[bridge-detail.html 档案]
     end
 
-    subgraph SDK["bridge-agent.js"]
+    subgraph SDK["assets/bridge-agent.js"]
         Events[浏览事件上报]
     end
 
@@ -85,12 +85,30 @@ flowchart TB
 
 ### 必须：至少 1 种 AWS 服务 ✅
 
-| AWS 服务 | 用途 |
-|---------|------|
-| **Amazon Bedrock** | Claude 生成讲解（`LLM_MODE=bedrock`） |
-| **AWS Lambda** | Agent API 运行时（`infra/template.yaml`） |
-| **API Gateway** | HTTP 入口 |
-| **Amazon S3** | 研学报告导出桶（SAM 模板） |
+详见 [`docs/AWS.md`](./AWS.md)。
+
+| AWS 服务 | 用途 | 本地验证 |
+|---------|------|----------|
+| **Amazon S3** | 扫桥存证 + 研学报告导出 | `S3_BUCKET` → `/api/aws/status` |
+| **Amazon Bedrock** | Claude 生成讲解 | `LLM_MODE=bedrock` |
+| **AWS Lambda** | Agent API 运行时 | `infra/template.yaml` |
+| **API Gateway** | HTTP 入口 | SAM `HttpApi` |
+
+推荐提交路径：**S3 存证**（最快）或 Bedrock 讲解；SAM 部署则三者一起亮。
+
+---
+
+## 博物馆 ↔ Agent 接线
+
+**同域托管**：`python -m api.main` 同时提供博物馆页面与 `/agent/`、`/api/*`。
+
+`assets/bridge-agent.js`：
+
+1. 浏览地图 / 档案 / 3D / 图谱 → `POST /api/events`（去重、会话校验）
+2. 「问档案员」→ `/agent/`，携带同一 `qh_session_id`（同域 localStorage）
+3. Agent 侧展示浏览轨迹 + 档案进度；仅显式 `autoAsk` 时自动发问
+
+本地只需一个进程：http://127.0.0.1:8787/
 
 ---
 
@@ -109,12 +127,15 @@ flowchart TB
 
 ## 提交清单
 
+- [x] CockroachDB 本地记忆层（`STORAGE_MODE=cockroach` + 向量索引）— 见 [`MEMORY.md`](./MEMORY.md)
 - [ ] 公开 GitHub 仓库（MIT License）
 - [ ] README 含一键启动说明
 - [ ] Demo URL（Lambda 部署 URL 或录屏 localhost）
 - [ ] YouTube/Vimeo 视频 < 3 分钟
 - [ ] Devpost 表单填写 CRDB 工具 + AWS 服务
+- [ ] MCP / ccloud 二选一演示接好（建议 Cloud MCP）
 - [ ] 可选：架构图（本文档已有）
+- [ ] 可选：Bedrock / Lambda
 
 ### Devpost 表单参考文案
 
@@ -153,7 +174,7 @@ sam deploy --guided \
 
 ### 3. bridge 前端
 
-更新 `bridge/config.js` 中 `QIANHONG_AGENT.apiBase` 为 Lambda URL。
+更新根目录 `config.js` 中 `QIANHONG_AGENT.apiBase` 为 Lambda URL。
 
 ---
 

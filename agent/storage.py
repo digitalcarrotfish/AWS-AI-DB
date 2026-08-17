@@ -78,6 +78,9 @@ class MemoryStore(ABC):
     @abstractmethod
     def get_events(self, session_id: str, limit: int = 30) -> list[dict[str, Any]]: ...
 
+    @abstractmethod
+    def memory_ops_snapshot(self) -> dict[str, Any]: ...
+
 
 class JsonMemoryStore(MemoryStore):
     """无需 CockroachDB，读取 bridge 数据 + 本地 JSON 存会话。"""
@@ -271,6 +274,71 @@ class JsonMemoryStore(MemoryStore):
             return []
         return s.get("events", [])[-limit:]
 
+    def memory_ops_snapshot(self) -> dict[str, Any]:
+        messages = sum(len(s.get("messages", [])) for s in self._sessions.values())
+        events = [
+            event
+            for session in self._sessions.values()
+            for event in session.get("events", [])
+        ]
+        event_types: dict[str, int] = {}
+        for event in events:
+            name = str(event.get("event_type") or "unknown")
+            event_types[name] = event_types.get(name, 0) + 1
+
+        calls: list[dict[str, Any]] = []
+        calls_path = settings.runtime_dir / "tool_calls.jsonl"
+        if calls_path.exists():
+            for line in calls_path.read_text(encoding="utf-8").splitlines():
+                try:
+                    calls.append(json.loads(line))
+                except json.JSONDecodeError:
+                    continue
+        tool_counts: dict[str, int] = {}
+        for call in calls:
+            name = str(call.get("tool_name") or "unknown")
+            tool_counts[name] = tool_counts.get(name, 0) + 1
+
+        return {
+            "backend": "json",
+            "counts": {
+                "bridges": len(self.bridges),
+                "embeddings": 0,
+                "sessions": len(self._sessions),
+                "messages": messages,
+                "events": len(events),
+                "memories": sum(
+                    1 for s in self._sessions.values() if s.get("user_memory")
+                ),
+                "tasks": sum(
+                    1 for s in self._sessions.values() if s.get("study_path")
+                ),
+                "tool_calls": len(calls),
+            },
+            "vector_index": {"active": False, "name": None},
+            "event_types": [
+                {"name": name, "count": count}
+                for name, count in sorted(
+                    event_types.items(), key=lambda item: item[1], reverse=True
+                )[:6]
+            ],
+            "tool_usage": [
+                {"name": name, "count": count}
+                for name, count in sorted(
+                    tool_counts.items(), key=lambda item: item[1], reverse=True
+                )[:6]
+            ],
+            "recent_tools": [
+                {
+                    "tool_name": call.get("tool_name"),
+                    "created_at": call.get("created_at"),
+                    "ok": bool((call.get("output") or {}).get("ok", True)),
+                }
+                for call in reversed(calls[-8:])
+            ],
+            "captured_at": _now(),
+        }
+
     def get_study_path(self, session_id: str) -> dict[str, Any] | None:
         s = self._sessions.get(session_id)
         return s.get("study_path") if s else None
@@ -292,7 +360,18 @@ class CockroachMemoryStore(MemoryStore):
         from psycopg.rows import dict_row
 
         self.dsn = dsn
-        self._connect = lambda: psycopg.connect(dsn, row_factory=dict_row)
+        self._psycopg = psycopg
+        self._dict_row = dict_row
+
+    def _connect(self):
+        """每次连接切到 qianhong 库（schema 默认库名）。"""
+        conn = self._psycopg.connect(self.dsn, row_factory=self._dict_row)
+        try:
+            conn.execute("SET DATABASE = qianhong")
+        except Exception:
+            # 库尚未创建时由 import 脚本负责
+            pass
+        return conn
 
     def list_bridges(self) -> list[dict[str, Any]]:
         with self._connect() as conn:
@@ -330,11 +409,43 @@ class CockroachMemoryStore(MemoryStore):
         return out
 
     def search_bridges(self, query: str, limit: int = 5) -> list[dict[str, Any]]:
+        """优先用 bridge_embeddings 向量检索（Distributed Vector Indexing）。"""
         from agent.embeddings import embed_text
-        from agent.knowledge import cosine
 
         qvec = embed_text(query)
+        vec_literal = "[" + ",".join(f"{x:.8f}" for x in qvec) + "]"
         with self._connect() as conn:
+            try:
+                rows = conn.execute(
+                    """
+                    SELECT b.name, b.dynasty, b.year, b.province, b.city,
+                           b.bridge_type AS type, b.material, b.poetry, b.intro,
+                           (e.embedding <=> %s::vector) AS dist
+                    FROM bridge_embeddings e
+                    JOIN bridges b ON b.id = e.bridge_id
+                    ORDER BY e.embedding <=> %s::vector
+                    LIMIT %s
+                    """,
+                    (vec_literal, vec_literal, limit),
+                ).fetchall()
+                if rows:
+                    out = []
+                    for r in rows:
+                        item = dict(r)
+                        dist = item.pop("dist", None)
+                        if dist is not None:
+                            try:
+                                item["_score"] = 1.0 - float(dist)
+                            except (TypeError, ValueError):
+                                item["_score"] = 0.0
+                        out.append(item)
+                    return out
+            except Exception:
+                # 旧集群 / 无向量算子时回退到应用层余弦
+                pass
+
+            from agent.knowledge import cosine
+
             rows = conn.execute(
                 """
                 SELECT b.name, b.dynasty, b.year, b.province, b.city,
@@ -351,7 +462,7 @@ class CockroachMemoryStore(MemoryStore):
                 continue
             if isinstance(vec, str):
                 vec = [float(x) for x in vec.strip("[]").split(",") if x.strip()]
-            s = cosine(qvec, vec)
+            s = cosine(qvec, list(vec))
             item = {k: r[k] for k in r if k not in ("content_text", "embedding")}
             item["_score"] = s
             scored.append((s, item))
@@ -547,6 +658,86 @@ class CockroachMemoryStore(MemoryStore):
             item["created_at"] = str(item.get("created_at", ""))
             out.append(item)
         return out
+
+    def memory_ops_snapshot(self) -> dict[str, Any]:
+        with self._connect() as conn:
+            count_row = conn.execute(
+                """
+                SELECT
+                  (SELECT count(*) FROM bridges) AS bridges,
+                  (SELECT count(*) FROM bridge_embeddings) AS embeddings,
+                  (SELECT count(*) FROM sessions) AS sessions,
+                  (SELECT count(*) FROM messages) AS messages,
+                  (SELECT count(*) FROM exploration_events) AS events,
+                  (SELECT count(*) FROM user_memory) AS memories,
+                  (SELECT count(*) FROM agent_tasks) AS tasks,
+                  (SELECT count(*) FROM tool_calls) AS tool_calls
+                """
+            ).fetchone()
+            event_rows = conn.execute(
+                """
+                SELECT event_type AS name, count(*) AS count
+                FROM exploration_events
+                GROUP BY event_type
+                ORDER BY count DESC, event_type
+                LIMIT 6
+                """
+            ).fetchall()
+            tool_rows = conn.execute(
+                """
+                SELECT tool_name AS name, count(*) AS count
+                FROM tool_calls
+                GROUP BY tool_name
+                ORDER BY count DESC, tool_name
+                LIMIT 6
+                """
+            ).fetchall()
+            recent_rows = conn.execute(
+                """
+                SELECT tool_name, created_at,
+                       COALESCE((output->>'ok')::BOOL, true) AS ok
+                FROM tool_calls
+                ORDER BY created_at DESC
+                LIMIT 8
+                """
+            ).fetchall()
+            try:
+                index_row = conn.execute(
+                    """
+                    SELECT index_name
+                    FROM [SHOW INDEXES FROM bridge_embeddings]
+                    WHERE index_name = 'idx_bridge_embeddings_vector'
+                    LIMIT 1
+                    """
+                ).fetchone()
+            except Exception:
+                index_row = None
+
+        counts = {key: int(value or 0) for key, value in dict(count_row).items()}
+        recent_tools = []
+        for row in recent_rows:
+            item = dict(row)
+            item["created_at"] = str(item.get("created_at", ""))
+            item["ok"] = bool(item.get("ok"))
+            recent_tools.append(item)
+        return {
+            "backend": "cockroach",
+            "counts": counts,
+            "vector_index": {
+                "active": bool(index_row),
+                "name": index_row["index_name"] if index_row else None,
+            },
+            "event_types": [
+                {"name": row["name"], "count": int(row["count"])}
+                for row in event_rows
+            ],
+            "tool_usage": [
+                {"name": row["name"], "count": int(row["count"])}
+                for row in tool_rows
+            ],
+            "recent_tools": recent_tools,
+            "captured_at": _now(),
+        }
 
     def get_study_path(self, session_id: str) -> dict[str, Any] | None:
         with self._connect() as conn:

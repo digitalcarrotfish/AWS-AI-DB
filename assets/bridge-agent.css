@@ -1,0 +1,83 @@
+/* 飞虹智忆 · 问档案员入口 */
+.qh-agent-fab {
+  position: fixed;
+  right: 20px;
+  bottom: 24px;
+  z-index: 40;
+  padding: 12px 18px;
+  border: 1px solid rgba(180, 145, 90, 0.55);
+  border-radius: 2px;
+  background: linear-gradient(180deg, rgba(36, 28, 20, 0.92), rgba(18, 14, 10, 0.96));
+  color: #e8d5bc;
+  font-family: inherit;
+  font-size: 0.82rem;
+  letter-spacing: 0.16em;
+  cursor: pointer;
+  box-shadow: 0 8px 28px rgba(0, 0, 0, 0.35);
+  transition: color 0.2s, border-color 0.2s, transform 0.2s, box-shadow 0.2s, opacity 0.2s;
+}
+
+.qh-agent-fab::before {
+  content: '';
+  display: inline-block;
+  width: 7px;
+  height: 7px;
+  margin-right: 8px;
+  border-radius: 50%;
+  background: #6a6258;
+  vertical-align: 1px;
+  box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.25);
+}
+
+.qh-agent-fab.is-online::before {
+  background: #6d8f6a;
+}
+
+.qh-agent-fab.is-offline {
+  opacity: 0.78;
+}
+
+.qh-agent-fab.is-offline::before {
+  background: #c45c3e;
+}
+
+.qh-agent-fab:hover {
+  color: #fff4e4;
+  border-color: rgba(212, 184, 150, 0.75);
+  transform: translateY(-1px);
+  box-shadow: 0 10px 32px rgba(0, 0, 0, 0.42);
+}
+
+.qh-agent-fab:focus-visible {
+  outline: 2px solid rgba(212, 184, 150, 0.7);
+  outline-offset: 3px;
+}
+
+html[lang='en'] .qh-agent-fab {
+  letter-spacing: 0.06em;
+  font-family: 'Cormorant Garamond', Georgia, serif;
+}
+
+@media (max-width: 520px) {
+  .qh-agent-fab {
+    right: 14px;
+    bottom: 72px;
+    padding: 10px 14px;
+    font-size: 0.75rem;
+  }
+}
+
+.site-nav a.qh-agent-nav,
+.back-bar a.qh-agent-nav,
+.top-bar a.qh-agent-nav {
+  color: #c9a87a !important;
+  text-decoration: none;
+  font-size: inherit;
+  letter-spacing: 0.08em;
+}
+
+.site-nav a.qh-agent-nav:hover,
+.back-bar a.qh-agent-nav:hover,
+.top-bar a.qh-agent-nav:hover {
+  color: #e8d5bc !important;
+}

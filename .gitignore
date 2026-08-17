@@ -8,5 +8,11 @@ dist/
 build/
 data/sessions/
 data/runtime/
+.crdb-data/
+.tools/
+.cursor/mcp.json
 *.log
 .DS_Store
+
+# 本地密钥（从 config.example.js 复制）
+config.js

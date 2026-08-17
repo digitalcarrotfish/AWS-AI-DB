@@ -6,23 +6,76 @@
   <title>飞虹智忆 — 古桥 Agent 记忆</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;500;600;700&family=Ma+Shan+Zheng&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="/assets/style.css">
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,500&family=Noto+Serif+SC:wght@400;500;600;700&family=Ma+Shan+Zheng&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/agent/assets/style.css">
 </head>
 <body>
   <div class="app">
     <header class="top-bar">
       <nav class="site-nav">
-        <a href="../bridge/index.html" title="返回千古飞虹静态博物馆">← 千古飞虹</a>
+        <a href="/" id="navHome">← 千古飞虹</a>
         <span class="nav-sep">·</span>
-        <a href="../bridge/knowledge.html">智能驿站 v1</a>
+        <a href="/museum.html" id="navMuseum">图鉴地图</a>
+        <span class="nav-sep">·</span>
+        <a href="/knowledge.html" id="navKnowledge">智能驿站</a>
+        <span class="nav-sep">·</span>
+        <a href="#" id="navBackExplore" class="is-hidden">返回浏览</a>
       </nav>
       <span class="status-pill" id="statusPill">连接中…</span>
     </header>
 
     <section class="hero">
+      <p class="hero-kicker">Qianhong Archivist · Agentic Memory</p>
       <h1>飞虹智忆</h1>
-      <p>基于 CockroachDB Agent 记忆层的古桥文化助手 · 延续「千古飞虹」图鉴</p>
+      <p>记住你在图鉴里走过的桥 — CockroachDB 记忆层驱动讲解、档案与研学路线</p>
+    </section>
+
+    <section class="ops-panel" id="opsPanel" aria-label="记忆运维驾驶舱">
+      <div class="ops-heading">
+        <div>
+          <p class="ops-kicker">CockroachDB Memory Operations</p>
+          <h2>记忆运维驾驶舱</h2>
+        </div>
+        <div class="ops-actions">
+          <span class="ops-health" id="opsHealth"><i></i>读取中</span>
+          <button type="button" class="ops-refresh" id="opsRefresh">刷新快照</button>
+        </div>
+      </div>
+      <div class="ops-content">
+        <div class="ops-score">
+          <div class="ops-score-ring" id="opsScore">--</div>
+          <div>
+            <strong id="opsVerdict">正在连接记忆层</strong>
+            <span id="opsCaptured">等待第一份运行快照</span>
+          </div>
+        </div>
+        <div class="ops-metrics" id="opsMetrics">
+          <div class="ops-metric"><span>古桥知识</span><strong>--</strong></div>
+          <div class="ops-metric"><span>向量记忆</span><strong>--</strong></div>
+          <div class="ops-metric"><span>探索事件</span><strong>--</strong></div>
+          <div class="ops-metric"><span>工具审计</span><strong>--</strong></div>
+        </div>
+        <div class="ops-system">
+          <div class="ops-system-row">
+            <span>持久存储</span><strong id="opsStorage">检测中</strong>
+          </div>
+          <div class="ops-system-row">
+            <span>向量索引</span><strong id="opsVector">检测中</strong>
+          </div>
+          <div class="ops-system-row">
+            <span>Cloud 控制面</span><strong id="opsCloud">检测中</strong>
+          </div>
+        </div>
+        <div class="ops-feed">
+          <strong>Agent 判断</strong>
+          <ul id="opsInsights"><li>正在分析记忆层状态…</li></ul>
+        </div>
+        <div class="ops-feed ops-audit">
+          <strong>最近工具调用</strong>
+          <ul id="opsAudit"><li>暂无审计记录</li></ul>
+        </div>
+      </div>
+      <p class="ops-next" id="opsNext">运行数据将由 CockroachDB 实时聚合，而不是前端模拟。</p>
     </section>
 
     <div class="layout">
@@ -37,30 +90,42 @@
           <strong>古桥档案</strong><br>
           <span id="dossierProgress">已了解 0 / 34 座</span>
           <div id="dossierLearned" class="dossier-tags"></div>
-          <hr style="border:none;border-top:1px dashed rgba(160,130,85,0.25);margin:8px 0">
+          <hr>
+          <strong>兴趣标签</strong>
+          <div id="interestBox" class="dossier-tags"><span class="muted">尚无兴趣标签</span></div>
+          <hr>
+          <strong>浏览轨迹</strong>
+          <ol class="trail-list" id="trailList">
+            <li class="trail-empty">在图鉴中点开桥梁后，轨迹会出现在这里</li>
+          </ol>
+          <hr>
           <strong>研学路线</strong><br>
           <span id="studyPathBox">暂无进行中的路线</span>
+          <hr>
+          <button type="button" class="clear-btn" id="exportS3Btn" title="需配置 S3_BUCKET，见 docs/AWS.md">导出档案到 S3</button>
+          <p class="muted" id="exportS3Status" style="margin:0.4rem 0 0;font-size:0.75rem"></p>
         </div>
       </aside>
 
       <main class="card chat-panel">
         <div class="card-head">
-          <h2>古桥 AI 对话</h2>
-          <p>支持桥史、结构、诗词文化、朝代列表与名桥对比</p>
+          <h2>档案员对话</h2>
+          <p>支持桥史、结构、诗词文化、朝代对比；发送「继续」推进研学路线</p>
         </div>
         <div class="context-bar">
           <span>当前焦点：<strong id="focusLabel">未选择</strong></span>
           <button type="button" class="clear-btn" id="clearFocus">清除焦点</button>
         </div>
+        <div class="memory-banner is-hidden" id="memoryBanner" role="status"></div>
         <div class="chat-messages" id="messages" aria-live="polite"></div>
         <div class="chips" id="chips"></div>
         <div class="chat-input-row">
-          <textarea id="chatInput" rows="2" placeholder="例如：介绍赵州桥 / 宋代有哪些拱桥 / 对比赵州桥和卢沟桥" aria-label="向 Agent 提问"></textarea>
+          <textarea id="chatInput" rows="2" placeholder="例如：介绍赵州桥 / 规划宋代桥梁研学路线 / 继续" aria-label="向 Agent 提问"></textarea>
           <button type="button" class="ai-send" id="sendBtn">发送</button>
         </div>
       </main>
     </div>
   </div>
-  <script src="/assets/app.js"></script>
+  <script src="/agent/assets/app.js"></script>
 </body>
 </html>

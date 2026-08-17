@@ -1,0 +1,2138 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+  <meta http-equiv="Pragma" content="no-cache">
+  <meta http-equiv="Expires" content="0">
+  <title data-i18n="museum.title">千古飞虹：中国古代桥梁工程图鉴</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,500&family=Noto+Serif+SC:wght@400;500;600;700&family=Ma+Shan+Zheng&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="assets/bg-music.css">
+  <link rel="stylesheet" href="assets/bridge-agent.css">
+  <link rel="stylesheet" href="assets/bridge-assistant.css">
+  <script src="assets/i18n.js"></script>
+  <script src="config.js"></script>
+  <script src="assets/bridge-agent.js"></script>
+  <script src="assets/bridge-assistant.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
+  <script src="data/bridges-data.js?v=3"></script>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    html { -webkit-font-smoothing: antialiased; }
+    body {
+      font-family: "Noto Serif SC", "Source Han Serif CN", "SimSun", serif;
+      min-height: 100vh;
+      overflow-y: auto;
+      overflow-x: hidden;
+      color: #e8e4dc;
+      background: #060a0f;
+    }
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      z-index: 0;
+      pointer-events: none;
+      background:
+        linear-gradient(90deg, rgba(255,255,255,0.011) 1px, transparent 1px) 0 0 / 28px 28px,
+        linear-gradient(0deg, rgba(255,255,255,0.009) 1px, transparent 1px) 0 0 / 28px 28px,
+        repeating-linear-gradient(118deg, rgba(255,255,255,0.012) 0 0.5px, transparent 0.5px 11px),
+        radial-gradient(ellipse 85% 58% at 50% 42%, rgba(38, 40, 42, 0.4) 0%, transparent 68%),
+        radial-gradient(ellipse 100% 70% at 50% -15%, rgba(115, 78, 42, 0.19) 0%, transparent 52%),
+        radial-gradient(ellipse 55% 45% at 100% 38%, rgba(44, 42, 40, 0.32) 0%, transparent 52%),
+        radial-gradient(ellipse 52% 42% at 0% 78%, rgba(52, 44, 36, 0.24) 0%, transparent 48%),
+        linear-gradient(172deg, rgba(11, 13, 14, 0.88) 0%, rgba(19, 24, 28, 0.86) 36%, rgba(13, 16, 20, 0.88) 70%, rgba(6, 7, 8, 0.9) 100%),
+        url("assets/ink-bridge-bg.png") center center / cover no-repeat fixed;
+    }
+    body::after {
+      content: '';
+      position: fixed;
+      inset: 0;
+      z-index: 0;
+      pointer-events: none;
+      opacity: 0.052;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+    }
+    body::-webkit-scrollbar { width: 8px; }
+    body::-webkit-scrollbar-track { background: rgba(20,24,32,0.55); border-radius: 4px; }
+    body::-webkit-scrollbar-thumb { background: rgba(139,115,85,0.45); border-radius: 4px; }
+    .container {
+      position: relative;
+      z-index: 1;
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+      padding: 14px 16px 16px;
+      gap: 12px;
+    }
+    header.museum-header {
+      text-align: center;
+      padding: 12px 8px 22px;
+      border-bottom: 1px solid transparent;
+      border-image: linear-gradient(90deg, transparent, rgba(180, 150, 100, 0.4) 18%, rgba(180, 150, 100, 0.4) 82%, transparent) 1;
+    }
+    header.museum-header h1 {
+      font-family: "Ma Shan Zheng", "Noto Serif SC", serif;
+      position: relative;
+      display: inline-block;
+      max-width: 100%;
+      font-size: clamp(1.95rem, 5.2vw, 2.95rem);
+      font-weight: 400;
+      letter-spacing: 0.18em;
+      text-indent: 0.18em;
+      color: #f4ebd4;
+      line-height: 1.38;
+      text-shadow:
+        0 1px 0 rgba(255,255,255,0.14),
+        0 3px 16px rgba(0,0,0,0.72),
+        0 0 56px rgba(230, 190, 120, 0.38),
+        0 0 100px rgba(180, 130, 65, 0.22);
+      filter: drop-shadow(0 4px 14px rgba(0,0,0,0.55));
+    }
+    header.museum-header h1::before {
+      content: '';
+      position: absolute;
+      z-index: -1;
+      left: 50%;
+      transform: translateX(-50%);
+      top: -0.42em;
+      bottom: -0.22em;
+      width: min(108%, 30em);
+      background: radial-gradient(ellipse 72% 100% at 50% 42%, rgba(58, 48, 28, 0.72) 0%, rgba(28, 24, 18, 0.4) 48%, transparent 74%);
+      border-radius: 8px;
+      pointer-events: none;
+    }
+    header.museum-header h1::after {
+      content: '';
+      position: absolute;
+      left: 50%;
+      transform: translateX(-50%);
+      bottom: -0.12em;
+      width: min(62%, 17em);
+      height: 2px;
+      background: linear-gradient(90deg, transparent, rgba(220, 188, 130, 0.5), rgba(255, 235, 190, 0.55), rgba(220, 188, 130, 0.5), transparent);
+      border-radius: 2px;
+      box-shadow: 0 0 12px rgba(212, 180, 110, 0.35);
+    }
+    header.museum-header p.museum-sub {
+      font-size: 0.78rem;
+      color: #a0988c;
+      margin-top: 10px;
+      letter-spacing: 0.06em;
+      line-height: 1.65;
+      max-width: 36em;
+      margin-left: auto;
+      margin-right: auto;
+    }
+    .site-nav {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 14px;
+      font-size: 0.74rem;
+      letter-spacing: 0.1em;
+    }
+    .site-nav a {
+      color: #8a7d72;
+      text-decoration: none;
+      transition: color 0.2s;
+    }
+    .site-nav a:hover { color: #d4b896; }
+    .nav-sep { color: rgba(160, 140, 120, 0.4); user-select: none; }
+    .main {
+      flex: 1;
+      display: flex;
+      gap: 10px;
+      min-height: 0;
+      min-height: 55vh;
+    }
+    .map-wrap {
+      flex: 1;
+      position: relative;
+      min-width: 0;
+      min-height: 0;
+      display: flex;
+    }
+    #mapDiv {
+      flex: 1;
+      position: relative;
+      border-radius: 2px;
+      overflow: hidden;
+      border: 1px solid rgba(160, 130, 85, 0.35);
+      box-shadow:
+        0 20px 48px rgba(0,0,0,0.45),
+        inset 0 1px 0 rgba(255,255,255,0.04);
+      background-color: rgba(8, 10, 14, 0.25);
+      background-image:
+        radial-gradient(ellipse 80% 60% at 50% 35%, rgba(255,255,255,0.025) 0%, transparent 60%),
+        repeating-linear-gradient(120deg, rgba(255,255,255,0.012) 0 0.5px, transparent 0.5px 14px),
+        linear-gradient(180deg, rgba(12, 15, 20, 0.5) 0%, rgba(8, 11, 16, 0.42) 100%);
+    }
+    .map-zoom {
+      position: absolute;
+      left: 12px;
+      bottom: 12px;
+      z-index: 10000;
+      display: flex;
+      flex-direction: column;
+      border: 1px solid rgba(180, 150, 100, 0.55);
+      border-radius: 2px;
+      overflow: hidden;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.55);
+      background: rgba(12, 16, 24, 0.96);
+      pointer-events: auto;
+    }
+    .map-zoom-btn {
+      width: 36px;
+      height: 36px;
+      margin: 0;
+      padding: 0;
+      border: none;
+      border-radius: 0;
+      background: transparent;
+      color: #d4c4a8;
+      font-family: inherit;
+      font-size: 1.25rem;
+      font-weight: 600;
+      line-height: 1;
+      cursor: pointer;
+      transition: color 0.15s, background 0.15s;
+    }
+    .map-zoom-btn + .map-zoom-btn {
+      border-top: 1px solid rgba(160, 130, 85, 0.35);
+    }
+    .map-zoom-btn:hover {
+      color: #f4ebd4;
+      background: rgba(90, 70, 45, 0.35);
+    }
+    .map-zoom-btn:active {
+      background: rgba(120, 90, 50, 0.4);
+    }
+    #mapDiv::before,
+    #mapDiv::after {
+      content: '';
+      position: absolute;
+      width: 14px;
+      height: 14px;
+      border-color: rgba(180, 150, 100, 0.4);
+      border-style: solid;
+      pointer-events: none;
+      z-index: 5;
+    }
+    #mapDiv::before { top: 8px; left: 8px; border-width: 2px 0 0 2px; }
+    #mapDiv::after { bottom: 8px; right: 8px; border-width: 0 2px 2px 0; }
+    .left-panel {
+      width: 340px;
+      min-width: 280px;
+      max-width: 520px;
+      flex-shrink: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      overflow: hidden;
+    }
+    .left-panel .chart-box {
+      height: 220px;
+      min-height: 180px;
+    }
+    .left-panel .chart-box.rose {
+      height: 240px;
+    }
+    .rank-panel { flex-shrink: 0; }
+    .rank-tabs { display: flex; gap: 8px; margin-bottom: 8px; }
+    .rank-tab { font-size: 0.68rem; color: #8a7d72; cursor: pointer; padding: 4px 8px; border-radius: 2px; border: 1px solid transparent; transition: color 0.15s, background 0.15s, border-color 0.15s; }
+    .rank-tab:hover { color: #d4b896; }
+    .rank-tab.active { color: #e8d5b7; background: rgba(90, 70, 45, 0.35); border-color: rgba(180, 150, 100, 0.35); }
+    .rank-list-wrap { max-height: 280px; overflow-y: auto; overflow-x: hidden; }
+    .rank-list { list-style: none; font-size: 0.75rem; }
+    .rank-list li { display: flex; align-items: center; justify-content: space-between; padding: 4px 0; border-bottom: 1px solid rgba(224,225,221,0.08); }
+    .rank-list .rank-num { color: #c9a87a; font-weight: 600; min-width: 20px; }
+    .rank-list .rank-name { color: #e8e4dc; flex: 1; margin: 0 6px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .rank-list .rank-value { color: #8a7d72; }
+    .rank-list .rank-list-inner { animation: rankScroll 20s linear infinite; }
+    @keyframes rankScroll { 0% { transform: translateY(0); } 100% { transform: translateY(-50%); } }
+    .sidebar {
+      width: 220px;
+      min-width: 180px;
+      max-width: 400px;
+      flex-shrink: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      overflow: hidden;
+    }
+    .resize-handle {
+      flex-shrink: 0;
+      width: 6px;
+      cursor: col-resize;
+      background: transparent;
+      transition: background 0.15s;
+      position: relative;
+      user-select: none;
+    }
+    .resize-handle:hover,
+    .resize-handle.active {
+      background: rgba(180, 150, 100, 0.2);
+    }
+    .resize-handle::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 2px;
+      background: rgba(180, 150, 100, 0.35);
+      opacity: 0;
+      transition: opacity 0.15s;
+    }
+    .resize-handle:hover::after,
+    .resize-handle.active::after {
+      opacity: 1;
+    }
+    /* 回纹锦边框（图二素材，不设 fill 以免盖住中间底色） */
+    .huiwen-frame {
+      display: block;
+      box-sizing: border-box;
+      border: 16px solid transparent;
+      border-image-source: url("assets/huiwen-frame.jpg");
+      border-image-slice: 160;
+      border-image-width: 16px;
+      border-image-outset: 0;
+      border-image-repeat: stretch;
+    }
+    .panel {
+      position: relative;
+      background-color: transparent;
+      background-image:
+        radial-gradient(ellipse 90% 65% at 50% 0%, rgba(255,255,255,0.04) 0%, transparent 58%),
+        radial-gradient(ellipse 100% 85% at 50% 100%, rgba(0,0,0,0.22) 0%, transparent 55%),
+        repeating-linear-gradient(125deg, rgba(255,255,255,0.018) 0 0.5px, transparent 0.5px 13px),
+        linear-gradient(165deg, rgba(22, 28, 36, 0.94) 0%, rgba(14, 17, 22, 0.97) 100%);
+      border: 18px solid transparent;
+      border-image-source: url("assets/huiwen-frame.jpg");
+      border-image-slice: 160;
+      border-image-width: 18px;
+      border-image-outset: 0;
+      border-image-repeat: stretch;
+      border-radius: 0;
+      padding: 14px 12px 12px;
+      box-shadow:
+        0 12px 36px rgba(0,0,0,0.35),
+        inset 0 1px 0 rgba(255,255,255,0.03);
+    }
+    .panel h3 {
+      font-size: 0.78rem;
+      color: #c9a87a;
+      margin-bottom: 10px;
+      letter-spacing: 0.14em;
+      font-weight: 600;
+    }
+    .legend span {
+      display: inline-flex;
+      align-items: center;
+      margin-right: 10px;
+      margin-bottom: 6px;
+      font-size: 0.72rem;
+      color: #c4bcb0;
+    }
+    .legend i {
+      width: 12px;
+      height: 12px;
+      border-radius: 3px;
+      margin-right: 6px;
+      box-shadow: 0 0 0 1.5px rgba(255,255,255,0.55), 0 1px 4px rgba(0,0,0,0.45);
+    }
+    .legend .拱桥 i { background: #e83828; }
+    .legend .梁桥 i { background: #18a858; }
+    .legend .索桥 i { background: #1a9fe8; }
+    .legend .浮桥 i { background: #f0a818; }
+    .timeline-wrap.panel {
+      padding: 14px 14px 12px;
+    }
+    .timeline-wrap label {
+      display: block;
+      font-size: 0.76rem;
+      color: #9a8c7a;
+      margin-bottom: 6px;
+      letter-spacing: 0.08em;
+    }
+    .timeline-wrap .year-display {
+      font-size: 1.1rem;
+      color: #e8d5b7;
+      text-align: center;
+      margin-bottom: 6px;
+      font-weight: 600;
+      letter-spacing: 0.06em;
+      text-shadow: 0 1px 8px rgba(0,0,0,0.4);
+    }
+    .timeline-axis {
+      padding: 8px 0 6px;
+      margin: 0;
+      cursor: pointer;
+      touch-action: pan-y;
+    }
+    .timeline-wrap input[type="range"] {
+      width: 100%;
+      height: 28px;
+      margin: 0;
+      display: block;
+      -webkit-appearance: none;
+      appearance: none;
+      background: transparent;
+      outline: none;
+      cursor: pointer;
+    }
+    .timeline-wrap input[type="range"]::-webkit-slider-runnable-track {
+      height: 7px;
+      background: linear-gradient(90deg, rgba(30, 38, 52, 0.95), rgba(55, 70, 90, 0.85));
+      border-radius: 3px;
+      border: 1px solid rgba(120, 100, 75, 0.25);
+    }
+    .timeline-wrap input[type="range"]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 20px;
+      height: 20px;
+      margin-top: -6px;
+      border-radius: 4px;
+      background: linear-gradient(145deg, #c45c3e 0%, #8b3328 100%);
+      border: 2px solid rgba(220, 180, 140, 0.45);
+      cursor: pointer;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.45), 0 0 0 1px rgba(0,0,0,0.2);
+    }
+    .timeline-wrap input[type="range"]::-moz-range-track {
+      height: 7px;
+      background: linear-gradient(90deg, rgba(30, 38, 52, 0.95), rgba(55, 70, 90, 0.85));
+      border-radius: 3px;
+      border: 1px solid rgba(120, 100, 75, 0.25);
+    }
+    .timeline-wrap input[type="range"]::-moz-range-thumb {
+      width: 20px;
+      height: 20px;
+      border: 2px solid rgba(220, 180, 140, 0.45);
+      border-radius: 4px;
+      background: linear-gradient(145deg, #c45c3e 0%, #8b3328 100%);
+      cursor: pointer;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.45);
+    }
+    .footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 8px;
+      padding: 10px 12px;
+      font-size: 0.68rem;
+      color: #5c564e;
+      border-top: 1px solid transparent;
+      border-image: linear-gradient(90deg, transparent, rgba(120, 100, 75, 0.35) 15%, rgba(120, 100, 75, 0.35) 85%, transparent) 1;
+      letter-spacing: 0.04em;
+    }
+    .footer .map-attribution {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .footer .map-attribution a { color: #7d7268; text-decoration: none; }
+    .footer .map-attribution a:hover { color: #c9a87a; text-decoration: underline; }
+    .tip {
+      font-size: 0.68rem;
+      color: #6d655c;
+      margin-top: 6px;
+      line-height: 1.5;
+    }
+    .model-bridge-list {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    .model-bridge-list a {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      padding: 8px 10px;
+      border-radius: 2px;
+      text-decoration: none;
+      font-size: 0.76rem;
+      color: #e0d8cc;
+      letter-spacing: 0.06em;
+      background: rgba(0, 0, 0, 0.2);
+      border: 1px solid rgba(140, 115, 85, 0.28);
+      transition: color 0.15s, border-color 0.15s, background 0.15s;
+    }
+    .model-bridge-list a:hover {
+      color: #f4ebd4;
+      border-color: rgba(180, 150, 100, 0.45);
+      background: rgba(90, 70, 45, 0.22);
+    }
+    .model-bridge-list a .model-tag {
+      flex-shrink: 0;
+      font-size: 0.58rem;
+      letter-spacing: 0.04em;
+      padding: 2px 6px;
+      border-radius: 2px;
+      font-weight: 600;
+    }
+    .model-bridge-list a .model-tag--glb {
+      color: #1a1510;
+      background: linear-gradient(145deg, #d4b896 0%, #a8926e 100%);
+      border: 1px solid rgba(220, 190, 140, 0.4);
+    }
+    .model-bridge-list a .model-tag--soon {
+      color: #8a7d72;
+      background: rgba(30, 36, 44, 0.85);
+      border: 1px solid rgba(100, 90, 78, 0.35);
+    }
+    .bridge-scroll-section {
+      flex-shrink: 0;
+      padding: 14px 14px 12px;
+      position: relative;
+      background: linear-gradient(180deg, rgba(12, 16, 24, 0.75) 0%, rgba(8, 12, 18, 0.85) 100%);
+      border: 1px solid rgba(160, 130, 85, 0.22);
+      border-radius: 2px;
+      box-shadow: inset 0 1px 0 rgba(255,255,255,0.03);
+    }
+    .bridge-scroll-section h3 {
+      font-size: 0.78rem;
+      color: #c9a87a;
+      margin-bottom: 10px;
+      letter-spacing: 0.12em;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+    }
+    .bridge-scroll-section h3::before,
+    .bridge-scroll-section h3::after {
+      content: '';
+      flex: 1;
+      max-width: 80px;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, rgba(180, 150, 100, 0.45));
+    }
+    .bridge-scroll-section h3::after {
+      background: linear-gradient(270deg, transparent, rgba(180, 150, 100, 0.45));
+    }
+    .bridge-scroll-outer {
+      position: relative;
+    }
+    .bridge-scroll-wrap {
+      overflow-x: auto;
+      overflow-y: hidden;
+      padding: 8px 0;
+      -webkit-overflow-scrolling: touch;
+      scroll-snap-type: x mandatory;
+      scroll-behavior: smooth;
+    }
+    .bridge-scroll-wrap::-webkit-scrollbar { height: 6px; }
+    .bridge-scroll-wrap::-webkit-scrollbar-track { background: rgba(20,24,32,0.55); border-radius: 3px; }
+    .bridge-scroll-wrap::-webkit-scrollbar-thumb { background: rgba(120,95,70,0.45); border-radius: 3px; }
+    .bridge-scroll {
+      display: flex;
+      gap: 12px;
+      padding: 0 8px;
+      min-width: min-content;
+    }
+    .bridge-card {
+      flex-shrink: 0;
+      scroll-snap-align: center;
+      width: min(276px, 82vw);
+      min-width: min(276px, 82vw);
+      padding: 0;
+      display: block;
+      background: transparent;
+      border: none;
+      border-radius: 12px;
+      box-shadow:
+        0 12px 28px rgba(0,0,0,0.42),
+        0 4px 12px rgba(0,0,0,0.22);
+      cursor: pointer;
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+      animation: bridgeCardIn 0.4s ease-out;
+      position: relative;
+    }
+    .bridge-card:hover {
+      transform: translateY(-2px) scale(1.01);
+      box-shadow:
+        0 18px 36px rgba(0,0,0,0.48),
+        0 6px 14px rgba(0,0,0,0.28);
+    }
+    .bridge-card-inner {
+      display: flex;
+      flex-direction: row;
+      align-items: stretch;
+      min-height: 102px;
+      border-radius: 11px;
+      position: relative;
+      overflow: hidden;
+      border: 1px solid rgba(140, 115, 82, 0.85);
+      box-shadow:
+        inset 0 0 0 1px rgba(255, 248, 235, 0.35),
+        inset 0 0 0 2px rgba(72, 58, 42, 0.22),
+        inset 0 0 0 3px rgba(160, 130, 95, 0.55);
+      background:
+        url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cpath d='M10 26 L10 10 L26 10' stroke='%23a08060' fill='none' stroke-width='2' opacity='0.65'/%3E%3Cpath d='M74 10 L90 10 L90 26' stroke='%23a08060' fill='none' stroke-width='2' opacity='0.65'/%3E%3Cpath d='M10 74 L10 90 L26 90' stroke='%23a08060' fill='none' stroke-width='2' opacity='0.65'/%3E%3Cpath d='M90 74 L90 90 L74 90' stroke='%23a08060' fill='none' stroke-width='2' opacity='0.65'/%3E%3C/svg%3E") 0 0 / 100% 100% no-repeat,
+        radial-gradient(ellipse 120% 80% at 20% 30%, rgba(255, 252, 245, 0.9) 0%, transparent 55%),
+        radial-gradient(ellipse 90% 70% at 85% 75%, rgba(210, 185, 150, 0.35) 0%, transparent 50%),
+        repeating-linear-gradient(118deg, rgba(120, 95, 65, 0.04) 0 0.5px, transparent 0.5px 9px),
+        linear-gradient(165deg, #f0e6d4 0%, #e8dcc8 38%, #ddd0bc 72%, #d4c4ae 100%);
+    }
+    .bridge-card-inner::after {
+      content: '';
+      position: absolute;
+      inset: 5px;
+      border-radius: 7px;
+      pointer-events: none;
+      border: 1px solid rgba(100, 82, 58, 0.18);
+      box-shadow: inset 0 1px 0 rgba(255,255,255,0.25);
+    }
+    .bridge-card-text {
+      flex: 1 1 52%;
+      min-width: 0;
+      padding: 12px 10px 12px 14px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      position: relative;
+      z-index: 1;
+    }
+    .bridge-card .name {
+      font-weight: 700;
+      color: #2a2218;
+      font-size: 0.86rem;
+      margin-bottom: 8px;
+      line-height: 1.35;
+      letter-spacing: 0.02em;
+      text-shadow: 0 1px 0 rgba(255,255,255,0.35);
+    }
+    .bridge-card .meta {
+      font-size: 0.62rem;
+      color: #4a3f32;
+      line-height: 1.5;
+      display: flex;
+      align-items: flex-start;
+      gap: 5px;
+    }
+    .bridge-card .meta-lantern {
+      flex-shrink: 0;
+      margin-top: 1px;
+      opacity: 0.92;
+      filter: drop-shadow(0 0 4px rgba(212, 160, 60, 0.35));
+    }
+    .bridge-card .meta-lantern svg {
+      display: block;
+    }
+    .bridge-card .meta-line { flex: 1; min-width: 0; }
+    .bridge-card-visual {
+      flex: 0 0 46%;
+      min-width: 0;
+      position: relative;
+      z-index: 1;
+      overflow: hidden;
+      background:
+        radial-gradient(ellipse 70% 60% at 60% 45%, rgba(180, 200, 210, 0.15) 0%, transparent 70%),
+        linear-gradient(145deg, rgba(245, 238, 225, 0.5) 0%, rgba(210, 195, 175, 0.85) 100%);
+    }
+    .bridge-card-visual--illustration {
+      background-color: #e4d8c8;
+      background-image:
+        url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 48 48'%3E%3Cpath d='M8 30h32' stroke='%23908878' stroke-width='1.2' opacity='0.38' fill='none'/%3E%3Cpath d='M10 30 Q24 13 38 30' stroke='%235a4a38' stroke-width='2' fill='none' opacity='0.55'/%3E%3Cpath d='M14 30v8m10-8v8m10-8v8' stroke='%237a7060' stroke-width='1.1' opacity='0.4'/%3E%3C/svg%3E"),
+        radial-gradient(ellipse 80% 70% at 50% 55%, rgba(255,255,255,0.4) 0%, transparent 65%),
+        linear-gradient(155deg, #ebe2d4 0%, #d8cbb8 100%);
+      background-size: 52px 52px, 100% 100%, 100% 100%;
+      background-position: center, center, center;
+      background-repeat: no-repeat;
+    }
+    .bridge-card-visual--illustration[data-type="梁桥"] {
+      background-image:
+        url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 48 48'%3E%3Crect x='7' y='25' width='34' height='5' rx='1.5' fill='none' stroke='%235a4a38' stroke-width='1.6' opacity='0.6'/%3E%3Cpath d='M11 30v7m9-7v7m9-7v7m9-7v7' stroke='%237a7060' stroke-width='1.05' opacity='0.45'/%3E%3C/svg%3E"),
+        radial-gradient(ellipse 80% 70% at 50% 55%, rgba(255,255,255,0.35) 0%, transparent 65%),
+        linear-gradient(155deg, #ebe2d4 0%, #d8cbb8 100%);
+      background-size: 52px 52px, 100% 100%, 100% 100%;
+    }
+    .bridge-card-visual--illustration[data-type="索桥"] {
+      background-image:
+        url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 48 48'%3E%3Cpath d='M8 16h32M8 20h32' stroke='%23908878' stroke-width='1' opacity='0.35'/%3E%3Cpath d='M10 20 Q24 35 38 20' fill='none' stroke='%235a4a38' stroke-width='1.85' opacity='0.52'/%3E%3Cpath d='M12 16v4m24-4v4' stroke='%237a7060' stroke-width='1' opacity='0.42'/%3E%3C/svg%3E"),
+        radial-gradient(ellipse 80% 70% at 50% 55%, rgba(255,255,255,0.35) 0%, transparent 65%),
+        linear-gradient(155deg, #ebe2d4 0%, #d8cbb8 100%);
+      background-size: 52px 52px, 100% 100%, 100% 100%;
+    }
+    .bridge-card-visual--illustration[data-type="浮桥"] {
+      background-image:
+        url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 48 48'%3E%3Cpath d='M7 31h34' stroke='%238a7d72' stroke-width='1' opacity='0.4'/%3E%3Crect x='8' y='23' width='8' height='10' rx='1.2' fill='none' stroke='%235a4a38' opacity='0.5'/%3E%3Crect x='20' y='23' width='8' height='10' rx='1.2' fill='none' stroke='%235a4a38' opacity='0.5'/%3E%3Crect x='32' y='23' width='8' height='10' rx='1.2' fill='none' stroke='%235a4a38' opacity='0.5'/%3E%3C/svg%3E"),
+        radial-gradient(ellipse 80% 70% at 50% 55%, rgba(255,255,255,0.35) 0%, transparent 65%),
+        linear-gradient(155deg, #ebe2d4 0%, #d8cbb8 100%);
+      background-size: 52px 52px, 100% 100%, 100% 100%;
+    }
+    .bridge-card-img {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      object-position: center;
+      filter: sepia(0.28) contrast(1.05) saturate(0.88) brightness(1.02);
+      -webkit-mask-image: linear-gradient(90deg, transparent 0%, rgba(0,0,0,0.25) 8%, #000 28%, #000 100%);
+      mask-image: linear-gradient(90deg, transparent 0%, rgba(0,0,0,0.25) 8%, #000 28%, #000 100%);
+    }
+    @keyframes bridgeCardIn {
+      from { opacity: 0; transform: translateX(20px); }
+      to { opacity: 1; transform: translateX(0); }
+    }
+    .bridge-preview-box {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      width: 200px;
+      z-index: 9999;
+      pointer-events: auto;
+      background: linear-gradient(165deg, rgba(22, 28, 38, 0.98) 0%, rgba(14, 18, 26, 0.99) 100%);
+      border: 1px solid rgba(160, 130, 85, 0.45);
+      border-radius: 2px;
+      overflow: hidden;
+      box-shadow: 0 16px 40px rgba(0,0,0,0.55), inset 0 1px 0 rgba(255,255,255,0.04);
+    }
+    .bridge-preview-box .bridge-preview-title {
+      font-size: 0.72rem;
+      color: #c9a87a;
+      padding: 8px 10px;
+      border-bottom: 1px solid rgba(140, 115, 80, 0.35);
+      letter-spacing: 0.05em;
+      cursor: move;
+      user-select: none;
+      font-weight: 600;
+    }
+    .bridge-preview-box .bridge-preview-content {
+      padding: 8px;
+    }
+    .bridge-preview-box .bridge-preview-content[data-has-bridge="1"] .bridge-preview-flip {
+      cursor: pointer;
+    }
+    .bridge-preview-flip {
+      display: none;
+      perspective: 900px;
+      height: 110px;
+      border-radius: 6px;
+    }
+    .bridge-preview-flip-inner {
+      position: relative;
+      width: 100%;
+      height: 110px;
+      transition: transform 0.55s cubic-bezier(0.4, 0.2, 0.2, 1);
+      transform-style: preserve-3d;
+    }
+    .bridge-preview-flip-inner.is-flipped {
+      transform: rotateY(180deg);
+    }
+    .bridge-preview-face {
+      position: absolute;
+      inset: 0;
+      backface-visibility: hidden;
+      -webkit-backface-visibility: hidden;
+      border-radius: 6px;
+      overflow: hidden;
+      background: rgba(12, 18, 28, 0.75);
+    }
+    .bridge-preview-face-back {
+      transform: rotateY(180deg);
+    }
+    .bridge-preview-face img {
+      width: 100%;
+      height: 110px;
+      object-fit: cover;
+      display: block;
+      vertical-align: top;
+    }
+    .bridge-preview-wireframe-empty {
+      width: 100%;
+      height: 110px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 8px;
+      font-size: 0.72rem;
+      color: #8a7d72;
+      box-sizing: border-box;
+    }
+    .bridge-preview-box .bridge-preview-name {
+      font-weight: 600;
+      color: #e8e4dc;
+      font-size: 0.9rem;
+      margin-top: 6px;
+    }
+    .bridge-preview-box .bridge-preview-meta {
+      font-size: 0.72rem;
+      color: #9a8c7a;
+      margin-top: 2px;
+    }
+    .bridge-preview-box .bridge-preview-empty {
+      padding: 20px 10px;
+      text-align: center;
+      font-size: 0.75rem;
+      color: #7d7268;
+    }
+    /* 图鉴寻桥：双层描金 + 深灰底 + 两端祥云线描 + 朱文「鉴」（对齐设计稿） */
+    .search-wrap {
+      display: flex;
+      justify-content: center;
+      margin-top: 20px;
+    }
+    .search-chrome {
+      position: relative;
+      width: min(640px, 100%);
+    }
+    .search-gilt {
+      padding: 1px;
+      border-radius: 12px;
+      background: linear-gradient(160deg, #ebe0cc 0%, #c4ae88 42%, #a8926e 100%);
+      box-shadow: 0 6px 28px rgba(0, 0, 0, 0.42);
+    }
+    .search-rabbet {
+      padding: 2px;
+      border-radius: 11px;
+      background: linear-gradient(180deg, #12151a 0%, #0c0e12 100%);
+    }
+    .huiwen-frame--search {
+      border-width: 14px;
+      border-image-width: 14px;
+    }
+    .huiwen-frame .search-face {
+      border: none;
+      border-radius: 0;
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.05);
+    }
+    .search-face {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      min-height: 50px;
+      padding: 8px 10px 8px 8px;
+      border-radius: 9px;
+      background: #2c323b;
+      border: 1px solid rgba(212, 196, 168, 0.42);
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04);
+      transition: box-shadow 0.2s ease;
+    }
+    .search-face:focus-within {
+      box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, 0.07),
+        inset 0 0 0 1px rgba(212, 190, 150, 0.15);
+    }
+    .search-cloud {
+      flex-shrink: 0;
+      width: 42px;
+      height: 34px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: rgba(212, 200, 176, 0.88);
+      pointer-events: none;
+      opacity: 0.92;
+    }
+    .search-cloud--r {
+      transform: scaleX(-1);
+    }
+    .search-cloud svg {
+      width: 100%;
+      height: 100%;
+      display: block;
+    }
+    .search-wrap .search-icon {
+      flex-shrink: 0;
+      width: 18px;
+      height: 18px;
+      color: #e8d9b0;
+      opacity: 0.95;
+      pointer-events: none;
+    }
+    .search-face:focus-within .search-icon {
+      color: #f2e6c8;
+    }
+    .search-wrap input {
+      flex: 1;
+      min-width: 0;
+      width: 100%;
+      padding: 10px 6px;
+      font-size: 0.84rem;
+      font-weight: 400;
+      letter-spacing: 0.02em;
+      color: #e8e6e0;
+      background: transparent;
+      border: none;
+      border-radius: 0;
+      outline: none;
+      font-family: "Noto Serif SC", "PingFang SC", "Microsoft YaHei", sans-serif;
+    }
+    .search-wrap input::placeholder {
+      color: rgba(168, 166, 158, 0.82);
+      font-weight: 400;
+    }
+    .search-wrap input:focus { box-shadow: none; }
+    .search-seal {
+      flex-shrink: 0;
+      width: 38px;
+      height: 38px;
+      margin-left: 2px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: "Ma Shan Zheng", "Noto Serif SC", serif;
+      font-size: 1.08rem;
+      font-weight: 400;
+      line-height: 1;
+      color: rgba(255, 252, 248, 0.96);
+      background: linear-gradient(145deg, #e53935 0%, #b71c1c 48%, #7f1010 100%);
+      border: 1px solid rgba(255, 192, 180, 0.38);
+      border-radius: 3px;
+      box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, 0.2),
+        0 2px 10px rgba(0, 0, 0, 0.45);
+      text-shadow: 0 1px 1px rgba(0, 0, 0, 0.4);
+      user-select: none;
+    }
+    @media (max-width: 480px) {
+      .search-cloud {
+        display: none;
+      }
+      .search-face {
+        padding-left: 12px;
+        padding-right: 10px;
+      }
+    }
+    .search-results {
+      position: absolute;
+      top: calc(100% + 8px);
+      left: 0;
+      margin-top: 0;
+      width: 100%;
+      min-width: 280px;
+      max-height: 280px;
+      overflow-y: auto;
+      background: rgba(16, 20, 30, 0.98);
+      border: 1px solid rgba(160, 130, 85, 0.35);
+      border-radius: 6px;
+      box-shadow: 0 12px 36px rgba(0,0,0,0.55);
+      z-index: 200;
+      list-style: none;
+    }
+    .search-results li {
+      padding: 10px 12px;
+      font-size: 0.8rem;
+      color: #e8e4dc;
+      cursor: pointer;
+      border-bottom: 1px solid rgba(100, 90, 75, 0.2);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .search-results li:hover { background: rgba(90, 70, 45, 0.35); }
+    .search-results li .sr-name { font-weight: 600; color: #e8d5b7; }
+    .search-results li .sr-meta { font-size: 0.72rem; color: #8a7d72; }
+    .search-results .sr-empty { padding: 16px; text-align: center; color: #6d655c; font-size: 0.8rem; }
+    .confirm-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.5);
+      z-index: 9999;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+    }
+    .confirm-overlay.show { display: flex; }
+    .confirm-dialog {
+      background: linear-gradient(165deg, rgba(22, 28, 38, 0.98) 0%, rgba(14, 18, 26, 0.99) 100%);
+      border: 1px solid rgba(160, 130, 85, 0.4);
+      border-radius: 4px;
+      padding: 22px;
+      max-width: 320px;
+      width: 100%;
+      box-shadow: 0 20px 48px rgba(0,0,0,0.5);
+    }
+    .confirm-dialog .confirm-msg {
+      font-size: 0.92rem;
+      color: #e8e4dc;
+      margin-bottom: 20px;
+      line-height: 1.55;
+    }
+    .confirm-dialog .confirm-buttons {
+      display: flex;
+      gap: 12px;
+      justify-content: flex-start;
+    }
+    .confirm-dialog .confirm-buttons button {
+      padding: 8px 20px;
+      font-size: 0.88rem;
+      border-radius: 2px;
+      cursor: pointer;
+      border: 1px solid rgba(140, 120, 95, 0.45);
+      font-family: inherit;
+    }
+    .confirm-dialog .confirm-buttons .btn-confirm {
+      background: linear-gradient(180deg, #e8d5bc 0%, #a08055 100%);
+      color: #1a1510;
+      border-color: rgba(160, 130, 85, 0.6);
+    }
+    .confirm-dialog .confirm-buttons .btn-cancel {
+      background: transparent;
+      color: #8a7d72;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header class="museum-header">
+      <div class="site-nav">
+        <a href="index.html" data-i18n="nav.cover">封面</a>
+        <span class="nav-sep">·</span>
+        <a href="knowledge.html" data-i18n="nav.knowledge">智能驿站</a>
+        <span class="nav-sep">·</span>
+        <a href="#" class="qh-agent-nav" id="navArchivist" data-i18n="nav.archivist">档案员</a>
+        <span class="nav-sep">·</span>
+        <a href="closing.html" data-i18n="nav.closingAlt">结束语</a>
+        <span class="nav-sep">·</span>
+        <button type="button" class="lang-btn" data-lang-toggle aria-label="English">EN</button>
+        <button type="button" class="music-btn music-btn--solo" id="musicToggle" data-i18n="music.label" data-i18n-aria="music.aria" data-i18n-title="music.title" aria-pressed="false" aria-label="背景音乐：高山流水" title="背景音乐《高山流水》">音乐</button>
+      </div>
+      <h1 data-i18n="museum.title">千古飞虹：中国古代桥梁工程图鉴</h1>
+      <p class="museum-sub" data-i18n="museum.sub">从「小溪木桥」到「千古飞虹」</p>
+      <div class="search-wrap" id="searchWrap">
+        <div class="search-chrome" role="search" data-i18n-aria="museum.searchAria" aria-label="搜索桥梁">
+          <div class="search-gilt">
+            <div class="search-rabbet">
+              <div class="huiwen-frame huiwen-frame--search">
+              <div class="search-face">
+                <span class="search-cloud search-cloud--l" aria-hidden="true">
+                  <svg viewBox="0 0 56 36" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                    <path d="M6 26c0-10 8-16 16-14 2-8 12-12 20-6 4 6 2 14-6 18M10 28c8-4 16-10 22-18" stroke="currentColor" stroke-width="0.9" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M4 20c6-12 18-14 28-8 4-6 14-4 18 4" stroke="currentColor" stroke-width="0.75" stroke-linecap="round" opacity="0.85"/>
+                    <path d="M14 30c10-2 20-8 26-16" stroke="currentColor" stroke-width="0.65" stroke-linecap="round" opacity="0.7"/>
+                  </svg>
+                </span>
+                <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7.5"/><path d="m21 21-4.35-4.35"/></svg>
+                <input type="text" id="searchInput" data-i18n-placeholder="museum.searchPh" data-i18n-aria="museum.searchAria" placeholder="搜索桥梁名称、朝代、类型、省份…" autocomplete="off" aria-label="搜索桥梁">
+                <span class="search-seal" aria-hidden="true" data-i18n="museum.searchSeal" data-i18n-title="museum.searchTitle" title="图鉴检索">鉴</span>
+                <span class="search-cloud search-cloud--r" aria-hidden="true">
+                  <svg viewBox="0 0 56 36" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                    <path d="M6 26c0-10 8-16 16-14 2-8 12-12 20-6 4 6 2 14-6 18M10 28c8-4 16-10 22-18" stroke="currentColor" stroke-width="0.9" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M4 20c6-12 18-14 28-8 4-6 14-4 18 4" stroke="currentColor" stroke-width="0.75" stroke-linecap="round" opacity="0.85"/>
+                    <path d="M14 30c10-2 20-8 26-16" stroke="currentColor" stroke-width="0.65" stroke-linecap="round" opacity="0.7"/>
+                  </svg>
+                </span>
+              </div>
+              </div>
+            </div>
+          </div>
+          <ul class="search-results" id="searchResults" style="display:none"></ul>
+        </div>
+      </div>
+    </header>
+    <div class="bridge-scroll-section">
+      <h3 data-i18n="museum.timelineTitle">桥梁时光 · 左右滑动，桥在眼前依次出现</h3>
+      <div class="bridge-scroll-outer">
+        <div class="bridge-scroll-wrap" id="bridgeScrollWrap">
+          <div class="bridge-scroll" id="bridgeScroll"></div>
+        </div>
+      </div>
+    </div>
+    <div class="main">
+      <div class="left-panel" id="leftPanel">
+        <div class="panel">
+          <h3 data-i18n="museum.chartTech">技术与材料的演进</h3>
+          <div id="chartStackedBar" class="chart-box"></div>
+          <p class="tip" data-i18n="museum.chartTechTip">按朝代统计建桥数量，柱内按主要材质堆叠（明清铁索桥增多）</p>
+        </div>
+        <div class="panel">
+          <h3 data-i18n="museum.chartRegion">区域桥梁类型分布</h3>
+          <div id="chartRose" class="chart-box rose"></div>
+          <p class="tip" data-i18n="museum.chartRegionTip">全国分四区，每区为该区域内各类型桥梁数量（含全部桥梁），图例为桥梁类型</p>
+        </div>
+        <div class="panel">
+          <h3 data-i18n="museum.chartSpan">年份 × 跨度：科技跃迁</h3>
+          <div id="chartScatter" class="chart-box"></div>
+          <p class="tip" data-i18n="museum.chartSpanTip">赵州桥（隋）曾拉高当时跨度上限，如科技奇迹</p>
+        </div>
+      </div>
+      <div class="resize-handle" id="resizeLeft" data-i18n-title="museum.resizeLeft" title="拖动调整左侧边栏宽度"></div>
+      <div class="map-wrap">
+        <div id="mapDiv"></div>
+        <div class="map-zoom" role="group" data-i18n-aria="museum.zoomGroup" aria-label="地图缩放">
+          <button type="button" class="map-zoom-btn" id="mapZoomIn" data-i18n-title="museum.zoomIn" data-i18n-aria="museum.zoomIn" title="放大" aria-label="放大">+</button>
+          <button type="button" class="map-zoom-btn" id="mapZoomOut" data-i18n-title="museum.zoomOut" data-i18n-aria="museum.zoomOut" title="缩小" aria-label="缩小">−</button>
+        </div>
+      </div>
+      <div class="resize-handle" id="resizeRight" data-i18n-title="museum.resizeRight" title="拖动调整右侧边栏宽度"></div>
+      <div class="sidebar" id="rightSidebar">
+        <div class="panel">
+          <h3 data-i18n="museum.models">三大名桥 · 三维建模</h3>
+          <div class="model-bridge-list">
+            <a href="bridge-3d.html?name=赵州桥&amp;model=cvvggh" title="赵州桥 · 三维模型可浏览"><span data-i18n-bridge="赵州桥">赵州桥</span><span class="model-tag model-tag--glb">entry</span></a>
+            <a href="bridge-3d.html?name=卢沟桥&amp;model=lugou" title="卢沟桥 · 三维模型（卢沟桥.glb）"><span data-i18n-bridge="卢沟桥">卢沟桥</span><span class="model-tag model-tag--glb">entry</span></a>
+            <a href="bridge-3d.html?name=洛阳桥&amp;model=luoyang" title="洛阳桥 · 三维模型（luoyang.glb）"><span data-i18n-bridge="洛阳桥">洛阳桥</span><span class="model-tag model-tag--glb">entry</span></a>
+          </div>
+        </div>
+        <div class="panel">
+          <h3 data-i18n="museum.types">桥梁类型</h3>
+          <div class="legend">
+            <span class="拱桥"><i></i><span data-i18n-field="拱桥">拱桥</span></span>
+            <span class="梁桥"><i></i><span data-i18n-field="梁桥">梁桥</span></span>
+            <span class="索桥"><i></i><span data-i18n-field="索桥">索桥</span></span>
+            <span class="浮桥"><i></i><span data-i18n-field="浮桥">浮桥</span></span>
+          </div>
+          <p class="tip" data-i18n="museum.dotTip">点大小 ≈ 最大单孔跨度</p>
+        </div>
+        <div class="panel timeline-wrap">
+          <label data-i18n="museum.yearAxis">时间轴（公元）</label>
+          <div class="year-display" id="yearDisplay">公元 200 年</div>
+          <div class="timeline-axis" id="timelineAxis" data-i18n-title="museum.yearAxisTitle" title="整条年份横轴点到哪跳到哪；也可拖动圆钮">
+            <input type="range" id="timeline" min="-1200" max="1911" value="200" step="10" data-i18n-aria="museum.yearAria" aria-label="年份时间轴，整条横轴点到哪跳到哪">
+          </div>
+          <p class="tip" data-i18n="museum.yearAxisTip">整条年份横轴点到哪跳到哪；拖圆钮可微调。</p>
+        </div>
+        <div class="panel rank-panel">
+          <h3 data-i18n="museum.rank">跨度 / 长度 Top 10</h3>
+          <div class="rank-tabs">
+            <span class="rank-tab active" data-metric="span" data-i18n="museum.rankSpan">按跨度</span>
+            <span class="rank-tab" data-metric="length" data-i18n="museum.rankLength">按长度</span>
+          </div>
+          <div class="rank-list-wrap">
+            <ul id="rankList" class="rank-list"></ul>
+          </div>
+        </div>
+      </div>
+    </div>
+    <footer class="footer">
+      <span data-i18n="museum.footerData">数据：1911 年以前中国古代桥梁 · 主题：中华优秀传统文化系列之六</span>
+      <div class="map-attribution">
+        <a href="https://www.tianditu.gov.cn/" target="_blank" rel="noopener" data-i18n="museum.tianditu">国家地理信息公共服务平台 天地图</a>
+        <span data-i18n="museum.footerMap">审图号：使用天地图在线服务时以天地图官网公布为准；若使用标准地图，请标注自然资源部标准地图审图号（如 GS(2019)xxxx 号）</span>
+      </div>
+    </footer>
+  </div>
+
+  <div id="confirmOverlay" class="confirm-overlay" aria-hidden="true">
+    <div class="confirm-dialog" role="alertdialog" aria-modal="true">
+      <p class="confirm-msg" id="confirmMsg"></p>
+      <div class="confirm-buttons">
+        <button type="button" class="btn-confirm" id="confirmOk" data-i18n="museum.ok">确定</button>
+        <button type="button" class="btn-cancel" id="confirmCancel" data-i18n="museum.cancel">取消</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    (function () {
+      var key = (window.TIANDITU_KEY || '').trim();
+      if (!key || key === '您的天地图API密钥') {
+        var miss = (window.BridgeI18n && window.BridgeI18n.t('museum.mapKeyMissing')) || '请在 config.js 中填写天地图 API Key';
+        document.getElementById('mapDiv').innerHTML = '<div style="padding:20px;text-align:center;">' + miss + '</div>';
+        return;
+      }
+      var s = document.createElement('script');
+      s.src = 'https://api.tianditu.gov.cn/api?v=4.0&tk=' + encodeURIComponent(key);
+      s.onload = function () { runApp(); };
+      s.onerror = function () {
+        var fail = (window.BridgeI18n && window.BridgeI18n.t('museum.mapFail')) || '天地图加载失败，请检查 Key 是否正确或网络连接。';
+        document.getElementById('mapDiv').innerHTML = '<div style="padding:20px;text-align:center;">' + fail + '</div>';
+      };
+      document.head.appendChild(s);
+
+      function runApp() {
+        function t(k, v) { return window.BridgeI18n ? window.BridgeI18n.t(k, v) : k; }
+        function f(zh) { return window.BridgeI18n ? window.BridgeI18n.field(zh) : zh; }
+        function bn(zh) { return window.BridgeI18n ? window.BridgeI18n.bridgeName(zh) : zh; }
+        function yl(year) { return window.BridgeI18n ? window.BridgeI18n.yearLabel(year) : String(year); }
+
+        var map = null;
+        var bridges = [];
+        var markers = [];
+        /* 地图标点按桥型分色：高饱和、浅描边，在底图上更易辨认 */
+        var typeColors = {
+          '拱桥': '#e83828',
+          '梁桥': '#18a858',
+          '索桥': '#1a9fe8',
+          '浮桥': '#f0a818'
+        };
+        var typeColorDefault = '#b06cf0';
+        var spanMin = 4, spanMax = 100;
+
+        function initMap() {
+          if (typeof T === 'undefined') return;
+          map = new T.Map('mapDiv', { minZoom: 3, maxZoom: 18 });
+          var center = new T.LngLat(105.5, 35.5);
+          map.centerAndZoom(center, 4);
+          var chinaSW = new T.LngLat(73, 18);
+          var chinaNE = new T.LngLat(135, 54);
+          if (typeof T.LngLatBounds !== 'undefined') {
+            var chinaBounds = new T.LngLatBounds(chinaSW, chinaNE);
+            if (map.setMaxBounds) map.setMaxBounds(chinaBounds);
+          }
+          bindMapZoomControls();
+          loadBridges();
+          loadChinaBoundary();
+          setTimeout(createBridgePreviewBox, 100);
+        }
+
+        function bindMapZoomControls() {
+          var mapEl = document.getElementById('mapDiv');
+          var zoomEl = document.querySelector('.map-zoom');
+          /* 必须挂进 #mapDiv：天地图初始化后图层很高，外侧按钮会被盖住 */
+          if (mapEl && zoomEl && zoomEl.parentNode !== mapEl) {
+            mapEl.appendChild(zoomEl);
+          }
+          var zoomInBtn = document.getElementById('mapZoomIn');
+          var zoomOutBtn = document.getElementById('mapZoomOut');
+          function bumpZoom(delta) {
+            if (!map) return;
+            try {
+              if (delta > 0 && typeof map.zoomIn === 'function') {
+                map.zoomIn();
+                return;
+              }
+              if (delta < 0 && typeof map.zoomOut === 'function') {
+                map.zoomOut();
+                return;
+              }
+            } catch (e) {}
+            var z = typeof map.getZoom === 'function' ? map.getZoom() : 4;
+            var next = Math.max(3, Math.min(18, z + delta));
+            if (typeof map.setZoom === 'function') map.setZoom(next);
+            else if (typeof map.centerAndZoom === 'function' && typeof map.getCenter === 'function') {
+              map.centerAndZoom(map.getCenter(), next);
+            }
+          }
+          if (zoomInBtn) zoomInBtn.addEventListener('click', function (e) {
+            e.preventDefault();
+            e.stopPropagation();
+            bumpZoom(1);
+          });
+          if (zoomOutBtn) zoomOutBtn.addEventListener('click', function (e) {
+            e.preventDefault();
+            e.stopPropagation();
+            bumpZoom(-1);
+          });
+        }
+
+        function createBridgePreviewBox() {
+          var mapEl = document.getElementById('mapDiv');
+          if (!mapEl) return;
+          var existing = document.getElementById('bridgePreviewBox');
+          if (existing) existing.remove();
+          var box = document.createElement('div');
+          box.className = 'bridge-preview-box';
+          box.id = 'bridgePreviewBox';
+          box.innerHTML = '<div class="bridge-preview-title" data-i18n="museum.previewTitle">时间轴对应桥梁 · 点击图翻转线稿（可拖动标题）</div><div class="bridge-preview-content"><div class="bridge-preview-flip" id="bridgePreviewFlip" data-i18n-title="museum.previewFlip" title="点击翻转：外观 ↔ 线稿"><div class="bridge-preview-flip-inner" id="bridgePreviewFlipInner"><div class="bridge-preview-face bridge-preview-face-front"><img id="bridgePreviewImgFront" src="" data-i18n-aria="museum.altAppearance" alt="外观"></div><div class="bridge-preview-face bridge-preview-face-back"><img id="bridgePreviewImgBack" src="" data-i18n-aria="museum.altWireframe" alt="线稿" style="display:none"><div id="bridgePreviewWireframeEmpty" class="bridge-preview-wireframe-empty" style="display:none" data-i18n="museum.noWireframe">该桥暂无线稿图资源</div></div></div></div><div class="bridge-preview-name" id="bridgePreviewName"></div><div class="bridge-preview-meta" id="bridgePreviewMeta"></div><div class="bridge-preview-empty" id="bridgePreviewEmpty" data-i18n="museum.previewEmpty">拖动时间轴查看该年份对应桥梁</div></div>';
+          mapEl.appendChild(box);
+          if (window.BridgeI18n) window.BridgeI18n.apply(box);
+          box.style.top = '10px';
+          box.style.right = '10px';
+          box.style.left = 'auto';
+
+          var titleEl = box.querySelector('.bridge-preview-title');
+          if (titleEl) {
+            titleEl.addEventListener('mousedown', function(e) {
+              e.preventDefault();
+              var startX = e.clientX;
+              var startY = e.clientY;
+              var rect = box.getBoundingClientRect();
+              var mapRect = mapEl.getBoundingClientRect();
+              var startLeft = rect.left - mapRect.left;
+              var startTop = rect.top - mapRect.top;
+              box.style.right = 'auto';
+              box.style.left = startLeft + 'px';
+              box.style.top = startTop + 'px';
+              function onMove(e2) {
+                var dx = e2.clientX - startX;
+                var dy = e2.clientY - startY;
+                var newLeft = startLeft + dx;
+                var newTop = startTop + dy;
+                var mr = mapEl.getBoundingClientRect();
+                var maxLeft = mr.width - box.offsetWidth;
+                var maxTop = mr.height - box.offsetHeight;
+                newLeft = Math.max(0, Math.min(maxLeft, newLeft));
+                newTop = Math.max(0, Math.min(maxTop, newTop));
+                box.style.left = newLeft + 'px';
+                box.style.top = newTop + 'px';
+              }
+              function onUp() {
+                document.removeEventListener('mousemove', onMove);
+                document.removeEventListener('mouseup', onUp);
+              }
+              document.addEventListener('mousemove', onMove);
+              document.addEventListener('mouseup', onUp);
+            });
+          }
+          var flipEl = document.getElementById('bridgePreviewFlip');
+          var flipInner = document.getElementById('bridgePreviewFlipInner');
+          if (flipEl && flipInner) {
+            flipEl.addEventListener('click', function (e) {
+              e.preventDefault();
+              e.stopPropagation();
+              var content = box.querySelector('.bridge-preview-content');
+              if (!content || content.getAttribute('data-has-bridge') !== '1') return;
+              flipInner.classList.toggle('is-flipped');
+            });
+            flipEl.addEventListener('mousedown', function (e) { e.stopPropagation(); });
+          }
+        }
+
+      function loadChinaBoundary() {
+        if (!map || !window.T) return;
+        var key = (window.TIANDITU_KEY || '').trim();
+        if (!key) return;
+        var url = 'https://api.tianditu.gov.cn/v2/administrative?keyword=中国&childLevel=0&extensions=true&tk=' + encodeURIComponent(key);
+        fetch(url)
+          .then(function(r) { return r.json(); })
+          .then(function(res) {
+            var boundary = res.boundary || (res.data && res.data.boundary);
+            var points = [];
+            if (boundary && typeof boundary === 'string') {
+              var pairs = boundary.split(';');
+              for (var i = 0; i < pairs.length; i++) {
+                var p = pairs[i].split(',');
+                if (p.length >= 2) {
+                  var lng = parseFloat(p[0]);
+                  var lat = parseFloat(p[1]);
+                  if (!isNaN(lng) && !isNaN(lat)) points.push(new T.LngLat(lng, lat));
+                }
+              }
+            } else if (boundary && boundary.length) {
+              for (var j = 0; j < boundary.length; j++) {
+                var c = boundary[j];
+                if (c && (c.lng != null || c[0] != null))
+                  points.push(new T.LngLat(c.lng != null ? c.lng : c[0], c.lat != null ? c.lat : c[1]));
+              }
+            }
+            if (points.length > 1) {
+              var border = new T.Polyline(points, {
+                weight: 4,
+                color: '#b89870',
+                opacity: 0.92
+              });
+              map.addOverLay(border);
+            } else {
+              drawChinaBoundaryFallback();
+            }
+          })
+          .catch(function() { drawChinaBoundaryFallback(); });
+      }
+
+      function drawChinaBoundaryFallback() {
+        if (!map || !window.T) return;
+        var sw = new T.LngLat(73, 18);
+        var se = new T.LngLat(135, 18);
+        var ne = new T.LngLat(135, 54);
+        var nw = new T.LngLat(73, 54);
+        var points = [sw, se, ne, nw, sw];
+        var border = new T.Polyline(points, { weight: 5, color: '#b89870', opacity: 0.88 });
+        map.addOverLay(border);
+      }
+
+      function loadBridges() {
+        var dataPromise = (typeof window.BRIDGES_DATA !== 'undefined' && Array.isArray(window.BRIDGES_DATA))
+          ? Promise.resolve(window.BRIDGES_DATA)
+          : fetch('data/bridges.json').then(function (r) { return r.json(); });
+        dataPromise
+          .then(function (data) {
+            bridges = data || [];
+            var year = parseInt(document.getElementById('timeline').value, 10);
+            var urlYear = new URLSearchParams(window.location.search).get('year');
+            if (urlYear) {
+              var y = parseInt(urlYear, 10);
+              if (!isNaN(y) && y >= -1200 && y <= 1911) {
+                year = y;
+                document.getElementById('timeline').value = y;
+              }
+            }
+            updateYearDisplay(year);
+            renderBridges(year);
+            updateCharts(year);
+            updateBridgePreview(getCurrentBridge(year));
+            renderBridgeScroll();
+          })
+          .catch(function () {
+            bridges = [];
+            document.getElementById('mapDiv').innerHTML = '<div style="padding:20px;">请将 data/bridges.json 或 data/bridges-data.js 放在正确路径并刷新。</div>';
+          });
+      }
+
+      function normDynasty(d) {
+        if (!d) return '其他';
+        if (d === '南宋') return '宋';
+        return d;
+      }
+      function normMaterial(m) {
+        if (!m) return '其他';
+        if (m === '石') return '石';
+        if (m.indexOf('木') !== -1 && m.indexOf('石') !== -1) return '木/石';
+        if (m.indexOf('铁') !== -1) return '铁';
+        if (m === '木') return '木';
+        return '其他';
+      }
+      var regionOrder = ['江南水乡', '西南峡谷', '北方·中原', '岭南及其他'];
+      function getRegion(province) {
+        if (!province) return '岭南及其他';
+        var jiangnan = ['江苏省', '浙江省', '安徽省', '江西省', '上海市', '福建省'];
+        var xinan = ['四川省', '云南省', '贵州省', '西藏', '广西壮族自治区'];
+        var north = ['北京市', '河北省', '山西省', '陕西省', '河南省'];
+        var match = function(arr) { return arr.some(function(p) { return province.indexOf(p) !== -1 || p.indexOf(province) !== -1; }); };
+        if (match(jiangnan)) return '江南水乡';
+        if (match(xinan)) return '西南峡谷';
+        if (match(north)) return '北方·中原';
+        return '岭南及其他';
+      }
+      function resizeCharts() {
+        if (chartStacked) chartStacked.resize();
+        if (chartRose) chartRose.resize();
+        if (chartScatter) chartScatter.resize();
+      }
+
+      function getCurrentBridge(year) {
+        var list = (bridges || []).filter(function(b) { return b.year != null && b.year <= year; });
+        if (list.length === 0) return null;
+        list = list.slice().sort(function(a, b) { return b.year - a.year; });
+        return list[0];
+      }
+
+      function tryLoadImageFromUrls(img, urls, onDone) {
+        var i = 0;
+        function next() {
+          if (i >= urls.length) {
+            img.removeAttribute('src');
+            img.style.display = 'none';
+            if (onDone) onDone(false);
+            return;
+          }
+          img.onload = function () {
+            img.style.display = 'block';
+            if (onDone) onDone(true);
+          };
+          img.onerror = function () {
+            i++;
+            next();
+          };
+          img.src = urls[i];
+        }
+        next();
+      }
+
+      /** 与详情页「外观图」一致：本地外观图优先，其次数据中的 image */
+      function getAppearanceImageUrls(bridge) {
+        var nm = bridge && bridge.name ? bridge.name : '';
+        return ['桥/' + nm + ' 外观图.jpg', '桥/' + nm + ' 外观图.png'].concat(bridge && bridge.image ? [bridge.image] : []);
+      }
+
+      function updateBridgePreview(bridge) {
+        var imgFront = document.getElementById('bridgePreviewImgFront');
+        var imgBack = document.getElementById('bridgePreviewImgBack');
+        var wireEmpty = document.getElementById('bridgePreviewWireframeEmpty');
+        var flipInner = document.getElementById('bridgePreviewFlipInner');
+        var flipWrap = document.getElementById('bridgePreviewFlip');
+        var contentEl = document.querySelector('.bridge-preview-box .bridge-preview-content');
+        var nameEl = document.getElementById('bridgePreviewName');
+        var metaEl = document.getElementById('bridgePreviewMeta');
+        var emptyEl = document.getElementById('bridgePreviewEmpty');
+        if (!imgFront || !imgBack || !nameEl || !metaEl || !emptyEl) return;
+        if (flipInner) flipInner.classList.remove('is-flipped');
+        if (contentEl) {
+          contentEl.removeAttribute('data-has-bridge');
+          contentEl.removeAttribute('data-preview-bridge');
+        }
+        if (wireEmpty) wireEmpty.style.display = 'none';
+        imgBack.style.display = 'none';
+        if (!bridge) {
+          imgFront.style.display = 'none';
+          imgFront.removeAttribute('src');
+          nameEl.textContent = '';
+          nameEl.removeAttribute('data-name');
+          metaEl.textContent = '';
+          emptyEl.style.display = 'block';
+          emptyEl.textContent = t('museum.previewNoYear');
+          if (flipWrap) flipWrap.style.display = 'none';
+          return;
+        }
+        if (flipWrap) flipWrap.style.display = 'block';
+        emptyEl.style.display = 'none';
+        var nm = bridge.name || '';
+        nameEl.setAttribute('data-name', nm);
+        if (contentEl) {
+          contentEl.setAttribute('data-has-bridge', '1');
+          contentEl.setAttribute('data-preview-bridge', nm);
+        }
+        var appearanceUrls = getAppearanceImageUrls(bridge);
+        var wireUrls = [
+          '桥/' + nm + ' 线稿图.png',
+          '桥/' + nm + ' 线稿图.jpg',
+          '桥/' + nm + '  线稿图.png',
+          '桥/' + nm + '  线稿图.jpg'
+        ];
+        tryLoadImageFromUrls(imgFront, appearanceUrls, null);
+        tryLoadImageFromUrls(imgBack, wireUrls, function (ok) {
+          var c = document.querySelector('.bridge-preview-box .bridge-preview-content');
+          if (!c || c.getAttribute('data-preview-bridge') !== nm) return;
+          if (wireEmpty) {
+            if (ok) wireEmpty.style.display = 'none';
+            else wireEmpty.style.display = 'flex';
+          }
+        });
+        nameEl.textContent = nm;
+        var yearStr = bridge.year != null ? yl(bridge.year) : '';
+        nameEl.textContent = bn(bridge.name || '');
+        metaEl.textContent = (f(bridge.dynasty) || '') + (yearStr ? ' · ' + yearStr : '') + (bridge.type ? ' · ' + f(bridge.type) : '') + ' · ' + t('museum.previewMetaFlip');
+      }
+
+      var chartStacked = null;
+      var chartRose = null;
+      var chartScatter = null;
+      var rankMetric = 'span';
+      function updateCharts(year) {
+        var list = (bridges || []).filter(function(b) { return b.year <= year; });
+        var dynastyOrder = ['夏', '商', '周', '汉', '晋', '隋', '唐', '宋', '金', '元', '明', '清'];
+        var materialOrder = ['石', '木', '木/石', '铁', '其他'];
+        var typeOrder = ['拱桥', '梁桥', '索桥', '浮桥'];
+
+        var byDynasty = {};
+        dynastyOrder.forEach(function(d) { byDynasty[d] = {}; materialOrder.forEach(function(m) { byDynasty[d][m] = 0; }); });
+        list.forEach(function(b) {
+          var d = normDynasty(b.dynasty);
+          var m = normMaterial(b.material || '');
+          if (!byDynasty[d]) byDynasty[d] = {}; materialOrder.forEach(function(x) { if (!byDynasty[d][x]) byDynasty[d][x] = 0; });
+          if (materialOrder.indexOf(m) !== -1) byDynasty[d][m]++;
+          else byDynasty[d]['其他'] = (byDynasty[d]['其他'] || 0) + 1;
+        });
+        var xAxisData = dynastyOrder.filter(function(d) {
+          return materialOrder.some(function(m) { return (byDynasty[d] && byDynasty[d][m]) > 0; });
+        });
+        var materialColors = { '石': '#7a6b5a', '木': '#5d4e37', '木/石': '#8b7d6b', '铁': '#a85c42', '其他': '#6b7a82' };
+        var stackedSeries = materialOrder.map(function(m) {
+          return {
+            name: f(m),
+            type: 'bar',
+            stack: 'total',
+            data: xAxisData.map(function(d) { return byDynasty[d] && byDynasty[d][m] ? byDynasty[d][m] : 0; }),
+            itemStyle: { color: materialColors[m] || '#9a8c98' }
+          };
+        });
+
+        if (typeof echarts !== 'undefined') {
+          var barEl = document.getElementById('chartStackedBar');
+          if (barEl) {
+            if (!chartStacked) chartStacked = echarts.init(barEl);
+            chartStacked.setOption({
+              backgroundColor: 'transparent',
+              tooltip: { trigger: 'axis', axisPointer: { type: 'shadow' }, backgroundColor: 'rgba(16,20,28,0.92)', borderColor: 'rgba(160,130,85,0.45)', textStyle: { color: '#e8e4dc', fontSize: 11 } },
+              legend: { data: materialOrder.map(f), bottom: 0, textStyle: { color: '#9a8c7a', fontSize: 9 } },
+              grid: { left: 36, right: 12, top: 8, bottom: 34, containLabel: true },
+              xAxis: { type: 'category', data: xAxisData.map(f), axisLabel: { color: '#c4bcb0', fontSize: 10 }, axisLine: { lineStyle: { color: 'rgba(120,100,75,0.35)' } } },
+              yAxis: { type: 'value', name: t('museum.buildCount'), nameTextStyle: { color: '#8a7d72' }, axisLabel: { color: '#c4bcb0' }, splitLine: { lineStyle: { color: 'rgba(120,100,75,0.12)' } } },
+              series: stackedSeries
+            }, true);
+          }
+
+          var roseColors = { '拱桥': '#e83828', '梁桥': '#18a858', '索桥': '#1a9fe8', '浮桥': '#f0a818' };
+          var unit = t('museum.bridgeUnit');
+          var roseLabel = { show: true, fontSize: 8, color: '#c4bcb0', formatter: function(p) { return p.value >= 1 ? f(p.name) + '\n' + p.value + unit : f(p.name); } };
+          var roseSeries = regionOrder.map(function(reg, i) {
+            var cx = (i % 2 === 0 ? 25 : 75) + '%';
+            var cy = (i < 2 ? 35 : 72) + '%';
+            var data = typeOrder.map(function(tp) {
+              var cnt = list.filter(function(b) { return getRegion(b.province) === reg && b.type === tp; }).length;
+              return { value: cnt > 0 ? cnt : 0.3, name: tp };
+            });
+            return { name: f(reg), type: 'pie', radius: ['9%', '26%'], center: [cx, cy], data: data, label: roseLabel, labelLine: { length: 2, length2: 1 }, itemStyle: { borderColor: 'rgba(12,16,24,0.9)', borderWidth: 1, color: function(p) { return roseColors[p.name] || '#8a7d72'; } }, roseType: 'area', emphasis: { itemStyle: { borderColor: 'rgba(220,190,150,0.6)', borderWidth: 1.5 }, label: { show: true } } };
+          });
+          var roseTitles = regionOrder.map(function(reg, i) {
+            var left = (i % 2 === 0 ? 22 : 72) + '%';
+            var top = (i < 2 ? 8 : 62) + '%';
+            return { text: f(reg), left: left, top: top, textStyle: { fontSize: 10, color: '#c9a87a', fontWeight: 'normal' }, textAlign: 'center' };
+          });
+          var roseOption = {
+            backgroundColor: 'transparent',
+            tooltip: { trigger: 'item', backgroundColor: 'rgba(16,20,28,0.92)', borderColor: 'rgba(160,130,85,0.45)', textStyle: { color: '#e8e4dc', fontSize: 11 }, formatter: function(p) { return p.seriesName + ' · ' + f(p.name) + '：' + (p.value >= 1 ? p.value + (unit ? ' ' + unit : '') : '0' + (unit ? ' ' + unit : '')); } },
+            title: roseTitles,
+            legend: { data: typeOrder.map(f), bottom: 0, itemWidth: 8, itemHeight: 8, itemGap: 4, textStyle: { color: '#9a8c7a', fontSize: 8 } },
+            series: roseSeries
+          };
+          var roseEl = document.getElementById('chartRose');
+          if (roseEl) {
+            if (!chartRose) chartRose = echarts.init(roseEl);
+            chartRose.setOption(roseOption, true);
+          }
+
+          var scatterData = list.filter(function(b) { return b.year != null && b.span != null && b.span > 0; }).map(function(b) {
+            return { year: b.year, span: b.span, name: b.name, isZhaozhou: b.name === '赵州桥' };
+          });
+          var scatterEl = document.getElementById('chartScatter');
+          if (scatterEl && typeof echarts !== 'undefined') {
+            if (!chartScatter) chartScatter = echarts.init(scatterEl);
+            var zhaozhou = scatterData.filter(function(d) { return d.isZhaozhou; });
+            var others = scatterData.filter(function(d) { return !d.isZhaozhou; });
+            chartScatter.setOption({
+              backgroundColor: 'transparent',
+              tooltip: { trigger: 'item', backgroundColor: 'rgba(16,20,28,0.92)', borderColor: 'rgba(160,130,85,0.45)', textStyle: { color: '#e8e4dc', fontSize: 11 }, formatter: function(p) { var d = p.data; var y = d[0] != null ? d[0] : d.year; var yearStr = yl(y); return bn(d[2] || d.name || '') + '<br/>' + yearStr + (d[1] != null ? ' · ' + t('museum.maxSpan') + ' ' + d[1] + ' m' : ''); } },
+              grid: { left: 40, right: 12, top: 8, bottom: 28, containLabel: true },
+              xAxis: { type: 'value', name: t('museum.yearAxisName'), nameTextStyle: { color: '#8a7d72' }, axisLabel: { color: '#c4bcb0', fontSize: 10 }, splitLine: { lineStyle: { color: 'rgba(120,100,75,0.1)' } } },
+              yAxis: { type: 'value', name: t('museum.spanAxisName'), nameTextStyle: { color: '#8a7d72' }, axisLabel: { color: '#c4bcb0', fontSize: 10 }, splitLine: { lineStyle: { color: 'rgba(120,100,75,0.12)' } } },
+              series: [
+                { name: t('museum.other'), type: 'scatter', data: others.map(function(d) { return [d.year, d.span, d.name]; }), symbolSize: 10, itemStyle: { color: '#5a7a8a' }, label: { show: false } },
+                { name: bn('赵州桥'), type: 'scatter', data: zhaozhou.map(function(d) { return [d.year, d.span, d.name]; }), symbolSize: 22, itemStyle: { color: '#d4a050', borderColor: '#c9a87a', borderWidth: 2 }, label: { show: true, formatter: bn('赵州桥'), color: '#e8d5b7', fontSize: 10 } }
+              ]
+            }, true);
+          }
+
+          updateRankList(bridges || [], rankMetric);
+        }
+      }
+
+      function updateRankList(list, metric) {
+        var ul = document.getElementById('rankList');
+        if (!ul) return;
+        var sorted = list.slice().filter(function(b) {
+          var v = metric === 'span' ? b.span : b.length;
+          return v != null && !isNaN(v) && v > 0;
+        }).sort(function(a, b) {
+          var va = metric === 'span' ? a.span : a.length;
+          var vb = metric === 'span' ? b.span : b.length;
+          return vb - va;
+        }).slice(0, 10);
+        ul.innerHTML = sorted.map(function(b, i) {
+          var val = metric === 'span' ? b.span : b.length;
+          var unit = metric === 'span' ? ' m' : ' m';
+          return '<li><span class="rank-num">' + (i + 1) + '</span><span class="rank-name" title="' + (b.name || '') + '">' + bn(b.name || '-') + '</span><span class="rank-value">' + val + unit + '</span></li>';
+        }).join('');
+      }
+
+      function renderBridgeScroll() {
+        var wrap = document.getElementById('bridgeScrollWrap');
+        var listEl = document.getElementById('bridgeScroll');
+        if (!wrap || !listEl || !bridges.length) return;
+        var sorted = bridges.slice().sort(function(a, b) { return (a.year || 0) - (b.year || 0); });
+        var lanternSvg = '<span class="meta-lantern" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 32" width="13" height="17" fill="none" aria-hidden="true"><path d="M12 2v3.5" stroke="#c98828" stroke-width="1.6" stroke-linecap="round"/><path d="M8.5 8.5h7L17 14H7l2.5-5.5z" stroke="#b07820" stroke-width="1.25" fill="rgba(200,150,60,0.12)"/><path d="M10 14h4v2.5M9 24h6v3" stroke="#8a6020" stroke-width="1.15" stroke-linecap="round"/></svg></span>';
+        listEl.innerHTML = sorted.map(function(b, i) {
+          var year = b.year != null ? b.year : '';
+          var yearParam = year !== '' && year != null ? year : 1911;
+          var detailUrl = 'bridge-detail.html?name=' + encodeURIComponent(b.name) + '&fromYear=' + yearParam;
+          var nameEsc = (b.name || '').replace(/"/g, '&quot;');
+          var typeEsc = String(b.type || '').replace(/"/g, '&quot;');
+          var metaRest = (f(b.type) || '') + ' · ' + (f(b.dynasty) || '') + (year !== '' && year != null ? ' ' + yl(year) : '');
+          return '<a href="' + detailUrl + '" class="bridge-card" data-name="' + nameEsc + '" data-year="' + yearParam + '" data-index="' + i + '" style="text-decoration:none;color:inherit;">' +
+            '<div class="bridge-card-inner">' +
+            '<div class="bridge-card-text">' +
+            '<div class="name">' + bn(b.name || '') + '</div>' +
+            '<div class="meta">' + lanternSvg + '<span class="meta-line">' + metaRest + '</span></div></div>' +
+            '<div class="bridge-card-visual" data-type="' + typeEsc + '" aria-hidden="true"><img class="bridge-card-img" alt="" loading="lazy" /></div>' +
+            '</div></a>';
+        }).join('');
+        var cards = listEl.querySelectorAll('.bridge-card');
+        sorted.forEach(function(b, idx) {
+          var card = cards[idx];
+          if (!card) return;
+          var visual = card.querySelector('.bridge-card-visual');
+          var imgEl = card.querySelector('.bridge-card-img');
+          if (!visual || !imgEl) return;
+          tryLoadImageFromUrls(imgEl, getAppearanceImageUrls(b), function (ok) {
+            if (!ok) visual.classList.add('bridge-card-visual--illustration');
+          });
+        });
+        var ticking = false;
+        function onScroll() {
+          if (!ticking) {
+            requestAnimationFrame(function() {
+              ticking = false;
+              var scrollLeft = wrap.scrollLeft;
+              var center = scrollLeft + wrap.clientWidth / 2;
+              var best = 0;
+              var bestDist = 1e9;
+              cards.forEach(function(card, idx) {
+                var left = card.offsetLeft - listEl.offsetLeft;
+                var cardCenter = left + card.offsetWidth / 2;
+                var d = Math.abs(cardCenter - center);
+                if (d < bestDist) { bestDist = d; best = idx; }
+              });
+              var y = sorted[best] && sorted[best].year != null ? sorted[best].year : parseInt(document.getElementById('timeline').value, 10);
+              var timelineEl = document.getElementById('timeline');
+              var tmin = timelineEl ? parseFloat(timelineEl.min) : -1200;
+              var tmax = timelineEl ? parseFloat(timelineEl.max) : 1911;
+              if (timelineEl && y >= tmin && y <= tmax) {
+                timelineEl.value = y;
+                updateYearDisplay(y);
+                renderBridges(y);
+                updateCharts(y);
+                updateBridgePreview(getCurrentBridge(y));
+              }
+            });
+            ticking = true;
+          }
+        }
+        wrap.removeEventListener('scroll', onScroll);
+        wrap.addEventListener('scroll', onScroll);
+      }
+
+      function makeIcon(type, span, name, id) {
+        var color = typeColors[type] || typeColorDefault;
+        var label = (name || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+        if (label.length > 4) label = label.slice(0, 3) + '…';
+        var fid = 'fs' + (id != null ? id : Math.random().toString(36).slice(2, 9));
+        var spanVal = (span != null && span > 0) ? span : spanMin;
+        var t = (spanVal - spanMin) / (spanMax - spanMin);
+        t = Math.max(0, Math.min(1, t));
+        var sizeScale = 0.78 + t * 0.95;
+        var totalW = Math.round(38 * sizeScale);
+        var totalH = Math.round(30 * sizeScale);
+        var pinPath = 'M12 0C5.37 0 0 5.37 0 12c0 5.25 4.5 9.5 12 20 7.5-10.5 12-14.75 12-20 0-6.63-5.37-12-12-12z';
+        var pinScale = 0.46 * sizeScale;
+        var pinW = 24 * pinScale;
+        var pinTx = (totalW - pinW) / 2;
+        var labelY = 9 * sizeScale;
+        var labelH = 15 * sizeScale;
+        var labelW = 30 * sizeScale;
+        var textY = labelY + labelH / 2 + 2.5;
+        var tipY = 22 * pinScale;
+        var fontSz = Math.max(6, Math.round(7.5 * sizeScale));
+        var pinCx = pinTx + pinW / 2;
+        var pinCy = 12 * pinScale;
+        var haloR = 13.5 * pinScale;
+        var svg = '<svg xmlns="http://www.w3.org/2000/svg" width="' + totalW + '" height="' + totalH + '" viewBox="0 0 ' + totalW + ' ' + totalH + '">' +
+          '<defs><filter id="' + fid + '" x="-60%" y="-50%" width="220%" height="200%">' +
+          '<feDropShadow dx="0" dy="1.2" stdDeviation="1.4" flood-color="#020408" flood-opacity="0.72"/>' +
+          '</filter></defs>' +
+          '<g filter="url(#' + fid + ')" transform="translate(' + pinTx + ',0) scale(' + pinScale + ')">' +
+          '<circle cx="12" cy="12" r="12.2" fill="rgba(255,255,255,0.92)"/>' +
+          '<path d="' + pinPath + '" fill="' + color + '" stroke="#ffffff" stroke-width="1.35" stroke-linejoin="round"/>' +
+          '<circle cx="12" cy="10.5" r="3.2" fill="rgba(255,255,255,0.55)"/>' +
+          '</g>' +
+          '<circle cx="' + pinCx + '" cy="' + pinCy + '" r="' + haloR + '" fill="none" stroke="' + color + '" stroke-width="' + (1.8 * sizeScale).toFixed(2) + '" opacity="0.55"/>' +
+          '<rect x="' + (totalW/2 - labelW/2) + '" y="' + labelY + '" width="' + labelW + '" height="' + labelH + '" rx="2.5" fill="rgba(8,10,16,0.92)" stroke="' + color + '" stroke-width="1.1"/>' +
+          '<rect x="' + (totalW/2 - labelW/2) + '" y="' + labelY + '" width="3.5" height="' + labelH + '" rx="2.5" fill="' + color + '"/>' +
+          '<text x="' + (totalW/2) + '" y="' + textY + '" text-anchor="middle" fill="#fff8ee" font-size="' + fontSz + '" font-weight="600" font-family="Noto Serif SC, SimSun, serif">' + label + '</text>' +
+          '</svg>';
+        var url = 'data:image/svg+xml;utf-8,' + encodeURIComponent(svg);
+        return new T.Icon({
+          iconUrl: url,
+          iconSize: new T.Point(totalW, totalH),
+          iconAnchor: new T.Point(totalW / 2, Math.round(tipY))
+        });
+      }
+
+      function renderBridges(year) {
+        if (!map || !window.T) return;
+        for (var i = 0; i < markers.length; i++) {
+          map.removeOverLay(markers[i]);
+        }
+        markers = [];
+        var filtered = bridges.filter(function (b) { return b.year <= year; });
+        for (var j = 0; j < filtered.length; j++) {
+          var b = filtered[j];
+          var pt = new T.LngLat(b.lon, b.lat);
+          var icon = makeIcon(b.type, b.span, b.name, j);
+          var marker = new T.Marker(pt, { icon: icon });
+          var detailUrl = 'bridge-detail.html?name=' + encodeURIComponent(b.name) + '&fromYear=' + year;
+          var info = '<div style="padding:10px;min-width:200px;color:#1a1510;">' +
+            '<strong>' + bn(b.name) + '</strong><br/>' +
+            (b.dynasty ? f(b.dynasty) + ' · ' : '') + (b.year != null ? yl(b.year) : '') + '<br/>' +
+            (f(b.province) || '') + (b.city ? ' ' + b.city : '') + '<br/>' +
+            t('museum.typeLabel') + '：' + (f(b.type) || '-') + ' · ' + t('museum.maxSpan') + ' ' + (b.span != null ? b.span + ' m' : '-') + '<br/>' +
+            (b.poetry ? '「' + b.poetry + '」' : '') +
+            '<br/><a href="' + detailUrl + '" style="display:inline-block;margin-top:6px;padding:5px 12px;background:linear-gradient(180deg,#e8d5bc,#a08055);color:#1a1510;text-decoration:none;border-radius:2px;font-size:12px;border:1px solid rgba(120,95,65,0.4);">' + t('museum.detailLink') + '</a></div>';
+          var infoWin = new T.InfoWindow(info);
+          marker.addEventListener('click', function (m, w) {
+            return function () { m.openInfoWindow(w); };
+          }(marker, infoWin));
+          map.addOverLay(marker);
+          markers.push(marker);
+        }
+      }
+
+      function updateYearDisplay(year) {
+        var el = document.getElementById('yearDisplay');
+        el.textContent = yl(year);
+      }
+
+      function searchBridges(keyword) {
+        var k = (keyword || '').trim().toLowerCase();
+        if (!k) return [];
+        return (bridges || []).filter(function(b) {
+          var name = (b.name || '').toLowerCase();
+          var nameEn = (bn(b.name) || '').toLowerCase();
+          var dynasty = (b.dynasty || '').toLowerCase();
+          var dynastyEn = (f(b.dynasty) || '').toLowerCase();
+          var type = (b.type || '').toLowerCase();
+          var typeEn = (f(b.type) || '').toLowerCase();
+          var province = (b.province || '').toLowerCase();
+          var provinceEn = (f(b.province) || '').toLowerCase();
+          var city = (b.city || '').toLowerCase();
+          var poetry = (b.poetry || '').toLowerCase();
+          return name.indexOf(k) !== -1 || nameEn.indexOf(k) !== -1 ||
+            dynasty.indexOf(k) !== -1 || dynastyEn.indexOf(k) !== -1 ||
+            type.indexOf(k) !== -1 || typeEn.indexOf(k) !== -1 ||
+            province.indexOf(k) !== -1 || provinceEn.indexOf(k) !== -1 ||
+            city.indexOf(k) !== -1 || poetry.indexOf(k) !== -1;
+        });
+      }
+
+      function showConfirmModal(message) {
+        return new Promise(function(resolve) {
+          var overlay = document.getElementById('confirmOverlay');
+          var msgEl = document.getElementById('confirmMsg');
+          var btnOk = document.getElementById('confirmOk');
+          var btnCancel = document.getElementById('confirmCancel');
+          if (!overlay || !msgEl || !btnOk || !btnCancel) { resolve(false); return; }
+          msgEl.textContent = message || t('museum.confirmDefault');
+          overlay.classList.add('show');
+          overlay.setAttribute('aria-hidden', 'false');
+          function close(result) {
+            overlay.classList.remove('show');
+            overlay.setAttribute('aria-hidden', 'true');
+            btnOk.removeEventListener('click', onOk);
+            btnCancel.removeEventListener('click', onCancel);
+            overlay.removeEventListener('click', onBackdrop);
+            resolve(result);
+          }
+          function onOk() { close(true); }
+          function onCancel() { close(false); }
+          function onBackdrop(e) { if (e.target === overlay) close(false); }
+          btnOk.addEventListener('click', onOk);
+          btnCancel.addEventListener('click', onCancel);
+          overlay.addEventListener('click', onBackdrop);
+        });
+      }
+
+      function focusOnBridge(bridge) {
+        if (!bridge) return;
+        var y = bridge.year != null ? Math.max(-1200, Math.min(1911, bridge.year)) : parseInt(document.getElementById('timeline').value, 10);
+        var timelineEl = document.getElementById('timeline');
+        if (timelineEl) timelineEl.value = y;
+        updateYearDisplay(y);
+        renderBridges(y);
+        updateCharts(y);
+        updateBridgePreview(bridge);
+        var wrap = document.getElementById('bridgeScrollWrap');
+        var listEl = document.getElementById('bridgeScroll');
+        if (wrap && listEl && listEl.children.length) {
+          var sorted = bridges.slice().sort(function(a, b) { return (a.year || 0) - (b.year || 0); });
+          var idx = -1;
+          for (var i = 0; i < sorted.length; i++) { if (sorted[i].name === bridge.name) { idx = i; break; } }
+          if (idx >= 0 && listEl.children[idx]) {
+            var card = listEl.children[idx];
+            var targetScroll = card.offsetLeft - wrap.clientWidth / 2 + card.offsetWidth / 2;
+            wrap.scrollTo({ left: Math.max(0, targetScroll), behavior: 'smooth' });
+          }
+        }
+        if (map && window.T && bridge.lon != null && bridge.lat != null) {
+          map.panTo(new T.LngLat(bridge.lon, bridge.lat));
+        }
+      }
+
+      function setupSearch() {
+        var input = document.getElementById('searchInput');
+        var resultsEl = document.getElementById('searchResults');
+        var wrap = document.getElementById('searchWrap');
+        if (!input || !resultsEl) return;
+        var debounceTimer = null;
+        input.addEventListener('input', function() {
+          clearTimeout(debounceTimer);
+          var kw = input.value.trim();
+          resultsEl.style.display = 'none';
+          if (!kw) return;
+          debounceTimer = setTimeout(function() {
+            var list = searchBridges(kw);
+            resultsEl.innerHTML = '';
+            if (list.length === 0) {
+              resultsEl.innerHTML = '<li class="sr-empty">' + t('museum.noMatch') + '</li>';
+            } else {
+              list.slice(0, 10).forEach(function(b) {
+                var li = document.createElement('li');
+                var yearStr = b.year != null ? yl(b.year) : '';
+                li.innerHTML = '<span class="sr-name">' + bn(b.name || '') + '</span><span class="sr-meta">' + (f(b.dynasty) || '') + (yearStr ? ' · ' + yearStr : '') + ' · ' + (f(b.type) || '') + '</span>';
+                li.addEventListener('click', function() {
+                  showConfirmModal(t('museum.confirmJump', { name: bn(b.name || '') })).then(function(ok) {
+                    if (ok) {
+                      var year = b.year != null ? b.year : 1911;
+                      if (window.QianhongAgent) {
+                        window.QianhongAgent.goDetail(b.name, year, 'museum_map');
+                      } else {
+                        window.location.href = 'bridge-detail.html?name=' + encodeURIComponent(b.name) + '&fromYear=' + year;
+                      }
+                    }
+                  });
+                });
+                resultsEl.appendChild(li);
+              });
+            }
+            resultsEl.style.display = 'block';
+          }, 150);
+        });
+        input.addEventListener('keydown', function(e) {
+          if (e.key === 'Escape') { resultsEl.style.display = 'none'; input.blur(); return; }
+          var items = resultsEl.querySelectorAll('li:not(.sr-empty)');
+          if (e.key === 'Enter' && items.length > 0) {
+            var first = items[0];
+            var idx = Array.prototype.indexOf.call(resultsEl.children, first);
+            var list = searchBridges(input.value.trim());
+            if (list[idx]) {
+              var b = list[idx];
+              showConfirmModal(t('museum.confirmJump', { name: bn(b.name || '') })).then(function(ok) {
+                if (ok) {
+                  var year = b.year != null ? b.year : 1911;
+                  if (window.QianhongAgent) {
+                    window.QianhongAgent.goDetail(b.name, year, 'museum_map');
+                  } else {
+                    window.location.href = 'bridge-detail.html?name=' + encodeURIComponent(b.name) + '&fromYear=' + year;
+                  }
+                }
+              });
+            }
+            e.preventDefault();
+          }
+        });
+        document.addEventListener('click', function(e) {
+          if (wrap && !wrap.contains(e.target)) resultsEl.style.display = 'none';
+        });
+      }
+
+      var timeline = document.getElementById('timeline');
+      var timelineAxis = document.getElementById('timelineAxis');
+      if (timeline) {
+        /* 轨道点击/拖动：与滑块钮两端留白对齐，避免与原生位置打架导致来回横跳 */
+        var THUMB_INSET = 10;
+        function timelineValueFromClientX(el, clientX) {
+          var rect = el.getBoundingClientRect();
+          if (rect.width <= 0) return parseInt(el.value, 10);
+          var min = parseFloat(el.min);
+          var max = parseFloat(el.max);
+          var step = parseFloat(el.step);
+          if (isNaN(step) || step <= 0) step = 1;
+          var trackW = Math.max(1, rect.width - THUMB_INSET * 2);
+          var ratio = (clientX - rect.left - THUMB_INSET) / trackW;
+          ratio = Math.max(0, Math.min(1, ratio));
+          var raw = min + ratio * (max - min);
+          var stepped = Math.round((raw - min) / step) * step + min;
+          stepped = Math.max(min, Math.min(max, stepped));
+          return Math.round(stepped);
+        }
+        /** 点在滑块钮上则交给浏览器原生拖动，自定义逻辑不拦截 */
+        function isPointerOnThumb(el, clientX) {
+          var rect = el.getBoundingClientRect();
+          if (rect.width <= 0) return false;
+          var min = parseFloat(el.min);
+          var max = parseFloat(el.max);
+          var val = parseFloat(el.value);
+          var trackW = Math.max(1, rect.width - THUMB_INSET * 2);
+          var r = (val - min) / (max - min);
+          var thumbCenter = rect.left + THUMB_INSET + r * trackW;
+          return Math.abs(clientX - thumbCenter) < 22;
+        }
+        var timelineTrackDragging = false;
+        var timelineLastScrollYear = null;
+        function scrollBridgeCardForYear(y, smooth, force) {
+          var wrap = document.getElementById('bridgeScrollWrap');
+          var listEl = document.getElementById('bridgeScroll');
+          if (!wrap || !listEl) return;
+          if (!force && timelineLastScrollYear === y) return;
+          timelineLastScrollYear = y;
+          var cards = listEl.querySelectorAll('.bridge-card');
+          for (var i = cards.length - 1; i >= 0; i--) {
+            var yr = parseInt(cards[i].getAttribute('data-year'), 10);
+            if (!isNaN(yr) && yr <= y) {
+              cards[i].scrollIntoView({
+                behavior: smooth ? 'smooth' : 'auto',
+                block: 'nearest',
+                inline: 'center'
+              });
+              break;
+            }
+          }
+        }
+        function setTimelineFromPointer(clientX) {
+          var next = timelineValueFromClientX(timeline, clientX);
+          if (String(next) !== timeline.value) {
+            timeline.value = String(next);
+            timeline.dispatchEvent(new Event('input', { bubbles: true }));
+          }
+        }
+        function onTimelineInput() {
+          var y = parseInt(timeline.value, 10);
+          updateYearDisplay(y);
+          renderBridges(y);
+          updateCharts(y);
+          updateBridgePreview(getCurrentBridge(y));
+          scrollBridgeCardForYear(y, !timelineTrackDragging);
+        }
+        timeline.addEventListener('input', onTimelineInput);
+        function onTimelineTrackPointerDown(e) {
+          if (e.pointerType === 'mouse' && e.button !== 0) return;
+          if (e.target === timeline && isPointerOnThumb(timeline, e.clientX)) return;
+          timelineTrackDragging = true;
+          try { timeline.setPointerCapture(e.pointerId); } catch (err) {}
+          e.preventDefault();
+          setTimelineFromPointer(e.clientX);
+        }
+        function onTimelineTrackPointerMove(e) {
+          if (!timelineTrackDragging) return;
+          e.preventDefault();
+          setTimelineFromPointer(e.clientX);
+        }
+        function onTimelineTrackPointerEnd(e) {
+          if (!timelineTrackDragging) return;
+          timelineTrackDragging = false;
+          try { timeline.releasePointerCapture(e.pointerId); } catch (err) {}
+          var y = parseInt(timeline.value, 10);
+          scrollBridgeCardForYear(y, true, true);
+        }
+        var trackHost = timelineAxis || timeline;
+        trackHost.addEventListener('pointerdown', onTimelineTrackPointerDown, { passive: false, capture: true });
+        timeline.addEventListener('pointermove', onTimelineTrackPointerMove, { passive: false });
+        timeline.addEventListener('pointerup', onTimelineTrackPointerEnd);
+        timeline.addEventListener('pointercancel', onTimelineTrackPointerEnd);
+        timeline.addEventListener('lostpointercapture', function () {
+          timelineTrackDragging = false;
+        });
+      }
+      var rankTabs = document.querySelectorAll('.rank-tab');
+      rankTabs.forEach(function(tab) {
+        tab.addEventListener('click', function() {
+          rankTabs.forEach(function(t) { t.classList.remove('active'); });
+          this.classList.add('active');
+          rankMetric = this.getAttribute('data-metric') || 'span';
+          var y = parseInt(document.getElementById('timeline').value, 10);
+          updateRankList(bridges || [], rankMetric);
+        });
+      });
+
+      window.addEventListener('resize', resizeCharts);
+
+      function setupResizablePanels() {
+        var leftPanel = document.getElementById('leftPanel');
+        var rightSidebar = document.getElementById('rightSidebar');
+        var handleLeft = document.getElementById('resizeLeft');
+        var handleRight = document.getElementById('resizeRight');
+        if (!leftPanel || !rightSidebar || !handleLeft || !handleRight) return;
+
+        var leftMin = 280, leftMax = 520;
+        var rightMin = 180, rightMax = 400;
+
+        function onLeftDragStart(e) {
+          e.preventDefault();
+          var startX = e.clientX;
+          var startW = leftPanel.offsetWidth;
+          handleLeft.classList.add('active');
+          function onMove(e2) {
+            var dx = e2.clientX - startX;
+            var w = Math.max(leftMin, Math.min(leftMax, startW + dx));
+            leftPanel.style.width = w + 'px';
+            resizeCharts();
+          }
+          function onUp() {
+            handleLeft.classList.remove('active');
+            document.removeEventListener('mousemove', onMove);
+            document.removeEventListener('mouseup', onUp);
+          }
+          document.addEventListener('mousemove', onMove);
+          document.addEventListener('mouseup', onUp);
+        }
+        function onRightDragStart(e) {
+          e.preventDefault();
+          var startX = e.clientX;
+          var startW = rightSidebar.offsetWidth;
+          handleRight.classList.add('active');
+          function onMove(e2) {
+            var dx = e2.clientX - startX;
+            var w = Math.max(rightMin, Math.min(rightMax, startW - dx));
+            rightSidebar.style.width = w + 'px';
+            resizeCharts();
+          }
+          function onUp() {
+            handleRight.classList.remove('active');
+            document.removeEventListener('mousemove', onMove);
+            document.removeEventListener('mouseup', onUp);
+          }
+          document.addEventListener('mousemove', onMove);
+          document.addEventListener('mouseup', onUp);
+        }
+        handleLeft.addEventListener('mousedown', onLeftDragStart);
+        handleRight.addEventListener('mousedown', onRightDragStart);
+      }
+      setupResizablePanels();
+      setupSearch();
+      (function applySearchQueryFromUrl() {
+        var q = new URLSearchParams(window.location.search).get('q');
+        if (!q) return;
+        var input = document.getElementById('searchInput');
+        if (!input) return;
+        input.value = q;
+        input.dispatchEvent(new Event('input', { bubbles: true }));
+        setTimeout(function () { input.focus(); }, 120);
+      })();
+      (function setupBridgeCardConfirm() {
+        var wrap = document.getElementById('bridgeScrollWrap');
+        if (!wrap) return;
+        wrap.addEventListener('click', function(e) {
+          var card = e.target.closest('.bridge-card');
+          if (!card) return;
+          e.preventDefault();
+          var name = card.getAttribute('data-name');
+          var year = card.getAttribute('data-year') || '1911';
+          showConfirmModal(t('museum.confirmJump', { name: bn(name || '') })).then(function(ok) {
+            if (ok) {
+              if (window.QianhongAgent) {
+                window.QianhongAgent.goDetail(name || '', year, 'museum_map');
+              } else {
+                window.location.href = 'bridge-detail.html?name=' + encodeURIComponent(name || '') + '&fromYear=' + year;
+              }
+            }
+          });
+        });
+      })();
+
+      document.addEventListener('bridge:langchange', function () {
+        var y = parseInt(document.getElementById('timeline').value, 10);
+        updateYearDisplay(y);
+        renderBridgeScroll();
+        updateCharts(y);
+        updateRankList(bridges, rankMetric);
+        renderBridges(y);
+        updateBridgePreview(getCurrentBridge(y));
+        var previewBox = document.getElementById('bridgePreviewBox');
+        if (previewBox && window.BridgeI18n) window.BridgeI18n.apply(previewBox);
+      });
+
+        if (document.readyState === 'loading') {
+          document.addEventListener('DOMContentLoaded', initMap);
+        } else {
+          initMap();
+        }
+      }
+    })();
+  </script>
+  <audio id="bgMusic" loop playsinline preload="metadata">
+    <source src="assets/高山流水.mp3" type="audio/mpeg">
+  </audio>
+  <script src="assets/bg-music.js" defer></script>
+  <script>
+    (function () {
+      if (!window.QianhongAgent) return;
+      QianhongAgent.init({
+        getBridge: function () {
+          var el = document.getElementById('bridgePreviewName');
+          return (el && el.getAttribute('data-name')) || QianhongAgent.getFocusBridge() || '';
+        }
+      });
+      var nav = document.getElementById('navArchivist');
+      if (nav) {
+        nav.addEventListener('click', function (e) {
+          e.preventDefault();
+          QianhongAgent.openArchivist({ source: 'museum_map' });
+        });
+      }
+    })();
+  </script>
+</body>
+</html>
